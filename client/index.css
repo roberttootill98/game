@@ -1,0 +1,57 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+header {
+  background: #9bdb5a;
+  border: 1.5px solid black;
+}
+
+.gameContainer {
+  padding: 0.5em;
+  margin: 1em;
+  background: white;
+  border: 1.5px solid black;
+}
+
+.gameContainer:hover {
+  background: grey;
+  border: 1.5px solid white;
+}
+
+#gameCanvas {
+  border: 1em solid #9bdb5a;
+  margin-left: 1em;
+  margin-top: 1em;
+}
+
+.modalWindow {
+  margin-left: 32.5%;
+  margin-top: 1em;
+  width: 35%;
+  padding: 0.5em;
+  background: #9bdb5a;
+  border: 1.5px solid black;
+}
+
+#title {
+  padding-bottom: 0.5em;
+}
+
+.label {
+  display: inline-block;
+  width: 5em;
+}
+
+.input {
+  display: inline;
+}
+
+#buttonContainer {
+  padding-top: 0.5em;
+}
+
+.button {
+  margin: 0.5em;
+}
