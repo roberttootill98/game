@@ -1,25 +1,24 @@
 {
-  "name": "remote-play-demo",
+  "name": "A card game",
   "version": "1.0.0",
-  "description": "\"Prototype for remote play\"",
+  "description": "\"A card game\"",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"hi\"",
     "start": "node server/server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/roberttootill98/remote-play-demo.git"
+    "url": "git+https://github.com/roberttootill98/game.git"
   },
   "keywords": [
-    "remote-play"
+    "socket"
   ],
   "author": "UP811906",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/roberttootill98/remote-play-demo/issues"
+    "url": "https://github.com/roberttootill98/game/issues"
   },
-  "homepage": "https://github.com/roberttootill98/remote-play-demo#readme",
+  "homepage": "https://github.com/roberttootill98/game#readme",
   "dependencies": {
     "express": "^4.17.1",
     "socket.io": "^2.3.0"
