@@ -5,12 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"hi\"",
-    "start": "node server/server.js",
-    "init_database": "mysql -u root -p < server/init.sql",
-    "populate_database": "mysql -u root -p < server/populate.sql",
-    "artillery_test_local": "artillery quick --count 10 -n 20 http://127.0.0.1/",
-    "artillery_test": "artillery run loadTest/test.yml",
-    "artillery_demo": "artillery run loadTest/demo.yml"
+    "start": "node server/server.js"
   },
   "repository": {
     "type": "git",
@@ -26,15 +21,7 @@
   },
   "homepage": "https://github.com/roberttootill98/remote-play-demo#readme",
   "dependencies": {
-    "artillery": "^1.6.0",
-    "crypto": "^1.0.1",
     "express": "^4.17.1",
-    "express-throttle": "^2.0.0",
-    "mysql2": "^2.1.0",
-    "socket.io": "^2.3.0",
-    "toxy": "^0.3.16"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.2"
+    "socket.io": "^2.3.0"
   }
 }
