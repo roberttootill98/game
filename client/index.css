@@ -18,6 +18,7 @@ header {
 .gameContainer:hover {
   background: grey;
   border: 1.5px solid white;
+  cursor: pointer;
 }
 
 #gameCanvas {
