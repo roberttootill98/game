@@ -26,6 +26,7 @@ let sockets = [];
 app.get('/api/games', getGames);
 app.get('/api/game', getGame);
 app.post('/api/game', postGame);
+app.put('/api/game', updateGame);
 
 async function getGames(req, res) {
   res.json(games);
@@ -58,13 +59,22 @@ async function postGame(req, res) {
 
 // emits socket.io message done socket for gameID on query
 async function updateGame(req, res) {
-  const gameID = req.query.gameID;
+  try {
+    const gameID = req.query.gameID;
 
-  // should use user cookie to valid that they are player of the game
+    // should use user cookie to valid that they are player of the game
 
-  // get game from server memory
-  const game = findGame(gameID);
+    // get game from server memory
+    //const game = findGame(gameID);
+    // get socket
+    const socket = getSocket(gameID);
+    socket.emit('message', 'update message');
 
+    res.sendStatus(200);
+  } catch(e) {
+    console.error(e);
+    res.sendStatus(404);
+  }
 }
 
 function findGame(gameID) {
@@ -72,6 +82,14 @@ function findGame(gameID) {
   for(let game of games) {
     if(game.id == gameID) {
       return game;
+    }
+  }
+}
+
+function getSocket(gameID) {
+  for(let socket of sockets) {
+    if(socket.name.slice(1) == gameID) {
+      return socket;
     }
   }
 }

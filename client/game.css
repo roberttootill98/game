@@ -1,0 +1,69 @@
+/* css for elements involved in the actual game */
+
+/* total height 95vh */
+#gameContainer {
+  background: black;
+  height: 95vh;
+}
+
+#oppositionContainer {
+  background: red;
+}
+
+#battlefieldContainer {
+  background: blue;
+}
+
+#playerContainer {
+  background: green;
+  position: absolute;
+  bottom: 0;
+  width: 100%
+}
+
+.companion0 {grid-area: companion0;}
+.companion1 {grid-area: companion1;}
+.companion2 {grid-area: companion2;}
+.companion3 {grid-area: companion3;}
+
+.sideContainer {
+  display: grid;
+  grid-template-areas:
+    'companion0 companion1 companion2 companion3';
+  grid-gap: 1em;
+}
+
+.companionContainer > .header {grid-area: header;}
+.companionContainer > .icon {grid-area: icon;}
+.spell0 {grid-area: spell0;}
+.spell1 {grid-area: spell1;}
+.spell2 {grid-area: spell2;}
+.spell3 {grid-area: spell3;}
+
+.companionContainer {
+  /* grid stuff */
+  display: grid;
+  grid-template-areas:
+    'header header'
+    'icon spell0'
+    'icon spell1'
+    'icon spell2'
+    'icon spell3';
+  grid-gap: 1em;
+
+  /* other stuff */
+  background-color: pink;
+  border: 1.25px solid black;
+  max-width: 15em;
+}
+
+.header {
+  background-color: khaki;
+  border-bottom: 1.25px solid black;
+}
+
+.spell {
+  background-color: white;
+  border: 1.25px solid black;
+  height: 1.25em;
+}

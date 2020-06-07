@@ -1,16 +1,22 @@
+:root {
+}
+
 * {
   padding: 0;
   margin: 0;
 }
 
+/* total height 5.5vh */
 header {
   background: #9bdb5a;
-  border: 1.5px solid black;
+  border: 0.25vh solid black; /* adds 0.5 (0.25 * 2)*/
+  height: 4.5vh;
 }
 
+/* modal stuff */
+
+/* total height 93vh */
 .gameContainer {
-  padding: 0.5em;
-  margin: 1em;
   background: white;
   border: 1.5px solid black;
 }
@@ -19,12 +25,6 @@ header {
   background: grey;
   border: 1.5px solid white;
   cursor: pointer;
-}
-
-#gameCanvas {
-  border: 1em solid #9bdb5a;
-  margin-left: 1em;
-  margin-top: 1em;
 }
 
 .modalWindow {
