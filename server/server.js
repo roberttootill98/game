@@ -3,8 +3,11 @@
 // npm modules
 const express = require('express');
 const app = express();
+const passport = require('passport');
+const cookieSession = require('cookie-session');
 // our modules
 const card = require('./cards.js');
+require('./auth.js');
 
 const port = 80;
 
@@ -98,7 +101,45 @@ function getSocket(gameID) {
 app.get('/api/companions', getCompanions);
 
 async function getCompanions(req, res) {
-  const playerID = req.query.cookie;  
+  const playerID = req.query.cookie;
 }
+
+// cookie session
+app.use(cookieSession({
+    name: 'session',
+    keys: ['key1', 'key2']
+  }
+));
+
+// 0auth 2.0
+app.use(passport.initialize());
+app.use(passport.session());
+
+const isloggedIn = (req, res, next) => {
+  if(req.user) {
+    next()
+  } else {
+    res.sendStatus(401);
+  }
+}
+
+app.get('/google',
+  passport.authenticate('google', {scope: ['profile', 'email']}));
+
+app.get('/google/callback',
+  passport.authenticate('google', {failureRedirect: '/failed'}),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/good');
+  });
+
+app.get('/logout', (req, res) => {
+  req.session = null;
+  req.logout();
+  res.redirect('/');
+});
+
+app.get('/failed', (req, res) => res.send('You failed to login'));
+app.get('/good', isloggedIn, (req, res) => res.send(`Welcome user ${req.user.profile}`));
 
 console.log('Server listening on port:', port);

@@ -1,3 +1,6 @@
+// dom gameboard related functions
+'use strict'
+
 // creates dom for game board
 async function createGameBoard() {
   // remove modal window
