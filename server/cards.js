@@ -2,9 +2,11 @@
 
 const cards = [
   {
-    'name': 'bruh',
-    'attack': 1,
-    'defense': 2
+    'name': 'demo',
+    'damage': 1,
+    'mana': 2,
+    // description of card effect
+    'effect': myEffect
   },
   {
     'name': 'daniel',
@@ -12,6 +14,10 @@ const cards = [
     'defense': 2
   }
 ]
+
+function myEffect() {
+  console.log("my effect");
+}
 
 function getCards() {
   return cards;
