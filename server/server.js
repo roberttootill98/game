@@ -22,7 +22,7 @@ let games = [
 
 let sockets = [];
 
-// http verbs
+// game hosting and connecting
 app.get('/api/games', getGames);
 app.get('/api/game', getGame);
 app.post('/api/game', postGame);
@@ -92,6 +92,13 @@ function getSocket(gameID) {
       return socket;
     }
   }
+}
+
+// player specific
+app.get('/api/companions', getCompanions);
+
+async function getCompanions(req, res) {
+  const playerID = req.query.cookie;  
 }
 
 console.log('Server listening on port:', port);

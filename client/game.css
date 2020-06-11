@@ -2,7 +2,7 @@
 
 /* total height 95vh */
 #gameContainer {
-  background: black;
+  background: white;
   height: 95vh;
 }
 
@@ -52,18 +52,48 @@
   grid-gap: 1em;
 
   /* other stuff */
-  background-color: pink;
+  background: pink;
   border: 1.25px solid black;
   max-width: 15em;
 }
 
 .header {
-  background-color: khaki;
+  background: khaki;
   border-bottom: 1.25px solid black;
 }
 
 .spell {
-  background-color: white;
+  background: white;
   border: 1.25px solid black;
   height: 1.25em;
+}
+
+.spell_dragover {
+  background: blue;
+}
+
+/* shop stuff */
+.shop_spell0 {grid-area: shop_spell0;}
+.shop_spell1 {grid-area: shop_spell1;}
+.shop_spell2 {grid-area: shop_spell2;}
+
+#shop_container {
+  background: grey;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  display: grid;
+  grid-template-areas:
+    'shop_spell0 shop_spell1 shop_spell2';
+  grid-gap: 1em;
+
+  padding: 0.5em 1em 0.5em 1em;
+  border: 0.2em solid black;
+  border-radius: 0.5em;
+}
+
+.shop_spell {
+  border: 0.2em solid black;
+  border-radius: 0.5em;
 }
