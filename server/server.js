@@ -112,6 +112,8 @@ app.use(cookieSession({
 ));
 
 // 0auth 2.0
+let user;
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -130,7 +132,10 @@ app.get('/google/callback',
   passport.authenticate('google', {failureRedirect: '/failed'}),
   function(req, res) {
     // Successful authentication, redirect home.
-    res.redirect('/good');
+    console.log(`User: ${req.user.displayName} authenticated`);
+    user = req.user;
+
+    res.redirect('/');
   });
 
 app.get('/logout', (req, res) => {
@@ -140,6 +145,5 @@ app.get('/logout', (req, res) => {
 });
 
 app.get('/failed', (req, res) => res.send('You failed to login'));
-app.get('/good', isloggedIn, (req, res) => res.send(`Welcome user ${req.user.profile}`));
 
 console.log('Server listening on port:', port);

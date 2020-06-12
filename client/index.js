@@ -8,8 +8,26 @@ async function boot() {
     // prompt game list
     await promptGameList();
   } else {
-    prompt_usernameSelection_window();
+    // diplaying landing page contents
+    headerButtons();
+    //prompt_usernameSelection_window();
   }
+}
+
+// adds buttons to header
+function headerButtons() {
+  const container = document.getElementById('container_headerButtons');
+
+  // if the user is not logged in
+  // - add login button
+  const button_login = document.createElement('button');
+  container.appendChild(button_login);
+  button_login.classList.add('button');
+  button_login.classList.add('headerButton');
+  button_login.textContent = 'Login';
+  button_login.onclick = login;
+  // - else add logout button
+  //
 }
 
 function prompt_usernameSelection_window() {

@@ -1,11 +1,9 @@
 // oauth 2.0 functions for server
 'use strict'
 
-// id: 636085848325-57j3ht8mh47a371j8u0fqaajjlup8ckk.apps.googleusercontent.com
-// secret: OMbPznTAiln2q4dlQbPSsT8i
-
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const config = require('./config');
 
 passport.serializeUser(function(user, done) {
     done(null, user);
@@ -18,8 +16,8 @@ passport.deserializeUser(function(user, done) {
 );
 
 passport.use(new GoogleStrategy({
-    clientID: '636085848325-57j3ht8mh47a371j8u0fqaajjlup8ckk.apps.googleusercontent.com',
-    clientSecret: 'OMbPznTAiln2q4dlQbPSsT8i',
+    clientID: config.appKeys.id,
+    clientSecret: config.appKeys.secret,
     callbackURL: "http://localhost:80/google/callback"
   },
   function(accessToken, refreshToken, profile, done) {
