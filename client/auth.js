@@ -15,4 +15,7 @@ async function logout() {
   } else {
     console.error("failed to log out");
   }
+
+  remove_headerButtons();
+  await add_headerButtons();
 }

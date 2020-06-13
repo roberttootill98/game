@@ -1,21 +1,11 @@
 'use strict'
 
-let playerData;
-let gameSocket;
-
 async function boot() {
-  if(playerData) {
-    // prompt game list
-    await promptGameList();
-  } else {
-    // diplaying landing page contents
-    await headerButtons();
-    //prompt_usernameSelection_window();
-  }
+  await add_headerButtons();
 }
 
 // adds buttons to header
-async function headerButtons() {
+async function add_headerButtons() {
   const container = document.getElementById('container_headerButtons');
 
   // login/logout
@@ -50,6 +40,16 @@ async function getName() {
   const response = await fetch("/api/user_name");
   if(response.ok) {
     return await response.text();
+  }
+}
+
+function remove_headerButtons() {
+  const container = document.getElementById('container_headerButtons');
+  // make copy by value of array
+  const children = Array.from(container.children);
+
+  for(const child of children) {
+    child.remove();
   }
 }
 
