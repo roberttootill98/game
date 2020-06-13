@@ -9,25 +9,48 @@ async function boot() {
     await promptGameList();
   } else {
     // diplaying landing page contents
-    headerButtons();
+    await headerButtons();
     //prompt_usernameSelection_window();
   }
 }
 
 // adds buttons to header
-function headerButtons() {
+async function headerButtons() {
   const container = document.getElementById('container_headerButtons');
 
-  // if the user is not logged in
-  // - add login button
+  // login/logout
   const button_login = document.createElement('button');
   container.appendChild(button_login);
   button_login.classList.add('button');
   button_login.classList.add('headerButton');
-  button_login.textContent = 'Login';
-  button_login.onclick = login;
-  // - else add logout button
-  //
+
+  // if the user is logged in
+  const name = await getName();
+
+  if(name) {
+    // - add logout button
+    button_login.textContent = 'Logout';
+    button_login.onclick = logout;
+  } else {
+    // - else add login button
+    button_login.textContent = 'Login';
+    button_login.onclick = login;
+  }
+
+  // settings
+  const button_settings = document.createElement('button');
+  container.appendChild(button_settings);
+  button_settings.classList.add('button');
+  button_settings.classList.add('headerButton');
+  button_settings.textContent = 'Settings';
+  button_settings.onclick = settings_onclick;
+}
+
+async function getName() {
+  const response = await fetch("/api/user_name");
+  if(response.ok) {
+    return await response.text();
+  }
 }
 
 function prompt_usernameSelection_window() {

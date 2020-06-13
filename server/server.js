@@ -9,7 +9,9 @@ const cookieSession = require('cookie-session');
 const card = require('./cards.js');
 require('./auth.js');
 
-const port = 80;
+const config = require('./config');
+
+const port = config.network.port;
 
 const server = app.listen(port);
 app.use('/', express.static('client', {'extensions': ['html']}));
@@ -97,12 +99,7 @@ function getSocket(gameID) {
   }
 }
 
-// player specific
-app.get('/api/companions', getCompanions);
-
-async function getCompanions(req, res) {
-  const playerID = req.query.cookie;
-}
+// session stuff - player specific
 
 // cookie session
 app.use(cookieSession({
@@ -111,11 +108,31 @@ app.use(cookieSession({
   }
 ));
 
-// 0auth 2.0
-let user;
+app.get('/api/companions', getCompanions);
 
+async function getCompanions(req, res) {
+  //const playerID = req.query.cookie;
+  console.log("getting companions");
+  console.log(req.session);
+  console.log(req.session.auth);
+}
+
+// 0auth 2.0
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.get('/api/user_name', get_user_name);
+
+async function get_user_name(req, res) {
+  console.log(req.session);
+  if(req.session.auth) {
+    console.log(`User: ${req.session.passport.user.displayName} requesting name`);
+    res.send(req.session.passport.user.displayName);
+  } else {
+    console.log("Anon user requesting name");
+    res.send(null);
+  }
+}
 
 const isloggedIn = (req, res, next) => {
   if(req.user) {
@@ -132,16 +149,24 @@ app.get('/google/callback',
   passport.authenticate('google', {failureRedirect: '/failed'}),
   function(req, res) {
     // Successful authentication, redirect home.
+
+    // validate session
+    req.session.auth = true;
+
+    // store user profile
     console.log(`User: ${req.user.displayName} authenticated`);
-    user = req.user;
 
     res.redirect('/');
   });
 
 app.get('/logout', (req, res) => {
+  console.log(`logging out user: ${req.session.passport.user.displayName}`);
   req.session = null;
+  console.log(req.session);
   req.logout();
+
   res.redirect('/');
+  res.end();
 });
 
 app.get('/failed', (req, res) => res.send('You failed to login'));

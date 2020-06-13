@@ -4,7 +4,15 @@
 async function login() {
   const url = window.location.href;
   window.location.replace(url + 'google');
+}
 
-  // const response = await fetch('/api/name');
-  // console.log(response);
+async function logout() {
+  console.log("logging out");
+
+  const response = await fetch('/logout');
+  if(response.ok) {
+    console.log("logged out");
+  } else {
+    console.error("failed to log out");
+  }
 }

@@ -6,8 +6,21 @@
   margin: 0;
 }
 
-/* total height 5.5vh */
+/* total height 55vh */
+.container_headerContent {
+  grid-area: container_headerContent;
+}
+.container_headerButtons {
+  grid-area: container_headerButtons;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+
 header {
+  display: grid;
+  grid-template-areas:
+    'container_headerContent container_headerButtons';
+
   background: #9bdb5a;
   border: 0.25vh solid black; /* adds 0.5 (0.25 * 2)*/
   height: 4.5vh;
