@@ -36,7 +36,7 @@ function displayShop(spells) {
   const shopContainer = document.createElement('div');
   document.body.appendChild(shopContainer);
   shopContainer.id = 'shop_container';
-  //shopContainer.classList.add('modalWindow');
+  shopContainer.classList.add('modalWindow');
 
   for(let i = 0; i < spells.length; i++) {
     const spell = spells[i];
@@ -55,6 +55,7 @@ function displayShop(spells) {
     // icon
     const icon = document.createElement('img');
     spellContainer.appendChild(icon);
+    icon.id = spell.name;
     icon.classList.add('shop_spell');
     icon.src = spell.icon;
     icon.draggable = true; // only add if money is valid
@@ -64,12 +65,21 @@ function displayShop(spells) {
     cost.textContent = spell.cost;
 
     // drag event listeners
-    //icon.addEventListener('dragover', icon_dragover);
-    icon.addEventListener('dragend', icon_dragEnd);
+    icon.addEventListener('dragstart', icon_dragstart);
+    icon.addEventListener('drop', icon_drop);
   }
 }
 
-// tranfers spell from shop to companion
-async function icon_dragEnd(ev) {
-  console.log("icon drag ended!");
+function icon_dragstart(ev) {
+  // encapsulate data
+  ev.dataTransfer.setData('text/plain', ev.target.id);
+  // change cursor
+}
+
+async function icon_drop(ev) {
+  ev.preventDefault();
+  console.log(`icon: ${ev.target.id} dropped`);
+
+  // validate move via server
+  // reduce money
 }

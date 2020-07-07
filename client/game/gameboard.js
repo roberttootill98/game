@@ -1,11 +1,8 @@
-// dom gameboard related functions
+// dom gameboard functions
 'use strict'
 
 // creates dom for game board
 async function createGameBoard() {
-  // remove modal window
-  document.querySelector('.modalWindow').remove();
-
   console.log("creating game board");
 
   const gameContainer = document.createElement('div');
@@ -154,6 +151,7 @@ function createCompanions(container, companions) {
 // fires when a spell is dragged from the shop over a spell slot
 // highlight if drop location is valid
 async function icon_dragover(ev) {
+  ev.preventDefault();
   ev.target.classList.add('spell_dragover');
 }
 

@@ -29,6 +29,43 @@ app.use(cookieSession({
   }
 ));
 
+// game listings
+const games = [];
+
+app.get('/api/game', getGame);
+app.get('/api/games', getGames);
+app.post('/api/game', postGame);
+
+async function getGame(req, res) {
+  res.json(games[req.query.id]);
+}
+
+async function getGames(req, res) {
+  res.json(games);
+}
+
+async function postGame(req, res) {
+  try {
+    const name = req.query.name;
+
+    const game = {
+      'name': name,
+      'players': [],
+      'spectators': []
+    }
+
+    // add player id of player who is creating game
+    game.players.push(req.session.passport.user.id)
+    games.push(game);
+
+    res.sendStatus(200);
+  } catch(e) {
+    console.log(e);
+    res.sendStatus(404);
+  }
+}
+
+// gameboard functions
 app.get('/api/companions', getCompanions);
 
 async function getCompanions(req, res) {
@@ -46,14 +83,6 @@ async function get_user_name(req, res) {
     res.send(req.session.passport.user.displayName);
   } else {
     res.send(null);
-  }
-}
-
-const isloggedIn = (req, res, next) => {
-  if(req.user) {
-    next()
-  } else {
-    res.sendStatus(401);
   }
 }
 
