@@ -6,7 +6,7 @@ async function createGameBoard() {
   console.log("creating game board");
 
   const gameContainer = document.createElement('div');
-  document.body.appendChild(gameContainer);
+  document.getElementById('main').appendChild(gameContainer);
   gameContainer.id = 'gameContainer';
 
   // create opposition side

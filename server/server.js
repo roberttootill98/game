@@ -15,12 +15,6 @@ const port = config.network.port;
 const server = app.listen(port);
 app.use('/', express.static('client', {'extensions': ['html']}));
 
-// create socket
-const io = require('socket.io')(server);
-
-// game hosting and connecting
-
-
 // session stuff - player specific
 // cookie session
 app.use(cookieSession({
@@ -31,13 +25,42 @@ app.use(cookieSession({
 
 // game listings
 const games = [];
+// create socket
+const io = require('socket.io')(server);
+
+// returns a unique game id that is not in use
+// used as namespace for sockets
+function generate_gameID() {
+  function rngNumberGen() {
+    return (Math.floor(Math.random() * 1000000000));
+  }
+
+  let id = rngNumberGen();
+
+  // while game can be found with id generated
+  while(getGame_id(id)) {
+    console.log("generating new key...");
+    id = rngNumberGen();
+  }
+  return id;
+}
+
+// gets game using id
+function getGame_id(id) {
+  for(const game of games) {
+    if(game.id == id) {
+      return game;
+    }
+  }
+}
 
 app.get('/api/game', getGame);
 app.get('/api/games', getGames);
 app.post('/api/game', postGame);
+app.put('/api/game_join', joinGame);
 
 async function getGame(req, res) {
-  res.json(games[req.query.id]);
+  res.json(getGame_id(req.query.id));
 }
 
 async function getGames(req, res) {
@@ -48,7 +71,13 @@ async function postGame(req, res) {
   try {
     const name = req.query.name;
 
+    // generate gameID
+    const gameID = generate_gameID()
+    // create socket
+    const namespace = io.of(gameID);
+
     const game = {
+      'id': gameID,
       'name': name,
       'players': [],
       'spectators': []
@@ -62,6 +91,19 @@ async function postGame(req, res) {
   } catch(e) {
     console.log(e);
     res.sendStatus(404);
+  }
+}
+
+// adds a player to an existing game
+async function joinGame(req, res) {
+  const game = getGame_id(req.query.id);
+
+  if(game.players.length == 2) {
+    console.log("game full...");
+    res.sendStatus(404);
+  } else {
+    game.players.push(req.session.passport.user.id);
+    res.json(game);
   }
 }
 

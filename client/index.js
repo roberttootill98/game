@@ -14,6 +14,14 @@ async function boot() {
   }
 }
 
+// empties page apart from header
+function clearContent() {
+  const children = Array.from(document.getElementById('main').children);
+  for(let child of children) {
+    child.remove();
+  }
+}
+
 // adds buttons to header
 async function add_headerButtons() {
   const container = document.getElementById('container_headerButtons');
@@ -70,7 +78,7 @@ function remove_headerButtons() {
 // prompts a modal window
 function add_createGameButton() {
   const button = document.createElement('button');
-  document.body.appendChild(button);
+  document.getElementById('main').appendChild(button);
   button.classList.add('button');
   button.textContent = 'Create game';
   button.onclick = promptWindow_createGame;
@@ -84,7 +92,7 @@ function add_createGameButton() {
 function promptWindow_createGame() {
   // container
   const window_createGame = document.createElement('div');
-  document.body.appendChild(window_createGame);
+  document.getElementById('main').appendChild(window_createGame);
   window_createGame.id = 'window_createGame';
   window_createGame.classList.add('modalWindow');
 
@@ -127,6 +135,10 @@ async function confirm_createGame() {
 
   // make api call
   await createGame(name);
+
+  // load gameboard
+  clearContent();
+  await createGameBoard();
 }
 
 async function createGame(name) {
@@ -137,7 +149,7 @@ async function createGame(name) {
   if(response.ok) {
     console.log("game posted");
   } else {
-    console.log("failed to post game");
+    console.error("failed to post game");
   }
 }
 
@@ -153,15 +165,14 @@ async function add_gameList() {
 
   // container
   const gameList = document.createElement('div');
-  document.body.appendChild(gameList);
+  document.getElementById('main').appendChild(gameList);
   gameList.id = 'gameList';
 
   for(const game of games) {
-    console.log(game);
-
     // container
     const gameListing = document.createElement('div');
     gameList.appendChild(gameListing);
+    gameListing.id = game.id;
     gameListing.classList.add('gameListing');
 
     // name
@@ -173,6 +184,16 @@ async function add_gameList() {
     const playerNumber = document.createElement('p');
     gameListing.appendChild(playerNumber);
     playerNumber.textContent = `${game.players.length}/2`;
+
+    // buttons
+    const buttonContainer = document.createElement('div');
+    gameListing.appendChild(buttonContainer);
+    // join button
+    const joinButton = document.createElement('button');
+    buttonContainer.appendChild(joinButton);
+    joinButton.classList.add('button');
+    joinButton.textContent = 'Join';
+    joinButton.onclick = joinGame;
   }
 }
 
@@ -181,7 +202,34 @@ async function getGames() {
   if(response.ok) {
     return await response.json();
   } else {
-    console.log("failed to get game");
+    console.error("failed to get game");
+  }
+}
+
+// make put request
+// obtain socket, gameID
+// load gameboard
+async function joinGame(ev) {
+  console.log("joining game...");
+
+  const gameID = ev.target.parentElement.parentElement.id;
+  const game = await game_addPlayer(gameID);
+
+  // load gameboard
+  clearContent();
+  await createGameBoard();
+}
+
+// put request to join game
+async function game_addPlayer(gameID) {
+  let url = '/api/game_join';
+  url += `?id=${gameID}`;
+
+  const response = await fetch(url, {method: 'put'});
+  if(response.ok) {
+    return response.json();
+  } else {
+    console.error("failed to add player to game");
   }
 }
 
