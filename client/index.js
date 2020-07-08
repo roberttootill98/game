@@ -134,7 +134,11 @@ async function confirm_createGame() {
   const name = document.getElementById('input_gameName').value;
 
   // make api call
-  await createGame(name);
+  const game = await createGame(name);
+
+  // get game socket using game id
+  gameSocket = io("/" + game.id);
+  gameSocket.on('message', gameSocket_updateReceived);
 
   // load gameboard
   clearContent();
@@ -147,7 +151,7 @@ async function createGame(name) {
 
   const response = await fetch(url, {method: 'post'});
   if(response.ok) {
-    console.log("game posted");
+    return await response.json();
   } else {
     console.error("failed to post game");
   }
@@ -214,6 +218,10 @@ async function joinGame(ev) {
 
   const gameID = ev.target.parentElement.parentElement.id;
   const game = await game_addPlayer(gameID);
+
+  // get game socket using game id
+  gameSocket = io("/" + game.id);
+  gameSocket.on('message', gameSocket_updateReceived);
 
   // load gameboard
   clearContent();

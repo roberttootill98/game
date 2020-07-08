@@ -27,6 +27,17 @@ app.use(cookieSession({
 const games = [];
 // create socket
 const io = require('socket.io')(server);
+const gameSockets = [];
+
+// gets socket using gameID
+// a game socket can only be associated with one game
+function getGameSocket(gameID) {
+  for(let socket of gameSockets) {
+    if(socket.name.slice(1) == gameID) {
+      return socket;
+    }
+  }
+}
 
 // returns a unique game id that is not in use
 // used as namespace for sockets
@@ -54,6 +65,18 @@ function getGame_id(id) {
   }
 }
 
+// gets game using player id
+// a player can only be associated with one game at a time
+function getGame_playerID(playerID) {
+  for(const game of games) {
+    for(const player of game.players) {
+      if(player == playerID) {
+        return game;
+      }
+    }
+  }
+}
+
 app.get('/api/game', getGame);
 app.get('/api/games', getGames);
 app.post('/api/game', postGame);
@@ -74,7 +97,8 @@ async function postGame(req, res) {
     // generate gameID
     const gameID = generate_gameID()
     // create socket
-    const namespace = io.of(gameID);
+    const gameSocket = io.of(gameID);
+    gameSockets.push(gameSocket);
 
     const game = {
       'id': gameID,
@@ -87,7 +111,7 @@ async function postGame(req, res) {
     game.players.push(req.session.passport.user.id)
     games.push(game);
 
-    res.sendStatus(200);
+    res.json(game);
   } catch(e) {
     console.log(e);
     res.sendStatus(404);
@@ -155,3 +179,17 @@ app.get('/logout', (req, res) => {
 app.get('/failed', (req, res) => res.send('You failed to login'));
 
 console.log('Server listening on port:', port);
+
+// debug
+app.get('/debug/sendsocketmessage', sendsocketmessage);
+
+// sends message down game socket
+// in req.query.message
+async function sendsocketmessage(req, res) {
+  // get game using player id
+  const game = getGame_playerID(req.session.passport.user.id);
+
+  // get socket using game id
+  const gameSocket = getGameSocket(game.id);
+  gameSocket.emit('message', req.query.message);
+}

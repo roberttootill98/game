@@ -4,6 +4,11 @@
 
 let gameSocket;
 
+async function gameSocket_updateReceived(ev) {
+  console.log("game socket message received");
+  console.log(ev);
+}
+
 // when previous turn has ended for enemy
 async function start_phase_shop() {
   // load shop
