@@ -138,7 +138,8 @@ async function confirm_createGame() {
 
   // get game socket using game id
   gameSocket = io("/" + game.id);
-  gameSocket.on('message', gameSocket_updateReceived);
+  gameSocket.on('message', gameSocket_message);
+  gameSocket.on('phase', gameSocket_phase);
 
   // load gameboard
   clearContent();
@@ -221,11 +222,15 @@ async function joinGame(ev) {
 
   // get game socket using game id
   gameSocket = io("/" + game.id);
-  gameSocket.on('message', gameSocket_updateReceived);
+  gameSocket.on('message', gameSocket_message);
+  gameSocket.on('phase', gameSocket_phase);
 
   // load gameboard
   clearContent();
   await createGameBoard();
+
+  // make request to server to start game
+  await startGame();
 }
 
 // put request to join game

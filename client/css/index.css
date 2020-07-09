@@ -6,7 +6,6 @@
   margin: 0;
 }
 
-/* total height 55vh */
 .container_headerContent {
   grid-area: container_headerContent;
 }
@@ -16,6 +15,7 @@
   grid-template-columns: repeat(5, 1fr);
 }
 
+/* total height 5vh */
 header {
   display: grid;
   grid-template-areas:

@@ -29,6 +29,12 @@ async function createGameBoard() {
   playerContainer.id = 'playerContainer';
   playerContainer.classList.add('sideContainer');
 
+  const container_footerButtons = document.createElement('div');
+  gameContainer.appendChild(container_footerButtons);
+  container_footerButtons.id = 'container_footerButtons';
+
+  add_footerButtons(container_footerButtons);
+
   // add companions
   const playerCompanions = await getCompanions();
   createCompanions(playerContainer, playerCompanions);
@@ -159,4 +165,17 @@ async function icon_dragover(ev) {
 // highlight if drop location is valid
 async function icon_dragleave(ev) {
   ev.target.classList.remove('spell_dragover');
+}
+
+function add_footerButtons(container_footerButtons) {
+  // end phase
+  // disabled until the player has control
+  const button_endPhase = document.createElement('button');
+  container_footerButtons.appendChild(button_endPhase);
+  button_endPhase.id = 'button_endPhase';
+  button_endPhase.classList.add('button');
+  button_endPhase.classList.add('button_disabled');
+  button_endPhase.textContent = 'END PHASE';
+  button_endPhase.onclick = endPhase;
+  button_endPhase.disabled = true;
 }

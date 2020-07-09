@@ -2,6 +2,10 @@
 // shop is a modal window
 'use strict';
 
+function add_shopButtons() {
+
+}
+
 async function promptShop() {
   displayShop(await getShopSpells());
 }

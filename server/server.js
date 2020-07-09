@@ -98,6 +98,7 @@ async function postGame(req, res) {
     const gameID = generate_gameID()
     // create socket
     const gameSocket = io.of(gameID);
+    gameSocket.on('message', gameSocket_updateReceived);
     gameSockets.push(gameSocket);
 
     const game = {
@@ -126,16 +127,100 @@ async function joinGame(req, res) {
     console.log("game full...");
     res.sendStatus(404);
   } else {
+    // add player to game
     game.players.push(req.session.passport.user.id);
     res.json(game);
   }
 }
 
-// gameboard functions
+// init gameboard functions
 app.get('/api/companions', getCompanions);
 
 async function getCompanions(req, res) {
 
+}
+
+// turn gameboard functions
+app.get('/api/game_getPlayerNumber', game_getPlayerNumber);
+app.get('/api/game_getPlayerCount', game_getPlayerCount);
+app.put('/api/game_start', startGame);
+app.get('/api/game_getPhase', game_getPhase);
+app.put('/api/game_nextPhase', game_nextPhase);
+
+const phaseOrder = [
+  'player1_phase_shop',
+  'player1_phase_arrangement',
+  'player1_phase_attacking',
+  'player2_phase_shop',
+  'player2_phase_arrangement',
+  'player2_phase_attacking'
+];
+
+// returns player1 or player2
+async function game_getPlayerNumber(req, res) {
+  const game = getGame_playerID(req.session.passport.user.id);
+  console.log(game);
+  console.log(game.players);
+  console.log(req.session.passport.user.id);
+
+  res.json({'playerNumber': `player${game.players.indexOf(req.session.passport.user.id) + 1}`});
+}
+
+async function game_getPlayerCount(req, res) {
+  const game = getGame_playerID(req.session.passport.user.id);
+
+  res.json({'playerCount': game.players.length});
+}
+
+async function startGame(req, res) {
+  try {
+    const game = getGame_playerID(req.session.passport.user.id);
+
+    game.turn = 0;
+    game_setPhase(game, 'player1_phase_shop');
+
+    res.sendStatus(200);
+  } catch(e) {
+    console.log(e);
+    res.sendStatus(404);
+  }
+}
+
+function game_getPhase(req, res) {
+  const game = getGame_playerID(req.session.passport.user.id);
+
+  res.json({'phase': game.phase});
+}
+
+function game_setPhase(game, phase) {
+  game.phase = phase;
+
+  // emit message
+  const gameSocket = getGameSocket(game.id);
+  gameSocket.emit('phase', phase);
+}
+
+async function game_nextPhase(req, res) {
+  try {
+    const game = getGame_playerID(req.session.passport.user.id);
+    console.log("ending phase: " + game.phase);
+    console.log("starting phase: " + getNextPhase(game.phase));
+    game_setPhase(game, getNextPhase(game.phase));
+
+    res.sendStatus(200);
+  } catch(e) {
+    console.log(e);
+    res.sendStatus(404);
+  }
+}
+
+function getNextPhase(oldPhase) {
+  let nextPhaseIndex = phaseOrder.indexOf(oldPhase) + 1;
+  if(nextPhaseIndex == phaseOrder.length) {
+    nextPhaseIndex = 0;
+  }
+
+  return phaseOrder[nextPhaseIndex];
 }
 
 // 0auth 2.0
@@ -192,4 +277,9 @@ async function sendsocketmessage(req, res) {
   // get socket using game id
   const gameSocket = getGameSocket(game.id);
   gameSocket.emit('message', req.query.message);
+}
+
+async function gameSocket_updateReceived(ev) {
+  console.log("game socket update received");
+  console.log(ev);
 }
