@@ -27,6 +27,8 @@ app.use(cookieSession({
 
 // socket
 const io = require('socket.io')(server);
+const sockets = [];
+exports.sockets = sockets;
 
 // game listings
 app.get('/api/game', getGame);
@@ -49,14 +51,21 @@ async function getGames(req, res) {
   res.json(games);
 }
 
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
+
 async function postGame(req, res) {
   try {
     const name = req.query.name;
     const game = new _game.Game(name, req.session.passport.user.id);
 
-    // join socket game room
-    console.log(io.sockets);
-    //console.log(sockets);
+    // create socket
+    const socket = io.of(game.id);
+    sockets.push(socket);
 
     res.sendStatus(200);
   } catch(e) {
@@ -94,17 +103,14 @@ app.put('/api/game_nextPhase', game_nextPhase);
 // returns player1 or player2
 async function game_getPlayerNumber(req, res) {
   const game = _game.utility.search_playerID(req.session.passport.user.id);
-  console.log(game.players);
-  console.log(req.session.passport.user.id);
-
   res.json({'playerNumber': `player${game.players.indexOf(req.session.passport.user.id) + 1}`});
 }
 
 async function startGame(req, res) {
   try {
     const game = _game.utility.search_playerID(req.session.passport.user.id);
-    _game.sockets[0].emit('message', 'starting game...');
-    _game.sockets[0].emit('phase', 'random phase message...');
+
+    _game.utility.getSocket(game.id).emit('message', 'game starting...');
 
     game.turn = 0;
     game.setPhase('player1_phase_shop');
@@ -125,7 +131,7 @@ async function game_nextPhase(req, res) {
   try {
     const game = _game.utility.search_playerID(req.session.passport.user.id);
     console.log("ending phase: " + game.phase);
-    console.log("starting phase: " + getNextPhase(game.phase));
+    console.log("starting phase: " + _game.utility.getNextPhase(game.phase));
     game.setPhase(_game.utility.getNextPhase(game.phase));
 
     res.sendStatus(200);
@@ -184,11 +190,11 @@ app.get('/debug/sendsocketmessage', sendsocketmessage);
 // in req.query.message
 async function sendsocketmessage(req, res) {
   // get game using player id
-  const game = getGame_playerID(req.session.passport.user.id);
+  const game = _game.utility.search_playerID(req.session.passport.user.id);
+  console.log("sending message: " + req.query.message);
+  console.log("down socket: " + game.socket.name);
 
-  // get socket using game id
-  const gameSocket = getGameSocket(game.id);
-  gameSocket.emit('message', req.query.message);
+  game.socket.emit('message', req.query.message);
 }
 
 async function gameSocket_updateReceived(ev) {

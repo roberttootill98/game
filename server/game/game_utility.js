@@ -4,6 +4,7 @@
 'use strict'
 
 // modules
+const server = require('../server.js');
 const _game = require('./game');
 
 // search funcs - searchs for a game using a particular field
@@ -51,10 +52,19 @@ const phaseOrder = [
   'player2_phase_attacking'
 ];
 
-exports.getNextPhase = function getNextPhase(oldPhase) {
+exports.getNextPhase = function (oldPhase) {
   let nextPhaseIndex = phaseOrder.indexOf(oldPhase) + 1;
   if(nextPhaseIndex == phaseOrder.length) {
     nextPhaseIndex = 0;
   }
   return phaseOrder[nextPhaseIndex];
+}
+
+// searches for game socket using game id
+exports.getSocket = function (gameID) {
+  for(const socket of server.sockets) {
+    if(socket.name.slice(1) == gameID) {
+      return socket;
+    }
+  }
 }

@@ -20,8 +20,7 @@ exports.Game = class Game {
     this.name = name;
     this.players = [creatorID]; // list of goog ids
     this.spectators = [];
-    this.socket = io.of(this.id);
-    sockets.push(this.socket);
+    // this.socket = io.of(this.id);
 
     games.push(this);
   }
@@ -35,8 +34,7 @@ exports.Game = class Game {
   setPhase(phase) {
     console.log("setting phase to: " + phase);
     this.phase = phase;
-    this.socket.emit('phase', phase);
-    io.of(this.id).emit('message', 'bruh');
+    utility.getSocket(this.id).emit('phase', phase);
   }
 
   // methods

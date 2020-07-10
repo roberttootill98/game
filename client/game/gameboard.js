@@ -171,6 +171,7 @@ function add_footerButtons(container_footerButtons) {
   // phase label
   const phaseLabel = document.createElement('p');
   container_footerButtons.appendChild(phaseLabel);
+  phaseLabel.id = 'phaseLabel';
   phaseLabel.classList.add('label');
   phaseLabel.textContent = 'Phase: Shop'; // always starts with this phase
 

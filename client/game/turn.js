@@ -24,6 +24,7 @@ async function gameSocket_message(ev) {
 async function gameSocket_phase(ev) {
   // if it is the players phase
   const player = ev.slice(0, 7);
+  const phase = ev.slice(8);
 
   // get dom elements
   const button_endPhase = document.getElementById('button_endPhase');
@@ -39,7 +40,6 @@ async function gameSocket_phase(ev) {
     button_endPhase.classList.remove('button_disabled');
 
     // start phase
-    const phase = ev.slice(8);
     switch(phase) {
       case 'phase_shop':
         await start_phase_shop();
