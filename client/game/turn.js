@@ -5,21 +5,40 @@
 
 let gameSocket;
 
+let gameSocket1;
+function startIOStuff() {
+  gameSocket1 = io.connect();
+  gameSocket1.on('connect', function() {
+    gameSocket1.emit('room', 'abc123');
+  });
+  gameSocket1.on('message', function(data) {
+    console.log("incoming message: " + data);
+  });
+}
+
 async function gameSocket_message(ev) {
   console.log("game socket message received");
   console.log(ev);
 }
 
 async function gameSocket_phase(ev) {
-  console.log("game socket phase instruction received");
-  console.log(ev);
-
   // if it is the players phase
   const player = ev.slice(0, 7);
-  if(player == await getPlayerNumber()) {
-    // dom stuff
-    document.getElementById('button_endPhase').disabled = false;
 
+  // get dom elements
+  const button_endPhase = document.getElementById('button_endPhase');
+  const phaseLabel = document.getElementById('phaseLabel');
+  if(player == await getPlayerNumber()) {
+    // it is your phase
+
+    // dom stuff
+    // phase label
+    phaseLabel.textContent = `Phase: my ${phase}`;
+    // end phase button
+    button_endPhase.disabled = false;
+    button_endPhase.classList.remove('button_disabled');
+
+    // start phase
     const phase = ev.slice(8);
     switch(phase) {
       case 'phase_shop':
@@ -33,8 +52,14 @@ async function gameSocket_phase(ev) {
         break;
     }
   } else {
+    // it is your opponent's phase
+
     // dom stuff
-    document.getElementById('button_endPhase').disabled = true;
+    // phase label
+    phaseLabel.textContent = `Phase: their ${phase}`;
+    // end phase button
+    button_endPhase.disabled = true;
+    button_endPhase.classList.add('button_disabled');
   }
 }
 

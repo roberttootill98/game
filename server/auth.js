@@ -15,8 +15,6 @@ passport.deserializeUser(function(user, done) {
   }
 );
 
-console.log;
-
 passport.use(new GoogleStrategy({
     clientID: config.oauth.id,
     clientSecret: config.oauth.secret,

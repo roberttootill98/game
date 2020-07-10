@@ -134,7 +134,8 @@ async function confirm_createGame() {
   const name = document.getElementById('input_gameName').value;
 
   // make api call
-  const game = await createGame(name);
+  await createGame(name);
+  const game = await getGame();
 
   // get game socket using game id
   gameSocket = io("/" + game.id);
@@ -152,9 +153,20 @@ async function createGame(name) {
 
   const response = await fetch(url, {method: 'post'});
   if(response.ok) {
-    return await response.json();
+    console.log("created game");
   } else {
     console.error("failed to post game");
+  }
+}
+
+// gets game associated with player
+// can only be one at a time
+async function getGame() {
+  const response = await fetch('/api/game');
+  if(response.ok) {
+    return await response.json();
+  } else {
+    console.error("failed to get game");
   }
 }
 
@@ -188,7 +200,7 @@ async function add_gameList() {
     // player number
     const playerNumber = document.createElement('p');
     gameListing.appendChild(playerNumber);
-    playerNumber.textContent = `${game.players.length}/2`;
+    playerNumber.textContent = `${game.playerCount}/2`;
 
     // buttons
     const buttonContainer = document.createElement('div');
@@ -218,7 +230,8 @@ async function joinGame(ev) {
   console.log("joining game...");
 
   const gameID = ev.target.parentElement.parentElement.id;
-  const game = await game_addPlayer(gameID);
+  await game_addPlayer(gameID);
+  const game = await getGame();
 
   // get game socket using game id
   gameSocket = io("/" + game.id);
@@ -240,7 +253,7 @@ async function game_addPlayer(gameID) {
 
   const response = await fetch(url, {method: 'put'});
   if(response.ok) {
-    return response.json();
+    console.log("joined game");
   } else {
     console.error("failed to add player to game");
   }

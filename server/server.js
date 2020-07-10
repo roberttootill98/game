@@ -6,8 +6,10 @@ const app = express();
 const passport = require('passport');
 const cookieSession = require('cookie-session');
 // our modules
-const card = require('./cards.js');
 require('./auth.js');
+const _game = require('./game/game.js');
+_game.utility = require('./game/game_utility.js');
+const card = require('./game/cards.js');
 
 const config = require('./config');
 
@@ -23,96 +25,40 @@ app.use(cookieSession({
   }
 ));
 
-// game listings
-const games = [];
-// create socket
+// socket
 const io = require('socket.io')(server);
-const gameSockets = [];
 
-// gets socket using gameID
-// a game socket can only be associated with one game
-function getGameSocket(gameID) {
-  for(let socket of gameSockets) {
-    if(socket.name.slice(1) == gameID) {
-      return socket;
-    }
-  }
-}
-
-// returns a unique game id that is not in use
-// used as namespace for sockets
-function generate_gameID() {
-  function rngNumberGen() {
-    return (Math.floor(Math.random() * 1000000000));
-  }
-
-  let id = rngNumberGen();
-
-  // while game can be found with id generated
-  while(getGame_id(id)) {
-    console.log("generating new key...");
-    id = rngNumberGen();
-  }
-  return id;
-}
-
-// gets game using id
-function getGame_id(id) {
-  for(const game of games) {
-    if(game.id == id) {
-      return game;
-    }
-  }
-}
-
-// gets game using player id
-// a player can only be associated with one game at a time
-function getGame_playerID(playerID) {
-  for(const game of games) {
-    for(const player of game.players) {
-      if(player == playerID) {
-        return game;
-      }
-    }
-  }
-}
-
+// game listings
 app.get('/api/game', getGame);
 app.get('/api/games', getGames);
 app.post('/api/game', postGame);
 app.put('/api/game_join', joinGame);
 
+// gets game using player id
 async function getGame(req, res) {
-  res.json(getGame_id(req.query.id));
+  const game = _game.utility.search_playerID(req.session.passport.user.id);
+  res.json(game.info());
 }
 
+// gets all games
 async function getGames(req, res) {
+  const games = [];
+  for(const game of _game.games) {
+    games.push(game.info());
+  }
   res.json(games);
 }
 
 async function postGame(req, res) {
   try {
     const name = req.query.name;
+    const game = new _game.Game(name, req.session.passport.user.id);
 
-    // generate gameID
-    const gameID = generate_gameID()
-    // create socket
-    const gameSocket = io.of(gameID);
-    gameSocket.on('message', gameSocket_updateReceived);
-    gameSockets.push(gameSocket);
+    // join socket game room
+    console.log(io.sockets);
+    //console.log(sockets);
 
-    const game = {
-      'id': gameID,
-      'name': name,
-      'players': [],
-      'spectators': []
-    }
-
-    // add player id of player who is creating game
-    game.players.push(req.session.passport.user.id)
-    games.push(game);
-
-    res.json(game);
+    res.sendStatus(200);
   } catch(e) {
     console.log(e);
     res.sendStatus(404);
@@ -121,15 +67,14 @@ async function postGame(req, res) {
 
 // adds a player to an existing game
 async function joinGame(req, res) {
-  const game = getGame_id(req.query.id);
+  const game = _game.utility.search_gameID(req.query.id);
 
-  if(game.players.length == 2) {
-    console.log("game full...");
-    res.sendStatus(404);
+  if(game.addPlayer(req.session.passport.user.id)) {
+    // join socket game room
+    //io.socket
+    res.sendStatus(200);
   } else {
-    // add player to game
-    game.players.push(req.session.passport.user.id);
-    res.json(game);
+    res.sendStatus(404);
   }
 }
 
@@ -142,42 +87,27 @@ async function getCompanions(req, res) {
 
 // turn gameboard functions
 app.get('/api/game_getPlayerNumber', game_getPlayerNumber);
-app.get('/api/game_getPlayerCount', game_getPlayerCount);
 app.put('/api/game_start', startGame);
 app.get('/api/game_getPhase', game_getPhase);
 app.put('/api/game_nextPhase', game_nextPhase);
 
-const phaseOrder = [
-  'player1_phase_shop',
-  'player1_phase_arrangement',
-  'player1_phase_attacking',
-  'player2_phase_shop',
-  'player2_phase_arrangement',
-  'player2_phase_attacking'
-];
-
 // returns player1 or player2
 async function game_getPlayerNumber(req, res) {
-  const game = getGame_playerID(req.session.passport.user.id);
-  console.log(game);
+  const game = _game.utility.search_playerID(req.session.passport.user.id);
   console.log(game.players);
   console.log(req.session.passport.user.id);
 
   res.json({'playerNumber': `player${game.players.indexOf(req.session.passport.user.id) + 1}`});
 }
 
-async function game_getPlayerCount(req, res) {
-  const game = getGame_playerID(req.session.passport.user.id);
-
-  res.json({'playerCount': game.players.length});
-}
-
 async function startGame(req, res) {
   try {
-    const game = getGame_playerID(req.session.passport.user.id);
+    const game = _game.utility.search_playerID(req.session.passport.user.id);
+    _game.sockets[0].emit('message', 'starting game...');
+    _game.sockets[0].emit('phase', 'random phase message...');
 
     game.turn = 0;
-    game_setPhase(game, 'player1_phase_shop');
+    game.setPhase('player1_phase_shop');
 
     res.sendStatus(200);
   } catch(e) {
@@ -187,40 +117,22 @@ async function startGame(req, res) {
 }
 
 function game_getPhase(req, res) {
-  const game = getGame_playerID(req.session.passport.user.id);
-
+  const game = _game.utility.search_playerID(req.session.passport.user.id);
   res.json({'phase': game.phase});
-}
-
-function game_setPhase(game, phase) {
-  game.phase = phase;
-
-  // emit message
-  const gameSocket = getGameSocket(game.id);
-  gameSocket.emit('phase', phase);
 }
 
 async function game_nextPhase(req, res) {
   try {
-    const game = getGame_playerID(req.session.passport.user.id);
+    const game = _game.utility.search_playerID(req.session.passport.user.id);
     console.log("ending phase: " + game.phase);
     console.log("starting phase: " + getNextPhase(game.phase));
-    game_setPhase(game, getNextPhase(game.phase));
+    game.setPhase(_game.utility.getNextPhase(game.phase));
 
     res.sendStatus(200);
   } catch(e) {
     console.log(e);
     res.sendStatus(404);
   }
-}
-
-function getNextPhase(oldPhase) {
-  let nextPhaseIndex = phaseOrder.indexOf(oldPhase) + 1;
-  if(nextPhaseIndex == phaseOrder.length) {
-    nextPhaseIndex = 0;
-  }
-
-  return phaseOrder[nextPhaseIndex];
 }
 
 // 0auth 2.0
