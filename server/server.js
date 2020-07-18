@@ -9,7 +9,7 @@ const cookieSession = require('cookie-session');
 require('./auth.js');
 const _game = require('./game/game.js');
 _game.utility = require('./game/game_utility.js');
-const card = require('./game/cards.js');
+const card = require('./game/card.js');
 
 const config = require('./config');
 
@@ -99,6 +99,9 @@ app.get('/api/game_getPlayerNumber', game_getPlayerNumber);
 app.put('/api/game_start', startGame);
 app.get('/api/game_getPhase', game_getPhase);
 app.put('/api/game_nextPhase', game_nextPhase);
+// cards
+app.get('/api/card', getCard);
+app.get('/api/cards_shop', getShopCards);
 
 // returns player1 or player2
 async function game_getPlayerNumber(req, res) {
@@ -139,6 +142,22 @@ async function game_nextPhase(req, res) {
     console.log(e);
     res.sendStatus(404);
   }
+}
+
+// gets a single card using name
+async function getCard(req, res) {
+  // find card
+  res.json(card.getCard_name(req.query.name));
+}
+
+// gets 3 cards for shop
+async function getShopCards(req, res) {
+  // decide which cards will be selected
+  // for now first three
+  const cards = card.getCards();
+  // associate cards with game
+
+  res.json(cards.slice(0, 3));
 }
 
 // 0auth 2.0

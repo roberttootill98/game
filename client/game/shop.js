@@ -3,44 +3,46 @@
 'use strict';
 
 function add_shopButtons() {
-
+  // add open shop button to footer
+  const openButton = document.createElement('button');
+  document.getElementById('container_footerButtons').appendChild(openButton);
+  openButton.id = 'shop_openButton';
+  openButton.classList.add('button');
+  openButton.textContent = 'Open shop';
+  openButton.onclick = promptShop;
+  // disabled because shop opens by on phase start
+  openButton.disabled = true;
+  openButton.classList.add('button_disabled');
 }
 
 async function promptShop() {
-  displayShop(await getShopSpells());
-}
-
-// gets items for shop from server
-//
-async function getShopSpells() {
-  // in-memory, temp
-  return [
-    {
-      'name': 'hot squat',
-      'element': 'fire',
-      'cost': '£250',
-      'icon': '/assets/spells/hotSquat.png'
-    },
-    {
-      'name': 'freeze',
-      'element': 'water',
-      'cost': '£420',
-      'icon': '/assets/spells/freeze.png'
-    },
-    {
-      'name': 'shield',
-      'element': 'none',
-      'cost': '£100',
-      'icon': '/assets/spells/shield.png'
-    }
-  ]
-}
-
-function displayShop(spells) {
+  // shop container
   const shopContainer = document.createElement('div');
   document.body.appendChild(shopContainer);
   shopContainer.id = 'shop_container';
   shopContainer.classList.add('modalWindow');
+
+  // close button
+  const closeButton = document.createElement('button');
+  shopContainer.appendChild(closeButton);
+  closeButton.id = 'shop_closeButton';
+  closeButton.classList.add('button');
+  closeButton.textContent = 'X';
+  closeButton.onclick = closeShop;
+
+  displaySpells(await getShopCards());
+}
+
+function closeShop() {
+  document.getElementById('shop_container').remove();
+
+  const openButton = document.getElementById('shop_openButton');
+  openButton.disabled = false;
+  openButton.classList.remove('button_disabled');
+}
+
+function displaySpells(spells) {
+  const shopContainer = document.getElementById('shop_container');
 
   for(let i = 0; i < spells.length; i++) {
     const spell = spells[i];
@@ -55,13 +57,14 @@ function displayShop(spells) {
     // name
     const name = document.createElement('h3');
     spellContainer.appendChild(name);
+    name.id = spell.name;
     name.textContent = spell.name;
     // icon
     const icon = document.createElement('img');
     spellContainer.appendChild(icon);
     icon.id = spell.name;
     icon.classList.add('shop_spell');
-    icon.src = spell.icon;
+    icon.src = '/assets/spells/' + spell.icon;
     icon.draggable = true; // only add if money is valid
     // cost
     const cost = document.createElement('p');
@@ -69,21 +72,18 @@ function displayShop(spells) {
     cost.textContent = spell.cost;
 
     // drag event listeners
-    icon.addEventListener('dragstart', icon_dragstart);
-    icon.addEventListener('drop', icon_drop);
+    icon.addEventListener('dragstart', spell_icon_dragstart);
+    icon.addEventListener('dragend', spell_icon_dragend);
   }
 }
 
-function icon_dragstart(ev) {
+function spell_icon_dragstart(ev) {
   // encapsulate data
   ev.dataTransfer.setData('text/plain', ev.target.id);
+  console.log("starting drag");
   // change cursor
 }
 
-async function icon_drop(ev) {
-  ev.preventDefault();
-  console.log(`icon: ${ev.target.id} dropped`);
-
-  // validate move via server
-  // reduce money
+function spell_icon_dragend(ev) {
+  console.log('drag ended');
 }

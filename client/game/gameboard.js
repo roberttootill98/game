@@ -139,12 +139,13 @@ function createCompanions(container, companions) {
 
       const spellSlot = document.createElement('div');
       companionContainer.appendChild(spellSlot);
-      spellSlot.classList.add('spell' + j);
+      spellSlot.id = 'spellSlot' + j;
       spellSlot.classList.add('spell');
 
       // drag events
-      spellSlot.addEventListener('dragover', icon_dragover);
-      spellSlot.addEventListener('dragleave', icon_dragleave);
+      spellSlot.addEventListener('dragover', spellSlot_dragover);
+      spellSlot.addEventListener('dragleave', spellSlot_dragleave);
+      spellSlot.addEventListener('drop', spellSlot_drop);
 
       if(spell) {
         spellSlot.textContent = spell.name;
@@ -156,15 +157,38 @@ function createCompanions(container, companions) {
 
 // fires when a spell is dragged from the shop over a spell slot
 // highlight if drop location is valid
-async function icon_dragover(ev) {
+async function spellSlot_dragover(ev) {
   ev.preventDefault();
   ev.target.classList.add('spell_dragover');
 }
 
 // fires when a spell is dragged away from the shop over a spell slot
 // highlight if drop location is valid
-async function icon_dragleave(ev) {
+async function spellSlot_dragleave(ev) {
   ev.target.classList.remove('spell_dragover');
+}
+
+async function spellSlot_drop(ev) {
+  ev.preventDefault();
+
+  // get info
+  const spellSlot = ev.target;
+  const spellName = ev.dataTransfer.getData('text/plain');
+
+  // check if purchase is valid
+  // validate move via server
+
+  // check if spell slot is full
+  // prompt are you window
+
+  // reduce money
+
+  // remove card from shop
+  document.getElementById(spellName).parentNode.remove();
+  // fill spell slot with card
+  const card = await getCard(spellName);
+  spellSlot.id = card.name;
+  spellSlot.src = card.icon;
 }
 
 function add_footerButtons(container_footerButtons) {
@@ -176,13 +200,13 @@ function add_footerButtons(container_footerButtons) {
   phaseLabel.textContent = 'Phase: Shop'; // always starts with this phase
 
   // end phase button
-  // disabled until the player has control
   const button_endPhase = document.createElement('button');
   container_footerButtons.appendChild(button_endPhase);
   button_endPhase.id = 'button_endPhase';
   button_endPhase.classList.add('button');
-  button_endPhase.classList.add('button_disabled');
   button_endPhase.textContent = 'END PHASE';
   button_endPhase.onclick = endPhase;
+  // disabled until the player has control
   button_endPhase.disabled = true;
+  button_endPhase.classList.add('button_disabled');
 }

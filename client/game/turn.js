@@ -5,17 +5,6 @@
 
 let gameSocket;
 
-let gameSocket1;
-function startIOStuff() {
-  gameSocket1 = io.connect();
-  gameSocket1.on('connect', function() {
-    gameSocket1.emit('room', 'abc123');
-  });
-  gameSocket1.on('message', function(data) {
-    console.log("incoming message: " + data);
-  });
-}
-
 async function gameSocket_message(ev) {
   console.log("game socket message received");
   console.log(ev);
@@ -124,6 +113,8 @@ async function startGame() {
 
 // when previous turn has ended for enemy
 async function start_phase_shop() {
+  // add shop related buttons
+  add_shopButtons();
   // load shop
   await promptShop();
 }
