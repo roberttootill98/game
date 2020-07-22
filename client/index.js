@@ -2,6 +2,8 @@
 
 // if the user is logged in
 let loggedIn = false;
+// svg namespace
+const svgns = "http://www.w3.org/2000/svg";
 
 async function boot() {
   await add_headerButtons();

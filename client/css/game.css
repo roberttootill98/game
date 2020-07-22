@@ -6,6 +6,11 @@
   height: 95vh;
 }
 
+#game_svg_workspace {
+  position: absolute;
+  /* z-index: 100; */
+}
+
 /*
  * buttons for controls
  * eg. end turn
@@ -21,19 +26,18 @@
   grid-template-columns: repeat(5, 1fr);
 }
 
-#oppositionContainer {
-  background: red;
+#container_opposition {
+  /* background: red; */
 }
 
-#battlefieldContainer {
-  background: blue;
+#container_battlefield {
+  /* background: blue; */
 }
 
-#playerContainer {
-  background: green;
+#container_player {
+  /* background: green;
   position: absolute;
-  bottom: 5vh;
-  width: 100%;
+  bottom: 5vh; */
 }
 
 .companion0 {grid-area: companion0;}
@@ -41,7 +45,7 @@
 .companion2 {grid-area: companion2;}
 .companion3 {grid-area: companion3;}
 
-.sideContainer {
+.container_side {
   display: grid;
   grid-template-areas:
     'companion0 companion1 companion2 companion3';

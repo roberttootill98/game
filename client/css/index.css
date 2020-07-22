@@ -67,5 +67,6 @@ header {
 }
 
 .button {
+  /* z-index: 101; */
   margin: 0.5em;
 }
