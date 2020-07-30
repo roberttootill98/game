@@ -34,23 +34,23 @@ function buildCardSVG_full(card, target, width, height, x, y) {
   // container
   const card_svg = document.createElementNS(svgns, 'svg');
   target.appendChild(card_svg);
-  card_svg.classList.add('draggable');
+  card_svg.classList.add('card_draggable');
   card_svg.setAttribute('width', width);
   card_svg.setAttribute('height', height);
   card_svg.setAttribute('x', x);
   card_svg.setAttribute('y', y);
 
   // add event listeners
-  card_svg.addEventListener('mousedown', startDrag);
-  card_svg.addEventListener('mousemove', drag);
-  card_svg.addEventListener('mouseup', endDrag);
-  card_svg.addEventListener('mouseleave', endDrag);
+  card_svg.addEventListener('mousedown', card_startDrag);
+  card_svg.addEventListener('mousemove', card_drag);
+  card_svg.addEventListener('mouseup', card_endDrag);
+  card_svg.addEventListener('mouseleave', card_endDrag);
 
   // main card
   // covers complete size of svg
   const card_rect = document.createElementNS(svgns, 'rect');
   card_svg.appendChild(card_rect);
-  card_rect.classList.add('draggable');
+  card_rect.classList.add('card_draggable');
   card_rect.setAttribute('width', width);
   card_rect.setAttribute('height', height);
   card_rect.setAttribute('fill', element_colours[card.element]);
@@ -61,7 +61,8 @@ function buildCardSVG_full(card, target, width, height, x, y) {
   // name text
   const name_text = document.createElementNS(svgns, 'text');
   card_svg.appendChild(name_text);
-  name_text.classList.add('draggable');
+  name_text.classList.add('card_name');
+  name_text.classList.add('card_draggable');
   name_text.textContent = card.name;
   name_text.setAttribute('x', width * 0.5 - name_text.getComputedTextLength() / 2);
   name_text.setAttribute('y', height * 0.6);
@@ -81,7 +82,7 @@ function buildCardSVG_full(card, target, width, height, x, y) {
   // vertical line 1
   const vertical_line_1 = document.createElementNS(svgns, 'line');
   card_svg.appendChild(vertical_line_1);
-  vertical_line_1.classList.add('draggable');
+  vertical_line_1.classList.add('card_draggable');
   vertical_line_1.setAttribute('x1', width * (1/3));
   vertical_line_1.setAttribute('y1', header_line_height);
   vertical_line_1.setAttribute('x2', width * (1/3));
@@ -90,7 +91,7 @@ function buildCardSVG_full(card, target, width, height, x, y) {
   // vertical line 2
   const vertical_line_2 = document.createElementNS(svgns, 'line');
   card_svg.appendChild(vertical_line_2);
-  vertical_line_2.classList.add('draggable');
+  //vertical_line_2.classList.add('draggable');
   vertical_line_2.setAttribute('x1', width * 2 * (1/3));
   vertical_line_2.setAttribute('y1', header_line_height);
   vertical_line_2.setAttribute('x2', width * 2 * (1/3));
@@ -101,7 +102,7 @@ function buildCardSVG_full(card, target, width, height, x, y) {
   // cost
   const card_cost_text = document.createElementNS(svgns, 'text');
   card_svg.appendChild(card_cost_text);
-  card_cost_text.classList.add('draggable');
+  card_cost_text.classList.add('card_draggable');
   card_cost_text.textContent = '£69';
   card_cost_text.setAttribute('x', width * (1/6) - card_cost_text.getComputedTextLength() / 2);
   card_cost_text.setAttribute('y', header_line_height + (height - header_line_height) / 2);
@@ -109,7 +110,7 @@ function buildCardSVG_full(card, target, width, height, x, y) {
   // damage
   const card_damage_text = document.createElementNS(svgns, 'text');
   card_svg.appendChild(card_damage_text);
-  card_damage_text.classList.add('draggable');
+  card_damage_text.classList.add('card_draggable');
   card_damage_text.textContent = card.damage;
   card_damage_text.setAttribute('x', width * 0.5 - card_damage_text.getComputedTextLength() / 2);
   card_damage_text.setAttribute('y', header_line_height + (height - header_line_height) / 2);
@@ -117,7 +118,7 @@ function buildCardSVG_full(card, target, width, height, x, y) {
   // mana
   const card_mana_text = document.createElementNS(svgns, 'text');
   card_svg.appendChild(card_mana_text);
-  card_mana_text.classList.add('draggable');
+  card_mana_text.classList.add('card_draggable');
   card_mana_text.textContent = card.damage;
   card_mana_text.setAttribute('x', width * 5 * (1/6) - card_mana_text.getComputedTextLength() / 2);
   card_mana_text.setAttribute('y', header_line_height + (height - header_line_height) / 2);
@@ -152,9 +153,15 @@ function buildCardSVG_miniature(card, target, width, height, x, y) {
   return card_svg;
 }
 
-let currently_dragged_svg = null;
+let currently_dragged_card_svg = null;
+let currently_dragged_over_spellSlot = null;
+
+// mouse position
 let old_clientX;
 let old_clientY;
+// for snapback
+let old_position_x;
+let old_position_y;
 
 // gets top level svg element from inner svg element
 function getTopLevelSVG(node) {
@@ -165,23 +172,26 @@ function getTopLevelSVG(node) {
 }
 
 // checks if an element is draggable
-function checkIfDraggable(node) {
-  return node.classList.contains('draggable');
+function card_checkIfDraggable(node) {
+  return node.classList.contains('card_draggable');
 }
 
 // checks if the current element is being dragged
-function currentDragging(node) {
-  return node.classList.contains('dragging');
+function card_currentDragging(node) {
+  return node.classList.contains('card_dragging');
 }
 
-function startDrag(ev) {
-  if(checkIfDraggable(ev.target)) {
+function card_startDrag(ev) {
+  if(card_checkIfDraggable(ev.target)) {
     // indicate that current svg is being dragged
     const topLevel = getTopLevelSVG(ev.target);
-    currently_dragged_svg = topLevel;
+    currently_dragged_card_svg = topLevel;
 
     old_clientX = ev.clientX;
     old_clientY = ev.clientY;
+
+    old_position_x = topLevel.getAttribute('x');
+    old_position_y = topLevel.getAttribute('y');
   }
 }
 
@@ -203,40 +213,63 @@ function getCoords(ev, topLevel) {
   };
 }
 
-function drag(ev) {
-  if(currently_dragged_svg && checkIfDraggable(ev.target)) {
+function card_drag(ev) {
+  if(currently_dragged_card_svg && card_checkIfDraggable(ev.target)) {
     ev.preventDefault();
 
     // update co-ords of svg to mouse position
     const topLevel = getTopLevelSVG(ev.target);
-    const coord = getCoords(ev, topLevel);
-    topLevel.setAttribute('x', coord.x);
-    topLevel.setAttribute('y', coord.y);
+    const coords = getCoords(ev, topLevel);
+    topLevel.setAttribute('x', coords.x);
+    topLevel.setAttribute('y', coords.y);
 
     old_clientX = ev.clientX;
     old_clientY = ev.clientY;
+
+    // check if there is a spell slot underneath card (within range)
+    const spellSlot = spellSlot_inRange(coords);
+    if(spellSlot) {
+      // remember spell slot for data transfer
+      currently_dragged_over_spellSlot = spellSlot;
+
+      // highlight spellSlot for dropping
+      spellSlot.classList.add('spellSlot_highlighted');
+      spellSlot.querySelector('rect').setAttribute('fill', 'blue');
+    } else {
+      currently_dragged_over_spellSlot = null;
+
+      spellSlot_removeHighlighting();
+    }
+    // if so then higlight that these will connect if dropped here
   }
 }
 
-function endDrag(ev) {
-  if(currently_dragged_svg && checkIfDraggable(ev.target)) {
+function card_endDrag(ev) {
+  if(currently_dragged_card_svg && card_checkIfDraggable(ev.target)) {
+    const topLevel = getTopLevelSVG(ev.target);
+
     // if placed over thing that it can dropped into
-    if(ev.target) {
+    if(currently_dragged_over_spellSlot) {
       // data transfer
+
+      // draw miniature version of current card in spell slot
+      // get card name as unique identifier of card type
+      const card_name = currently_dragged_card_svg.querySelector('.card_name').textContent;
+
+      //buildCardSVG_miniature();
     } else {
       // snapback
+      topLevel.setAttribute('x', old_position_x);
+      topLevel.setAttribute('y', old_position_y);
     }
 
+    // tear down drag event attributes
+
     // indicate that drag is finished on current svg
-    currently_dragged_svg = null;
+    currently_dragged_card_svg = null;
+    // finished dragging over current spellSlot
+    currently_dragged_over_spellSlot = null;
+    // DOM
+    spellSlot_removeHighlighting();
   }
-}
-
-// testing
-async function createAirCard() {
-  buildCardSVG_full(await getCard('air 1'), document.body, 100, 200);
-}
-
-async function createAirCard_small() {
-  buildCardSVG_miniature(await getCard('air 1'), document.body, 20, 30);
 }

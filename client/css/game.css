@@ -87,10 +87,6 @@
   height: 1.25em;
 }
 
-.spell_dragover {
-  background: blue;
-}
-
 /* shop stuff */
 #shop_closeButton {grid-area: shop_closeButton;}
 #shop_spell0 {grid-area: shop_spell0;}

@@ -21,6 +21,9 @@ function getHeight() {
   );
 }
 
+// spell slots
+const spellSlots = [];
+
 // creates dom for game board
 async function createGameBoard() {
   console.log("creating game board");
@@ -167,6 +170,10 @@ async function createSideContainer(game_svg_workspace, side_type) {
         spellSlot_background.setAttribute('stroke', 'black');
 
         // event listeners
+        //spellSlot.addEventListener('mouseover', spellSlot_mouseover);
+        //spellSlot.addEventListener('mouseleave', spellSlot_mouseleave);
+
+        spellSlots.push(spellSlot);
       }
     }
   }
@@ -240,6 +247,104 @@ async function getCompanions() {
   ];
 }
 
+// checks if given (x, y) position is within any of the spell slots
+function spellSlot_inRange(coords) {
+  // coords.x, coords.y
+  // coords are absolute
+
+  for(const [i, spellSlot] of spellSlots.entries()) {
+    // get absolute spellSlot coords
+    const spellSlot_coords = spellSlot_getAbsoluteCoords(spellSlot);
+    const width = parseFloat(spellSlot.getAttribute('width'));
+    const height = parseFloat(spellSlot.getAttribute('height'));
+
+    if((coords.x >= spellSlot_coords.x) &&
+      (coords.x <= (spellSlot_coords.x + width)) &&
+      (coords.y >= spellSlot_coords.y) &&
+      (coords.y <= (spellSlot_coords.y + height))) {
+        return spellSlot;
+    }
+  }
+
+  // failed to find any spellSlots which the coords fit inside
+  return false;
+}
+
+function spellSlot_getAbsoluteCoords(spellSlot) {
+  let svg_element = spellSlot;
+  let x = 0;
+  let y = 0;
+
+  while(svg_element.id != 'game_svg_workspace') {
+    x += parseFloat(svg_element.getAttribute('x'));
+    y += parseFloat(svg_element.getAttribute('y'));
+
+    svg_element = getTopLevelSVG(svg_element.parentNode);
+  }
+
+  return {
+    'x': x,
+    'y': y
+  }
+}
+
+// keeps track of the last spell slot moused over
+let current_spellSlot_mouseover;
+
+// fires when a spell is dragged from the shop over a spell slot
+// highlight if drop location is valid
+async function spellSlot_mouseover(ev) {
+  if(currently_dragged_card_svg) {
+    ev.preventDefault();
+    ev.target.classList.add('spell_mouseover');
+    current_spellSlot_mouseover = ev.target;
+  }
+}
+
+// fires when a spell is dragged away from the shop over a spell slot
+// highlight if drop location is valid
+async function spellSlot_mouseleave(ev) {
+  if(currently_dragged_card_svg) {
+    ev.preventDefault();
+    ev.target.classList.remove('spell_mouseover');
+    current_spellSlot_mouseover = null;
+  }
+}
+
+async function spellSlot_drop(ev) {
+  ev.preventDefault();
+
+  // get info
+  const spellSlot = ev.target;
+  const spellName = ev.dataTransfer.getData('text/plain');
+
+  // check if purchase is valid
+  // validate move via server
+
+  // check if spell slot is full
+  // prompt are you window
+
+  // reduce money
+
+  // remove card from shop
+  document.getElementById(spellName).parentNode.remove();
+  // fill spell slot with card
+  const card = await getCard(spellName);
+  spellSlot.id = card.name;
+  spellSlot.src = card.icon;
+}
+
+function spellSlot_removeHighlighting() {
+  // strip all spell slots of highlighting
+  for(const spellSlot of document.querySelectorAll('.spellSlot_highlighted')) {
+    spellSlot.classList.remove('spellSlot_highlighted');
+    spellSlot.querySelector('rect').setAttribute('fill', 'pink');
+  }
+}
+
+/* FOOTER BAR */
+
+
 function createFooterBar(game_svg_workspace) {
   const width = game_svg_workspace.getAttribute('width');
   const height = game_svg_workspace.getAttribute('height');
@@ -264,47 +369,6 @@ function createFooterBar(game_svg_workspace) {
   footer_background.setAttribute('fill', 'pink');
 
   // end phase button
-}
-
-function cardSlot_dragover(ev) {
-  ev.preventDefault();
-  ev.target.classList.add('spell_dragover');
-}
-
-// fires when a spell is dragged from the shop over a spell slot
-// highlight if drop location is valid
-async function spellSlot_dragover(ev) {
-  ev.preventDefault();
-  ev.target.classList.add('spell_dragover');
-}
-
-// fires when a spell is dragged away from the shop over a spell slot
-// highlight if drop location is valid
-async function spellSlot_dragleave(ev) {
-  ev.target.classList.remove('spell_dragover');
-}
-
-async function spellSlot_drop(ev) {
-  ev.preventDefault();
-
-  // get info
-  const spellSlot = ev.target;
-  const spellName = ev.dataTransfer.getData('text/plain');
-
-  // check if purchase is valid
-  // validate move via server
-
-  // check if spell slot is full
-  // prompt are you window
-
-  // reduce money
-
-  // remove card from shop
-  document.getElementById(spellName).parentNode.remove();
-  // fill spell slot with card
-  const card = await getCard(spellName);
-  spellSlot.id = card.name;
-  spellSlot.src = card.icon;
 }
 
 function add_footerButtons(container_footerButtons) {
