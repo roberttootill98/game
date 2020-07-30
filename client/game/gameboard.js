@@ -136,16 +136,17 @@ async function createSideContainer(game_svg_workspace, side_type) {
 
     // spell slots
     for(const [j, spell] of companion.spells.entries()) {
-      const card = {
-        'width': container_companion.getAttribute('width') * 0.35,
-        'height': container_companion.getAttribute('height') * 0.8 * 0.25,
-        'x':container_companion.getAttribute('width') * 0.65,
-        'y': container_companion.getAttribute('height') * 0.2 + container_companion.getAttribute('height') * 0.8 * 0.25 * j
-      };
+      const card = getCardSize(container_companion, j);
 
       if(spell) {
         // if there is a spell the contents of this is filled with
-        const mini_card_svg = buildCardSVG_miniature(spell, container_companion, card.width, card.height, card.x, card.y);
+
+        // since draggable items must be appended to top level
+        // the (x, y) coordinates are based on top level coords
+        const coords = getAbsoluteCoords(container_companion);
+
+        const mini_card_svg = buildCardSVG_miniature(spell, game_svg_workspace,
+          card.width, card.height, coords.x + card.x, coords.y + card.y);
         mini_card_svg.id = 'spellSlot' + j;
         mini_card_svg.classList.add('spellSlot_filled');
       } else {
@@ -179,6 +180,15 @@ async function createSideContainer(game_svg_workspace, side_type) {
   }
 
   return container_side;
+}
+
+function getCardSize(container_companion, index) {
+  return {
+    'width': container_companion.getAttribute('width') * 0.35,
+    'height': container_companion.getAttribute('height') * 0.8 * 0.25,
+    'x': container_companion.getAttribute('width') * 0.65,
+    'y': container_companion.getAttribute('height') * 0.2 + container_companion.getAttribute('height') * 0.8 * 0.25 * index
+  };
 }
 
 async function getCompanions() {
@@ -254,7 +264,7 @@ function spellSlot_inRange(coords) {
 
   for(const [i, spellSlot] of spellSlots.entries()) {
     // get absolute spellSlot coords
-    const spellSlot_coords = spellSlot_getAbsoluteCoords(spellSlot);
+    const spellSlot_coords = getAbsoluteCoords(spellSlot);
     const width = parseFloat(spellSlot.getAttribute('width'));
     const height = parseFloat(spellSlot.getAttribute('height'));
 
@@ -270,8 +280,8 @@ function spellSlot_inRange(coords) {
   return false;
 }
 
-function spellSlot_getAbsoluteCoords(spellSlot) {
-  let svg_element = spellSlot;
+function getAbsoluteCoords(target) {
+  let svg_element = target;
   let x = 0;
   let y = 0;
 

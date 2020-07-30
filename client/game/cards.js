@@ -244,7 +244,7 @@ function card_drag(ev) {
   }
 }
 
-function card_endDrag(ev) {
+async function card_endDrag(ev) {
   if(currently_dragged_card_svg && card_checkIfDraggable(ev.target)) {
     const topLevel = getTopLevelSVG(ev.target);
 
@@ -255,8 +255,19 @@ function card_endDrag(ev) {
       // draw miniature version of current card in spell slot
       // get card name as unique identifier of card type
       const card_name = currently_dragged_card_svg.querySelector('.card_name').textContent;
+      const card = await getCard(card_name);
 
-      //buildCardSVG_miniature();
+      const game_svg_workspace = document.getElementById('game_svg_workspace');
+
+      const container_companion = currently_dragged_over_spellSlot.parentNode;
+      const cardSize = getCardSize(container_companion, currently_dragged_over_spellSlot.id.slice(-1));
+      const coords = getAbsoluteCoords(container_companion);
+
+      buildCardSVG_miniature(card, game_svg_workspace, cardSize.width, cardSize.height,
+        coords.x + cardSize.x, coords.y + cardSize.y);
+
+      // delete card svg
+      currently_dragged_card_svg.remove();
     } else {
       // snapback
       topLevel.setAttribute('x', old_position_x);
