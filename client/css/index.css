@@ -70,3 +70,10 @@ header {
   /* z-index: 101; */
   margin: 0.5em;
 }
+
+.button_enabled:hover {
+  cursor: pointer;
+}
+.button_disabled:hover {
+  cursor: default;
+}

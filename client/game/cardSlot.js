@@ -43,8 +43,6 @@ class CardSlot {
     }
   }
 
-
-
   /**
    * draws the svg of the card slot
    * associates svg with object

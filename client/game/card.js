@@ -1,5 +1,4 @@
 // functions to do with cards
-
 'use strict'
 
 // gets card details using
@@ -123,32 +122,6 @@ function buildCardSVG_full(card, target, width, height, x, y) {
   card_mana_text.setAttribute('x', width * 5 * (1/6) - card_mana_text.getComputedTextLength() / 2);
   card_mana_text.setAttribute('y', header_line_height + (height - header_line_height) / 2);
   card_mana_text.setAttribute('fill', 'mana');
-
-  return card_svg;
-}
-
-function buildCardSVG_miniature(card, target, width, height, x, y) {
-  const card_svg = document.createElementNS(svgns, 'svg');
-  target.appendChild(card_svg);
-  card_svg.setAttribute('width', width);
-  card_svg.setAttribute('height', height);
-  card_svg.setAttribute('x', x);
-  card_svg.setAttribute('y', y);
-
-  // background
-  const card_background = document.createElementNS(svgns, 'rect');
-  card_svg.appendChild(card_background);
-  // svg attributes
-  card_background.setAttribute('width', width);
-  card_background.setAttribute('height', height);
-  card_background.setAttribute('x', 0);
-  card_background.setAttribute('y', 0);
-  card_background.setAttribute('fill', 'purple');
-  card_background.setAttribute('stroke', 'black');
-
-  // make icon using lookup table functions
-
-  // event listeners
 
   return card_svg;
 }

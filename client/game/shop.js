@@ -9,11 +9,15 @@ function add_shopButtons() {
   const height = container_footer.getAttribute('height');
 
   // open shop button
-  svg_createFooterButton('shop_openButton', promptShop, width, height,
-    'Open shop');
+  const button_openShop = new FooterButton('shop_openButton', promptShop, false,
+    width, height, 'Open shop');
+  button_openShop.draw();
 }
 
 async function promptShop() {
+  // disable open shop button
+  FooterButton.getByID('shop_openButton').disable();
+
   const game_svg_workspace = document.getElementById('game_svg_workspace');
   const width = game_svg_workspace.getAttribute('width');
   const height = game_svg_workspace.getAttribute('height');
@@ -95,18 +99,24 @@ async function promptShop() {
 
     // cards must appended to top level workspace
     const cardSVG = buildCardSVG_full(card, game_svg_workspace, cardAttributes.width, cardAttributes.height, card_x, card_y);
-    //const cardSVG = buildCardSVG_full(card, container_shop, cardAttributes.width, cardAttributes.height, card_x, card_y);
+    cardSVG.classList.add('shop_card');
   }
 }
 
 function closeShop() {
-  // remove shop
-  document.getElementById('container_shop').remove();
+  try {
+    // remove shop
+    document.getElementById('container_shop').remove();
+    // remove any remaining cards
+    let cardNodes = document.querySelectorAll('.shop_card');
+    while(cardNodes.length != 0) {
+      cardNodes[0].remove();
+      cardNodes = document.querySelectorAll('.shop_card');
+    }
 
-  // enable open shop button
-
-  // const openButton = document.getElementById('shop_openButton');
-  // openButton.disabled = false;
-  // openButton.classList.remove('button_disabled');
-
+    // enable open shop button
+    FooterButton.getByID('shop_openButton').enable();
+  } catch(e) {
+    // avoid erroring on multiple clicks before shop fully disappears
+  }
 }
