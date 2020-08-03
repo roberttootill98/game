@@ -8,37 +8,9 @@ function add_shopButtons() {
   const width = container_footer.getAttribute('width');
   const height = container_footer.getAttribute('height');
 
-  // add open shop button to footer
-  const container_openButton = document.createElementNS(svgns, 'svg');
-  container_footer.appendChild(container_openButton);
-  container_openButton.id = 'shop_openButton';
-  container_openButton.onclick = promptShop;
-  // svg attributes
-  container_openButton.setAttribute('width', width * 0.2);
-  container_openButton.setAttribute('height', height * 0.75);
-  container_openButton.setAttribute('x', width * 0.05);
-  container_openButton.setAttribute('y', height * 0.125);
-
-  // background
-  const openButton_background = document.createElementNS(svgns, 'rect');
-  container_openButton.appendChild(openButton_background);
-  openButton_background.onclick = promptShop;
-  // svg attributes
-  openButton_background.setAttribute('width', container_openButton.getAttribute('width'));
-  openButton_background.setAttribute('height', container_openButton.getAttribute('height'));
-  openButton_background.setAttribute('x', 0);
-  openButton_background.setAttribute('y', 0);
-  openButton_background.setAttribute('fill', 'white');
-
-  // text
-  const openButton_text = document.createElementNS(svgns, 'text');
-  container_openButton.appendChild(openButton_text);
-  openButton_text.setAttribute('stroke', 'black');
-  openButton_text.textContent = 'Open shop';
-  openButton_text.onclick = promptShop;
-  // svg attributes
-  openButton_text.setAttribute('x', container_openButton.getAttribute('width') * 0.5 - openButton_text.getComputedTextLength() / 2);
-  openButton_text.setAttribute('y', container_openButton.getAttribute('height') * 0.5);
+  // open shop button
+  svg_createFooterButton('shop_openButton', promptShop, width, height,
+    'Open shop');
 }
 
 async function promptShop() {

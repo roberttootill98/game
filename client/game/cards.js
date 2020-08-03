@@ -154,7 +154,7 @@ function buildCardSVG_miniature(card, target, width, height, x, y) {
 }
 
 let currently_dragged_card_svg = null;
-let currently_dragged_over_spellSlot = null;
+let currently_dragged_over_cardSlot = null;
 
 // mouse position
 let old_clientX;
@@ -227,18 +227,18 @@ function card_drag(ev) {
     old_clientY = ev.clientY;
 
     // check if there is a spell slot underneath card (within range)
-    const spellSlot = spellSlot_inRange(coords);
-    if(spellSlot) {
-      // remember spell slot for data transfer
-      currently_dragged_over_spellSlot = spellSlot;
+    const cardSlot = cardSlot_inRange(coords);
+    if(cardSlot) {
+      // remember card slot for data transfer
+      currently_dragged_over_cardSlot = cardSlot;
 
-      // highlight spellSlot for dropping
-      spellSlot.classList.add('spellSlot_highlighted');
-      spellSlot.querySelector('rect').setAttribute('fill', 'blue');
+      // highlight card slot for dropping
+      cardSlot.svg.classList.add('cardSlot_highlighted');
+      cardSlot.svg.background.setAttribute('fill', 'blue');
     } else {
-      currently_dragged_over_spellSlot = null;
+      currently_dragged_over_cardSlot = null;
 
-      spellSlot_removeHighlighting();
+      cardSlot_removeHighlighting();
     }
     // if so then higlight that these will connect if dropped here
   }
@@ -249,7 +249,7 @@ async function card_endDrag(ev) {
     const topLevel = getTopLevelSVG(ev.target);
 
     // if placed over thing that it can dropped into
-    if(currently_dragged_over_spellSlot) {
+    if(currently_dragged_over_cardSlot) {
       // data transfer
 
       // draw miniature version of current card in spell slot
@@ -257,14 +257,14 @@ async function card_endDrag(ev) {
       const card_name = currently_dragged_card_svg.querySelector('.card_name').textContent;
       const card = await getCard(card_name);
 
+      const container_companion = currently_dragged_over_cardSlot.svg.parentNode;
+      const index = currently_dragged_over_cardSlot.svg.id.slice(-1);
+
+      const cardSlot_attributes = CardSlot.calculateCardSize(container_companion, index);
       const game_svg_workspace = document.getElementById('game_svg_workspace');
 
-      const container_companion = currently_dragged_over_spellSlot.parentNode;
-      const cardSize = getCardSize(container_companion, currently_dragged_over_spellSlot.id.slice(-1));
-      const coords = getAbsoluteCoords(container_companion);
-
-      buildCardSVG_miniature(card, game_svg_workspace, cardSize.width, cardSize.height,
-        coords.x + cardSize.x, coords.y + cardSize.y);
+      currently_dragged_over_cardSlot.card = card;
+      currently_dragged_over_cardSlot.draw_filled(game_svg_workspace, container_companion, index);
 
       // delete card svg
       currently_dragged_card_svg.remove();
@@ -279,8 +279,8 @@ async function card_endDrag(ev) {
     // indicate that drag is finished on current svg
     currently_dragged_card_svg = null;
     // finished dragging over current spellSlot
-    currently_dragged_over_spellSlot = null;
+    currently_dragged_over_cardSlot = null;
     // DOM
-    spellSlot_removeHighlighting();
+    cardSlot_removeHighlighting();
   }
 }

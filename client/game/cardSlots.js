@@ -1,0 +1,117 @@
+// functions todo with the card slots within the gameboard
+// defines card slot as an object that has functions associated with it
+'use strict'
+
+const cardSlots = [];
+
+class CardSlot {
+  /**
+   * creates new card slot
+   * @constructor
+   * @param {JSON}, card as a card json or null
+   */
+  constructor(card, width, height, position) {
+    // properties from arguments
+    this.card = card;
+    this.width = width;
+    this.height = height;
+    this.position = position;
+    // default properties
+    this.filled = false;
+
+    // svg
+    this.svg = null;
+
+    cardSlots.push(this);
+  }
+
+  /**
+   * calculates the attributes of card slot before it is drawn
+   * @param {svg node} container_companion, the node which the card svg is placed within
+   * @param {integer} index, indicates which number card slot is being drawn
+   * @returns {JSON} of attributes
+   */
+  static calculateCardSize(container_companion, index) {
+    return {
+      'width': container_companion.getAttribute('width') * 0.35,
+      'height': container_companion.getAttribute('height') * 0.8 * 0.25,
+      'position': {
+        'x': container_companion.getAttribute('width') * 0.65,
+        'y': container_companion.getAttribute('height') * 0.2 +
+          container_companion.getAttribute('height') * 0.8 * 0.25 * index
+      }
+    }
+  }
+
+
+
+  /**
+   * draws the svg of the card slot
+   * associates svg with object
+   * @param {svg node} target, for appending the card slot to, should be a container_companion
+   * @param {integer} index, indicates which number card slot is being drawn
+   */
+  draw_empty(target, index) {
+    const cardSlot = document.createElementNS(svgns, 'svg');
+    this.svg = cardSlot;
+    target.appendChild(cardSlot);
+    cardSlot.id = 'cardSlot' + index;
+    cardSlot.classList.add('cardSlot_empty');
+    // svg attributes
+    cardSlot.setAttribute('width', this.width);
+    cardSlot.setAttribute('height', this.height);
+    cardSlot.setAttribute('x', this.position.x);
+    cardSlot.setAttribute('y', this.position.y);
+
+    // background
+    const cardSlot_background = document.createElementNS(svgns, 'rect');
+    this.svg.background = cardSlot_background;
+    cardSlot.appendChild(cardSlot_background);
+    // svg attributes
+    cardSlot_background.setAttribute('width', cardSlot.getAttribute('width'));
+    cardSlot_background.setAttribute('height', cardSlot.getAttribute('height'));
+    cardSlot_background.setAttribute('fill', 'pink');
+    cardSlot_background.setAttribute('stroke', 'black');
+
+    // event listeners
+    cardSlot.addEventListener('mouseover', cardSlot_mouseover);
+    cardSlot.addEventListener('mouseleave', cardSlot_mouseleave);
+  }
+
+  /**
+   * draws the svg of a card in miniature form in the card slot
+   * drawn at top level in workspace for drag and drop events
+   * @param {svg node} topLevel, top level workspace element
+   * @param {svg node} target, gets position of svg, should be a container_companion
+   * @param {integer} index, indicates which number card slot is being drawn
+   */
+  draw_filled(topLevel, target, index) {
+    const container_position = getAbsoluteCoords(target);
+
+    const card_svg = document.createElementNS(svgns, 'svg');
+    this.svg = card_svg;
+    topLevel.appendChild(card_svg);
+    card_svg.id = 'cardSlot' + index;
+    card_svg.classList.add('cardSlot_filled');
+    card_svg.setAttribute('width', this.width);
+    card_svg.setAttribute('height', this.height);
+    card_svg.setAttribute('x', this.position.x + container_position.x);
+    card_svg.setAttribute('y', this.position.y + container_position.y);
+
+    // background
+    const card_background = document.createElementNS(svgns, 'rect');
+    this.svg.background = card_background;
+    card_svg.appendChild(card_background);
+    // svg attributes
+    card_background.setAttribute('width', this.width);
+    card_background.setAttribute('height', this.height);
+    card_background.setAttribute('x', 0);
+    card_background.setAttribute('y', 0);
+    card_background.setAttribute('fill', 'purple');
+    card_background.setAttribute('stroke', 'black');
+
+    // make icon using lookup table functions
+
+    // event listeners
+  }
+}

@@ -134,61 +134,22 @@ async function createSideContainer(game_svg_workspace, side_type) {
     icon_background.setAttribute('height', icon_container.getAttribute('height'));
     icon_background.setAttribute('fill', 'brown');
 
-    // spell slots
-    for(const [j, spell] of companion.spells.entries()) {
-      const card = getCardSize(container_companion, j);
+    // card slots
+    for(const [j, card] of companion.spells.entries()) {
+      const cardSlot_attributes = CardSlot.calculateCardSize(container_companion, j);
 
-      if(spell) {
-        // if there is a spell the contents of this is filled with
+      const cardSlot = new CardSlot(card, cardSlot_attributes.width,
+        cardSlot_attributes.height, cardSlot_attributes.position);
 
-        // since draggable items must be appended to top level
-        // the (x, y) coordinates are based on top level coords
-        const coords = getAbsoluteCoords(container_companion);
-
-        const mini_card_svg = buildCardSVG_miniature(spell, game_svg_workspace,
-          card.width, card.height, coords.x + card.x, coords.y + card.y);
-        mini_card_svg.id = 'spellSlot' + j;
-        mini_card_svg.classList.add('spellSlot_filled');
+      if(cardSlot.card) {
+        cardSlot.draw_filled(game_svg_workspace, container_companion, j);
       } else {
-        // if not then make an empty spell slot
-        const spellSlot = document.createElementNS(svgns, 'svg');
-        container_companion.appendChild(spellSlot);
-        spellSlot.id = 'spellSlot' + j;
-        spellSlot.classList.add('spellSlot_empty');
-        // svg attributes
-        spellSlot.setAttribute('width', card.width);
-        spellSlot.setAttribute('height', card.height);
-        spellSlot.setAttribute('x', card.x);
-        spellSlot.setAttribute('y', card.y);
-
-        // background
-        const spellSlot_background = document.createElementNS(svgns, 'rect');
-        spellSlot.appendChild(spellSlot_background);
-        // svg attributes
-        spellSlot_background.setAttribute('width', spellSlot.getAttribute('width'));
-        spellSlot_background.setAttribute('height', spellSlot.getAttribute('height'));
-        spellSlot_background.setAttribute('fill', 'pink');
-        spellSlot_background.setAttribute('stroke', 'black');
-
-        // event listeners
-        //spellSlot.addEventListener('mouseover', spellSlot_mouseover);
-        //spellSlot.addEventListener('mouseleave', spellSlot_mouseleave);
-
-        spellSlots.push(spellSlot);
+        cardSlot.draw_empty(container_companion, j);
       }
     }
   }
 
   return container_side;
-}
-
-function getCardSize(container_companion, index) {
-  return {
-    'width': container_companion.getAttribute('width') * 0.35,
-    'height': container_companion.getAttribute('height') * 0.8 * 0.25,
-    'x': container_companion.getAttribute('width') * 0.65,
-    'y': container_companion.getAttribute('height') * 0.2 + container_companion.getAttribute('height') * 0.8 * 0.25 * index
-  };
 }
 
 async function getCompanions() {
@@ -257,26 +218,29 @@ async function getCompanions() {
   ];
 }
 
-// checks if given (x, y) position is within any of the spell slots
-function spellSlot_inRange(coords) {
+// checks if given (x, y) position is within any of the card slots
+function cardSlot_inRange(coords) {
   // coords.x, coords.y
   // coords are absolute
 
-  for(const [i, spellSlot] of spellSlots.entries()) {
-    // get absolute spellSlot coords
-    const spellSlot_coords = getAbsoluteCoords(spellSlot);
-    const width = parseFloat(spellSlot.getAttribute('width'));
-    const height = parseFloat(spellSlot.getAttribute('height'));
+  for(const [i, cardSlot] of cardSlots.entries()) {
+    // check if cardSlot is empty
+    if(!cardSlot.card) {
+      // get absolute cardSlot coords
+      const cardSlot_coords = getAbsoluteCoords(cardSlot.svg);
+      const width = parseFloat(cardSlot.svg.getAttribute('width'));
+      const height = parseFloat(cardSlot.svg.getAttribute('height'));
 
-    if((coords.x >= spellSlot_coords.x) &&
-      (coords.x <= (spellSlot_coords.x + width)) &&
-      (coords.y >= spellSlot_coords.y) &&
-      (coords.y <= (spellSlot_coords.y + height))) {
-        return spellSlot;
+      if((coords.x >= cardSlot_coords.x) &&
+        (coords.x <= (cardSlot_coords.x + width)) &&
+        (coords.y >= cardSlot_coords.y) &&
+        (coords.y <= (cardSlot_coords.y + height))) {
+          return cardSlot;
+      }
     }
   }
 
-  // failed to find any spellSlots which the coords fit inside
+  // failed to find any cardSlot which the coords fit inside
   return false;
 }
 
@@ -299,34 +263,34 @@ function getAbsoluteCoords(target) {
 }
 
 // keeps track of the last spell slot moused over
-let current_spellSlot_mouseover;
+let current_cardSlot_mouseover;
 
 // fires when a spell is dragged from the shop over a spell slot
 // highlight if drop location is valid
-async function spellSlot_mouseover(ev) {
+async function cardSlot_mouseover(ev) {
   if(currently_dragged_card_svg) {
     ev.preventDefault();
-    ev.target.classList.add('spell_mouseover');
-    current_spellSlot_mouseover = ev.target;
+    ev.target.classList.add('card_mouseover');
+    current_cardSlot_mouseover = ev.target;
   }
 }
 
 // fires when a spell is dragged away from the shop over a spell slot
 // highlight if drop location is valid
-async function spellSlot_mouseleave(ev) {
+async function cardSlot_mouseleave(ev) {
   if(currently_dragged_card_svg) {
     ev.preventDefault();
-    ev.target.classList.remove('spell_mouseover');
-    current_spellSlot_mouseover = null;
+    ev.target.classList.remove('card_mouseover');
+    current_cardSlot_mouseover = null;
   }
 }
 
-async function spellSlot_drop(ev) {
+async function cardSlot_drop(ev) {
   ev.preventDefault();
 
   // get info
-  const spellSlot = ev.target;
-  const spellName = ev.dataTransfer.getData('text/plain');
+  const cardSlot = ev.target;
+  const cardName = ev.dataTransfer.getData('text/plain');
 
   // check if purchase is valid
   // validate move via server
@@ -337,23 +301,22 @@ async function spellSlot_drop(ev) {
   // reduce money
 
   // remove card from shop
-  document.getElementById(spellName).parentNode.remove();
+  document.getElementById(cardName).parentNode.remove();
   // fill spell slot with card
-  const card = await getCard(spellName);
-  spellSlot.id = card.name;
-  spellSlot.src = card.icon;
+  const card = await getCard(cardName);
+  cardSlot.id = card.name;
+  cardSlot.src = card.icon;
 }
 
-function spellSlot_removeHighlighting() {
+function cardSlot_removeHighlighting() {
   // strip all spell slots of highlighting
-  for(const spellSlot of document.querySelectorAll('.spellSlot_highlighted')) {
-    spellSlot.classList.remove('spellSlot_highlighted');
-    spellSlot.querySelector('rect').setAttribute('fill', 'pink');
+  for(const cardSlot of document.querySelectorAll('.cardSlot_highlighted')) {
+    cardSlot.classList.remove('cardSlot_highlighted');
+    cardSlot.querySelector('rect').setAttribute('fill', 'pink');
   }
 }
 
 /* FOOTER BAR */
-
 
 function createFooterBar(game_svg_workspace) {
   const width = game_svg_workspace.getAttribute('width');
@@ -379,24 +342,48 @@ function createFooterBar(game_svg_workspace) {
   footer_background.setAttribute('fill', 'pink');
 
   // end phase button
+  svg_createFooterButton('button_endPhase', endPhase,
+    container_footer.getAttribute('width'),
+    container_footer.getAttribute('height'), 'End phase');
 }
 
-function add_footerButtons(container_footerButtons) {
-  // phase label
-  const phaseLabel = document.createElement('p');
-  container_footerButtons.appendChild(phaseLabel);
-  phaseLabel.id = 'phaseLabel';
-  phaseLabel.classList.add('label');
-  phaseLabel.textContent = 'Phase: Shop'; // always starts with this phase
+// creates a footer button svg
+function svg_createFooterButton(id, func, width, height, text) {
+  // get target
+  const container_footer = document.getElementById('container_footer');
 
-  // end phase button
-  const button_endPhase = document.createElement('button');
-  container_footerButtons.appendChild(button_endPhase);
-  button_endPhase.id = 'button_endPhase';
-  button_endPhase.classList.add('button');
-  button_endPhase.textContent = 'END PHASE';
-  button_endPhase.onclick = endPhase;
-  // disabled until the player has control
-  button_endPhase.disabled = true;
-  button_endPhase.classList.add('button_disabled');
+  // base x offset on the number of buttons currently in footer
+  const x_offset = container_footer.querySelectorAll('svg').length;
+
+  // add open shop button to footer
+  const container_button = document.createElementNS(svgns, 'svg');
+  container_footer.appendChild(container_button);
+  container_button.id = id;
+  container_button.onclick = func;
+  // svg attributes
+  container_button.setAttribute('width', width * 0.2);
+  container_button.setAttribute('height', height * 0.75);
+  container_button.setAttribute('x', width * 0.05 * (x_offset + 1) + container_button.getAttribute('width') * x_offset);
+  container_button.setAttribute('y', height * 0.125);
+
+  // background
+  const button_background = document.createElementNS(svgns, 'rect');
+  container_button.appendChild(button_background);
+  button_background.onclick = func;
+  // svg attributes
+  button_background.setAttribute('width', container_button.getAttribute('width'));
+  button_background.setAttribute('height', container_button.getAttribute('height'));
+  button_background.setAttribute('x', 0);
+  button_background.setAttribute('y', 0);
+  button_background.setAttribute('fill', 'white');
+
+  // text
+  const button_text = document.createElementNS(svgns, 'text');
+  container_button.appendChild(button_text);
+  button_text.setAttribute('stroke', 'black');
+  button_text.textContent = text;
+  button_text.onclick = func;
+  // svg attributes
+  button_text.setAttribute('x', container_button.getAttribute('width') * 0.5 - button_text.getComputedTextLength() / 2);
+  button_text.setAttribute('y', container_button.getAttribute('height') * 0.5);
 }
