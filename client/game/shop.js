@@ -104,9 +104,12 @@ async function promptShop() {
 }
 
 function closeShop() {
-  try {
+  // avoid erroring on multiple clicks before shop fully disappears
+  // can also be called when shop is not present
+  const container_shop = document.getElementById('container_shop');
+  if(container_shop) {
     // remove shop
-    document.getElementById('container_shop').remove();
+    container_shop.remove();
     // remove any remaining cards
     let cardNodes = document.querySelectorAll('.shop_card');
     while(cardNodes.length != 0) {
@@ -116,7 +119,5 @@ function closeShop() {
 
     // enable open shop button
     FooterButton.getByID('shop_openButton').enable();
-  } catch(e) {
-    // avoid erroring on multiple clicks before shop fully disappears
   }
 }

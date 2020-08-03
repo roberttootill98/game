@@ -5,28 +5,29 @@
 
 let gameSocket;
 
+// called when a message is sent down the game socket
 async function gameSocket_message(ev) {
   console.log("game socket message received");
   console.log(ev);
 }
 
+// called when a phase message is sent down the game socket
 async function gameSocket_phase(ev) {
   // if it is the players phase
   const player = ev.slice(0, 7);
   const phase = ev.slice(8);
 
   // get dom elements
-  const button_endPhase = document.getElementById('button_endPhase');
-  const phaseLabel = document.getElementById('phaseLabel');
+  const button_endPhase = FooterButton.getByID('button_endPhase')
+
   if(player == await getPlayerNumber()) {
     // it is your phase
 
     // dom stuff
-    // phase label
-    phaseLabel.textContent = `Phase: my ${phase}`;
-    // end phase button
-    button_endPhase.disabled = false;
-    button_endPhase.classList.remove('button_disabled');
+    // phase text
+    // button_endPhase.setText(`Phase: my ${phase}`);
+    // end phase button state
+    button_endPhase.enable();
 
     // start phase
     switch(phase) {
@@ -44,11 +45,10 @@ async function gameSocket_phase(ev) {
     // it is your opponent's phase
 
     // dom stuff
-    // phase label
-    phaseLabel.textContent = `Phase: their ${phase}`;
-    // end phase button
-    button_endPhase.disabled = true;
-    button_endPhase.classList.add('button_disabled');
+    // phase text
+    //button_endPhase.setText(`Phase: their ${phase}`);
+    // end phase button state
+    button_endPhase.disable();
   }
 }
 
@@ -69,8 +69,25 @@ async function endPhase(ev) {
   const phase = await getPhase();
   // remove dom elements specific to phase
   // if attacking phase then disable next phase button
-  if(phase == 'phase_attacking') {
-    document.getElementById('button_endPhase').disabled = true;
+  switch(phase.slice(8)) {
+    case 'phase_shop':
+      // tear down shop related features
+      // remove shop is present
+      closeShop();
+      // remove open shop button
+      const button_openShop = FooterButton.getByID('shop_openButton');
+      if(button_openShop) {
+        button_openShop.destroy();
+      }
+      break;
+    case 'phase_arrangement':
+      break;
+    case 'phase_attacking':
+      // disable end phase button, it is now the opponent's phases
+      FooterButton.getByID('button_endPhase').disable();
+      break;
+    default:
+      break;
   }
 
   await nextPhase();

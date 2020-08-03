@@ -1,4 +1,6 @@
 // defines game class
+// game is used to represent game state
+// player moves are validated in reference to game state
 
 'use strict'
 

@@ -33,6 +33,15 @@ class FooterButton {
     }
   }
 
+  /**
+   * destroys button
+   */
+  destroy() {
+    this.svg.remove();
+    footerButtons.splice(footerButtons.indexOf(this));
+    delete this;
+  }
+
   draw() {
     // get target
     const container_footer = document.getElementById('container_footer');
