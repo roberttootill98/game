@@ -5,6 +5,14 @@
 
 let gameSocket;
 
+// returns player1 or player2
+async function getPlayerNumber() {
+  const response = await fetch('/api/game_getPlayerNumber');
+  if(response.ok) {
+    return (await response.json()).playerNumber;
+  }
+}
+
 // called when a message is sent down the game socket
 async function gameSocket_message(ev) {
   console.log("game socket message received");
@@ -25,7 +33,7 @@ async function gameSocket_phase(ev) {
 
     // dom stuff
     // phase text
-    // button_endPhase.setText(`Phase: my ${phase}`);
+    phaseLabel_setText(`My ${phase}`);
     // end phase button state
     button_endPhase.enable();
 
@@ -46,17 +54,9 @@ async function gameSocket_phase(ev) {
 
     // dom stuff
     // phase text
-    //button_endPhase.setText(`Phase: their ${phase}`);
+    phaseLabel_setText(`Their ${phase}`);
     // end phase button state
     button_endPhase.disable();
-  }
-}
-
-// returns player1 or player2
-async function getPlayerNumber() {
-  const response = await fetch('/api/game_getPlayerNumber');
-  if(response.ok) {
-    return (await response.json()).playerNumber;
   }
 }
 

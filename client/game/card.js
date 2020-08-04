@@ -225,7 +225,7 @@ async function card_endDrag(ev) {
     if(currently_dragged_over_cardSlot) {
       // data transfer
 
-      // draw miniature version of current card in spell slot
+      // draw miniature version of current card in card slot
       // get card name as unique identifier of card type
       const card_name = currently_dragged_card_svg.querySelector('.card_name').textContent;
       const card = await getCard(card_name);
@@ -241,6 +241,8 @@ async function card_endDrag(ev) {
 
       // delete card svg
       currently_dragged_card_svg.remove();
+
+      // redraw cards remaining cards so they remain at the top level
     } else {
       // snapback
       topLevel.setAttribute('x', old_position_x);
@@ -248,7 +250,6 @@ async function card_endDrag(ev) {
     }
 
     // tear down drag event attributes
-
     // indicate that drag is finished on current svg
     currently_dragged_card_svg = null;
     // finished dragging over current spellSlot

@@ -288,6 +288,8 @@ function svg_remove_onclickEvent(element, func) {
 
 /* FOOTER BAR */
 
+// contains buttons for the game
+// and phase label
 function createFooterBar(game_svg_workspace) {
   const width = game_svg_workspace.getAttribute('width');
   const height = game_svg_workspace.getAttribute('height');
@@ -305,15 +307,55 @@ function createFooterBar(game_svg_workspace) {
   const footer_background = document.createElementNS(svgns, 'rect');
   container_footer.appendChild(footer_background);
   // svg attributes
-  footer_background.setAttribute('width', width);
-  footer_background.setAttribute('height', height * 0.05);
+  footer_background.setAttribute('width', container_footer.getAttribute('width'));
+  footer_background.setAttribute('height', container_footer.getAttribute('height'));
   footer_background.setAttribute('x', 0);
   footer_background.setAttribute('y', 0);
   footer_background.setAttribute('fill', 'pink');
+
+  // phase label
+  const footer_phaseLabel = document.createElementNS(svgns, 'svg');
+  container_footer.appendChild(footer_phaseLabel);
+  footer_phaseLabel.id = 'phaseLabel';
+  footer_phaseLabel.setAttribute('width', container_footer.getAttribute('width') * 0.2);
+  footer_phaseLabel.setAttribute('height', container_footer.getAttribute('height'));
+  footer_phaseLabel.setAttribute('x', 0);
+  footer_phaseLabel.setAttribute('y', container_footer.getAttribute('height') *
+    0.5 - footer_phaseLabel.getAttribute('height') * 0.5);
+  // background
+  const phaseLabel_background = document.createElementNS(svgns, 'rect');
+  footer_phaseLabel.appendChild(phaseLabel_background);
+  // svg attributes
+  phaseLabel_background.setAttribute('width', footer_phaseLabel.getAttribute('width'));
+  phaseLabel_background.setAttribute('height', footer_phaseLabel.getAttribute('height'));
+  phaseLabel_background.setAttribute('x', 0);
+  phaseLabel_background.setAttribute('y', 0);
+  phaseLabel_background.setAttribute('fill', 'blue');
+  phaseLabel_background.setAttribute('stroke', 'black');
+  // text
+  const phaseLabel_text = document.createElementNS(svgns, 'text');
+  footer_phaseLabel.appendChild(phaseLabel_text);
+  phaseLabel_text.setAttribute('stroke', 'black');
+  phaseLabel_text.textContent = 'Waiting for other players...';
+  // svg attributes
+  phaseLabel_text.setAttribute('x', footer_phaseLabel.getAttribute('width') *
+    0.5 - phaseLabel_text.getComputedTextLength() / 2);
+  phaseLabel_text.setAttribute('y', footer_phaseLabel.getAttribute('height') * 0.5);
 
   // end phase button
   const button_endPhase = new FooterButton('button_endPhase', endPhase, false,
     container_footer.getAttribute('width'),
     container_footer.getAttribute('height'), 'End phase');
   button_endPhase.draw();
+}
+
+function phaseLabel_setText(text) {
+  // get elements
+  const phaseLabel = document.getElementById('phaseLabel')
+  const phaseLabel_text = phaseLabel.querySelector('text');
+  // change text content
+  phaseLabel_text.textContent = text;
+  // reallign x position of text
+  phaseLabel_text.setAttribute('x', phaseLabel.getAttribute('width') *
+    0.5 - phaseLabel_text.getComputedTextLength() / 2);
 }

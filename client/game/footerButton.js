@@ -47,6 +47,7 @@ class FooterButton {
     const container_footer = document.getElementById('container_footer');
 
     // base x offset on the number of buttons currently in footer
+    // -1 for phase label
     const x_offset = container_footer.querySelectorAll('svg').length;
 
     // add open shop button to footer
@@ -58,7 +59,7 @@ class FooterButton {
     // svg attributes
     container_button.setAttribute('width', this.width * 0.2);
     container_button.setAttribute('height', this.height * 0.75);
-    container_button.setAttribute('x', this.width * 0.05 * (x_offset + 1) + container_button.getAttribute('width') * x_offset);
+    container_button.setAttribute('x', this.width * 0.01 * (x_offset + 1) + container_button.getAttribute('width') * x_offset);
     container_button.setAttribute('y', this.height * 0.125);
 
     // background
