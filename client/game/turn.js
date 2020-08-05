@@ -26,7 +26,7 @@ async function gameSocket_phase(ev) {
   const phase = ev.slice(8);
 
   // get dom elements
-  const button_endPhase = FooterButton.getByID('button_endPhase')
+  const button_endPhase = FooterButton.getByID('button_endPhase');
 
   if(player == await getPlayerNumber()) {
     // it is your phase
@@ -43,6 +43,7 @@ async function gameSocket_phase(ev) {
         await start_phase_shop();
         break;
       case 'phase_arrangement':
+        await start_phase_arrangement();
         break;
       case 'phase_attacking':
         break;
@@ -64,6 +65,11 @@ async function gameSocket_phase(ev) {
 // stateless
 async function endPhase(ev) {
   console.log("ending phase...");
+
+  // validate that this turn may be ended by this player
+
+  // immediately disable button to stop reclicking
+  FooterButton.getByID('button_endPhase').disable();
 
   // find out which phase has ended
   const phase = await getPhase();
@@ -136,34 +142,6 @@ async function start_phase_shop() {
   await promptShop();
 }
 
-// onclick event for closing shop
-async function end_phase_shop() {
-  // destroy shop elements
-
-  // next phase
-  start_phase_arrangement();
-}
-
-async function start_phase_arrangement() {
-  // add listeners to spell slots
-}
-
-// onclick event for done button
-async function end_phase_arrangement() {
-  // remove listeners from spell slots
-
-  // next phase
-  start_phase_attacking();
-}
-
 async function start_phase_attacking() {
   // add listeners to companion in move order
-}
-
-// onclick event for end turn
-async function end_phase_attacking() {
-  // remove listeners from companions
-
-  // end turn
-  // start shopping phase for enemy player
 }

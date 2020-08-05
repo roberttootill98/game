@@ -26,6 +26,17 @@ class CardSlot {
   }
 
   /**
+   * gets a card based on the id
+   */
+  static getByID(id) {
+    for(const cardSlot of cardSlots) {
+      if(cardSlot.svg.id == id) {
+        return cardSlot;
+      }
+    }
+  }
+
+  /**
    * calculates the attributes of card slot before it is drawn
    * @param {svg node} container_companion, the node which the card svg is placed within
    * @param {integer} index, indicates which number card slot is being drawn
@@ -53,7 +64,8 @@ class CardSlot {
     const cardSlot = document.createElementNS(svgns, 'svg');
     this.svg = cardSlot;
     target.appendChild(cardSlot);
-    cardSlot.id = 'cardSlot' + index;
+    cardSlot.id = 'cardSlot' + cardSlots.length;
+    cardSlot.classList.add('cardSlot' + index);
     cardSlot.classList.add('cardSlot_empty');
     // svg attributes
     cardSlot.setAttribute('width', this.width);
@@ -89,7 +101,8 @@ class CardSlot {
     const card_svg = document.createElementNS(svgns, 'svg');
     this.svg = card_svg;
     topLevel.appendChild(card_svg);
-    card_svg.id = 'cardSlot' + index;
+    card_svg.id = 'cardSlot' + cardSlots.length;
+    card_svg.classList.add('cardSlot' + index);
     card_svg.classList.add('cardSlot_filled');
     card_svg.setAttribute('width', this.width);
     card_svg.setAttribute('height', this.height);

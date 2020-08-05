@@ -21,6 +21,18 @@ function getHeight() {
   );
 }
 
+// checks if an id for an svg element is being used in a list of svg elements
+function checkIfInUse(id, arr) {
+  for(const item of arr) {
+    if(item.svg.id == id) {
+      // found match
+      return true;
+    }
+  }
+  // none found therefore false
+  return false;
+}
+
 // spell slots
 const spellSlots = [];
 
