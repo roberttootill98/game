@@ -65,12 +65,45 @@ class CardSlot extends SVG {
   }
 
   /**
+   * checks if given (x, y) position is within any of the card slots
+   */
+  static inRange(coords) {
+    // coords.x, coords.y
+    // coords are absolute
+
+    for(const [i, cardSlot] of cardSlots.entries()) {
+      // check if cardSlot is empty
+      if(!cardSlot.card) {
+        // get absolute cardSlot coords
+        const cardSlot_coords = SVG.getAbsoluteCoords(cardSlot.svg);
+        const width = parseFloat(cardSlot.svg.getAttribute('width'));
+        const height = parseFloat(cardSlot.svg.getAttribute('height'));
+
+        if((coords.x >= cardSlot_coords.x) &&
+          (coords.x <= (cardSlot_coords.x + width)) &&
+          (coords.y >= cardSlot_coords.y) &&
+          (coords.y <= (cardSlot_coords.y + height))) {
+            return cardSlot;
+        }
+      }
+    }
+
+    // failed to find any cardSlot which the coords fit inside
+    // return false;
+  }
+
+  /**
    * draws the svg of the card slot
    * associates svg with object
    * @param {svg node} target, for appending the card slot to, should be a container_companion
    * @param {integer} index, indicates which number card slot is being drawn
    */
-  draw_empty(target, index) {  
+  draw_empty(target, index) {
+    // get rid of current svg
+    if(this.svg) {
+      this.svg.remove();
+    }
+
     const cardSlot = document.createElementNS(svgns, 'svg');
     this.svg = cardSlot;
     target.appendChild(cardSlot);
@@ -94,8 +127,8 @@ class CardSlot extends SVG {
     cardSlot_background.setAttribute('stroke', 'black');
 
     // event listeners
-    cardSlot.addEventListener('mouseover', cardSlot_mouseover);
-    cardSlot.addEventListener('mouseleave', cardSlot_mouseleave);
+    cardSlot.onmouseover = cardSlot_mouseover;
+    cardSlot.onmouseleave = cardSlot_mouseleave;
   }
 
   /**
@@ -106,7 +139,12 @@ class CardSlot extends SVG {
    * @param {integer} index, indicates which number card slot is being drawn
    */
   draw_filled(topLevel, target, index) {
-    const container_position = getAbsoluteCoords(target);
+    // get rid of current svg
+    if(this.svg) {
+      this.svg.remove();
+    }
+
+    const container_position = SVG.getAbsoluteCoords(target);
 
     const card_svg = document.createElementNS(svgns, 'svg');
     this.svg = card_svg;
@@ -137,10 +175,10 @@ class CardSlot extends SVG {
   }
 }
 
-// keeps track of the last spell slot moused over
+// keeps track of the card card slot moused over
 let current_cardSlot_mouseover;
 
-// fires when a spell is dragged from the shop over a spell slot
+// fires when a card is dragged from the shop over a card slot
 // highlight if drop location is valid
 async function cardSlot_mouseover(ev) {
   if(currently_dragged_card_svg) {
@@ -150,7 +188,7 @@ async function cardSlot_mouseover(ev) {
   }
 }
 
-// fires when a spell is dragged away from the shop over a spell slot
+// fires when a card is dragged away from the shop over a card slot
 // highlight if drop location is valid
 async function cardSlot_mouseleave(ev) {
   if(currently_dragged_card_svg) {
@@ -170,21 +208,21 @@ async function cardSlot_drop(ev) {
   // check if purchase is valid
   // validate move via server
 
-  // check if spell slot is full
+  // check if card slot is full
   // prompt are you window
 
   // reduce money
 
   // remove card from shop
   document.getElementById(cardName).parentNode.remove();
-  // fill spell slot with card
+  // fill card slot with card
   const card = await getCard(cardName);
   cardSlot.id = card.name;
   cardSlot.src = card.icon;
 }
 
 function cardSlot_removeHighlighting() {
-  // strip all spell slots of highlighting
+  // strip all card slots of highlighting
   for(const cardSlot of document.querySelectorAll('.cardSlot_highlighted')) {
     cardSlot.classList.remove('cardSlot_highlighted');
     cardSlot.querySelector('rect').setAttribute('fill', 'pink');

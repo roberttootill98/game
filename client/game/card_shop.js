@@ -68,8 +68,6 @@ async function shop_card_endDrag(ev) {
 
       // delete card svg
       currently_dragged_card_svg.remove();
-
-      // redraw cards remaining cards so they remain at the top level
     } else {
       // snapback
       topLevel.setAttribute('x', old_position_x);

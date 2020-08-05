@@ -207,7 +207,8 @@ function card_drag(ev) {
     old_clientY = ev.clientY;
 
     // check if there is a card slot underneath card (within range)
-    const cardSlot = cardSlot_inRange(coords);
+    // console.log(coords);
+    const cardSlot = CardSlot.inRange(coords);
     if(cardSlot) {
       // if so then higlight that these will connect if dropped here
       // remember card slot for data transfer

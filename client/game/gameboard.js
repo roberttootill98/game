@@ -231,50 +231,6 @@ async function getCompanions() {
   ];
 }
 
-// checks if given (x, y) position is within any of the card slots
-function cardSlot_inRange(coords) {
-  // coords.x, coords.y
-  // coords are absolute
-
-  for(const [i, cardSlot] of cardSlots.entries()) {
-    // check if cardSlot is empty
-    if(!cardSlot.card) {
-      // get absolute cardSlot coords
-      const cardSlot_coords = getAbsoluteCoords(cardSlot.svg);
-      const width = parseFloat(cardSlot.svg.getAttribute('width'));
-      const height = parseFloat(cardSlot.svg.getAttribute('height'));
-
-      if((coords.x >= cardSlot_coords.x) &&
-        (coords.x <= (cardSlot_coords.x + width)) &&
-        (coords.y >= cardSlot_coords.y) &&
-        (coords.y <= (cardSlot_coords.y + height))) {
-          return cardSlot;
-      }
-    }
-  }
-
-  // failed to find any cardSlot which the coords fit inside
-  return false;
-}
-
-function getAbsoluteCoords(target) {
-  let svg_element = target;
-  let x = 0;
-  let y = 0;
-
-  while(svg_element.id != 'game_svg_workspace') {
-    x += parseFloat(svg_element.getAttribute('x'));
-    y += parseFloat(svg_element.getAttribute('y'));
-
-    svg_element = SVG.getTopLevelSVG(svg_element.parentNode);
-  }
-
-  return {
-    'x': x,
-    'y': y
-  }
-}
-
 // adds onclick event to all children of an element
 // calls recursively
 function svg_add_onclickEvent(element, func) {

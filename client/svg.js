@@ -45,4 +45,21 @@ class SVG {
     };
   }
 
+  static getAbsoluteCoords(target) {
+    let svg_element = target;
+    let x = 0;
+    let y = 0;
+
+    while(svg_element.id != 'game_svg_workspace') {
+      x += parseFloat(svg_element.getAttribute('x'));
+      y += parseFloat(svg_element.getAttribute('y'));
+
+      svg_element = SVG.getTopLevelSVG(svg_element.parentNode);
+    }
+
+    return {
+      'x': x,
+      'y': y
+    }
+  }
 }

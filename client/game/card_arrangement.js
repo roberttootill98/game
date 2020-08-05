@@ -58,37 +58,28 @@ async function arrangement_card_endDrag(ev) {
 
     // get details before deleting
     const card = currently_dragged_cardSlot.card;
-    const svg = currently_dragged_cardSlot.svg;
-    let target = parseInt(svg.id) / 4 >> 0;
-    target = document.querySelectorAll('.container_companion')[target];
-    const oldIndex = parseInt(svg.id) % 4 - 1;
+    const target = document.querySelectorAll('.container_companion')[
+      parseInt(currently_dragged_cardSlot.svg.id - 1) / 4 >> 0];
+    const oldIndex = parseInt(currently_dragged_cardSlot.svg.id - 1) % 4;
     const cardSize = CardSlot.calculateSize(target, oldIndex);
 
-    // remove card from previous card slot
-    currently_dragged_cardSlot.destroy();
-    // draw an empty slot in its place
-    const empty_cardSlot = new CardSlot(card, cardSize.width, cardSize.height,
-      cardSize.x, cardSize.y);
-    empty_cardSlot.draw_empty(target, oldIndex);
+    // draw filled slot as empty slot
+    currently_dragged_cardSlot.card = null;
+    currently_dragged_cardSlot.draw_empty(target, oldIndex);
 
     // draw miniature version of current card in card slot
-    // get card name as unique identifier of card type
-    const card_name = currently_dragged_card_svg.querySelector('.card_name').textContent;
-    const cardDetails = await Card.getCardDetails(card_name);
-
     const container_companion = currently_dragged_over_cardSlot.svg.parentNode;
     const index = currently_dragged_over_cardSlot.svg.id.slice(-1);
 
     const cardSlot_attributes = CardSlot.calculateSize(container_companion, index);
     const game_svg_workspace = document.getElementById('game_svg_workspace');
 
-    currently_dragged_over_cardSlot.cardDetails = cardDetails;
+    currently_dragged_over_cardSlot.card = card;
     currently_dragged_over_cardSlot.draw_filled(game_svg_workspace, container_companion, index);
+    currently_dragged_over_cardSlot.svg.onmousedown = cardSlot_filled_startDrag;
 
     // delete card svg
     currently_dragged_card_svg.remove();
-
-    // redraw cards remaining cards so they remain at the top level
   } else {
     // destroy full sized card
     Card.getByID(topLevel.id).destroy();
