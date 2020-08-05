@@ -20,13 +20,10 @@ const element_colours = {
 
 const cardsInPlay = [];
 
-class Card {
+class Card extends SVG {
   constructor(name, width, height, x, y) {
+    super(width, height, x, y);
     this.name = name;
-    this.width = width;
-    this.height = height;
-    this.x = x;
-    this.y = y;
 
     cardsInPlay.push(this);
   }
@@ -178,62 +175,13 @@ class Card {
     card_mana_text.setAttribute('x', this.width * 5 * (1/6) - card_mana_text.getComputedTextLength() / 2);
     card_mana_text.setAttribute('y', header_line_height + (this.height - header_line_height) / 2);
     card_mana_text.setAttribute('fill', 'mana');
-  }
 
-  addListeners_shop() {
-    this.svg.classList.add('shop_card');
-
-    this.svg.onmousedown = shop_card_startDrag;
-    this.svg.onmousemove = shop_card_drag;
-    this.svg.onmouseup = shop_card_endDrag;
-    this.svg.onmouseleave = shop_card_endDrag;
-  }
-
-  addListeners_arrangement() {
-    this.svg.classList.add('arrangement_card');
-
-    this.svg.onmousedown = arrangement_card_startDrag;
-    this.svg.onmousemove = arrangement_card_drag;
-    this.svg.onmouseup = arrangement_card_endDrag;
-    this.svg.onmouseleave = arrangement_card_endDrag;
+    this.addListeners();
   }
 }
 
 let currently_dragged_card_svg = null;
 let currently_dragged_over_cardSlot = null;
-
-// mouse position
-let old_clientX;
-let old_clientY;
-// for snapback
-let old_position_x;
-let old_position_y;
-
-// gets top level svg element from inner svg element
-function getTopLevelSVG(node) {
-  while(node.nodeName != 'svg') {
-    node = node.parentNode;
-  }
-  return node;
-}
-
-function getCoords(ev, topLevel) {
-  // from (0, 0)
-  const old_x = topLevel.getAttribute('x');
-  const old_y = topLevel.getAttribute('y');
-
-  const x_mousePosition_relative = old_clientX - old_x;
-  const y_mousePosition_relative = old_clientY - old_y;
-
-  // new position of top left of card
-  const new_x = ev.clientX - x_mousePosition_relative;
-  const new_y = ev.clientY - y_mousePosition_relative;
-
-  return {
-    'x': new_x,
-    'y': new_y
-  };
-}
 
 // checks if an element is draggable
 function card_checkIfDraggable(node) {
@@ -243,4 +191,35 @@ function card_checkIfDraggable(node) {
 // checks if the current element is being dragged
 function card_currentDragging(node) {
   return node.classList.contains('card_dragging');
+}
+
+function card_drag(ev) {
+  if(currently_dragged_card_svg) {
+    ev.preventDefault();
+
+    // update co-ords of svg to mouse position
+    const topLevel = SVG.getTopLevelSVG(ev.target);
+    const coords = SVG.getCoords(ev, topLevel);
+    topLevel.setAttribute('x', coords.x);
+    topLevel.setAttribute('y', coords.y);
+
+    old_clientX = ev.clientX;
+    old_clientY = ev.clientY;
+
+    // check if there is a card slot underneath card (within range)
+    const cardSlot = cardSlot_inRange(coords);
+    if(cardSlot) {
+      // if so then higlight that these will connect if dropped here
+      // remember card slot for data transfer
+      currently_dragged_over_cardSlot = cardSlot;
+
+      // highlight card slot for dropping
+      cardSlot.svg.classList.add('cardSlot_highlighted');
+      cardSlot.svg.background.setAttribute('fill', 'blue');
+    } else {
+      currently_dragged_over_cardSlot = null;
+
+      cardSlot_removeHighlighting();
+    }
+  }
 }

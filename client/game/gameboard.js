@@ -148,10 +148,11 @@ async function createSideContainer(game_svg_workspace, side_type) {
 
     // card slots
     for(const [j, card] of companion.spells.entries()) {
-      const cardSlot_attributes = CardSlot.calculateCardSize(container_companion, j);
+      const cardSlot_attributes = CardSlot.calculateSize(container_companion, j);
 
-      const cardSlot = new CardSlot(card, cardSlot_attributes.width,
-        cardSlot_attributes.height, cardSlot_attributes.position);
+      const cardSlot = new CardSlot(card,
+        cardSlot_attributes.width, cardSlot_attributes.height,
+        cardSlot_attributes.x, cardSlot_attributes.y);
 
       if(cardSlot.card) {
         cardSlot.draw_filled(game_svg_workspace, container_companion, j);
@@ -171,7 +172,7 @@ async function getCompanions() {
       'icon': '/assets/companions/aang.png',
       'spells': [
         {
-          'name': 'glider',
+          'name': 'air 1',
           'element': 'air'
         },
         {
@@ -265,7 +266,7 @@ function getAbsoluteCoords(target) {
     x += parseFloat(svg_element.getAttribute('x'));
     y += parseFloat(svg_element.getAttribute('y'));
 
-    svg_element = getTopLevelSVG(svg_element.parentNode);
+    svg_element = SVG.getTopLevelSVG(svg_element.parentNode);
   }
 
   return {

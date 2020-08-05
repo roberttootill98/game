@@ -88,11 +88,10 @@ async function promptShop() {
     const card_x = parseFloat(container_shop.getAttribute('x')) + cardAttributes.seperation.horizontal * (i + 1) + cardAttributes.width * i;
     const card_y = parseFloat(container_shop.getAttribute('y')) + cardAttributes.seperation.vertical * 3;
 
-    const cardObj = new Card(card.name, cardAttributes.width, cardAttributes.height,
+    const cardObj = new Card_Shop(card.name, cardAttributes.width, cardAttributes.height,
       card_x, card_y);
     await cardObj.init();
     cardObj.draw(game_svg_workspace);
-    cardObj.addListeners_shop();
   }
 }
 
@@ -122,106 +121,5 @@ async function getShopCards() {
     return await response.json();
   } else {
     console.error("failed to get shop cards");
-  }
-}
-
-/** DRAG AND DROP FUNCTIONS **/
-
-async function shop_card_startDrag(ev) {
-  if(card_checkIfDraggable(ev.target)) {
-    // immediately redraw card to make sure that it is at the top level
-    // wont disappear behind any elements
-    const topLevel = getTopLevelSVG(ev.target);
-    // make new card at top level
-    const card = await Card.getCardDetails(topLevel.querySelector('text').textContent);
-    // indicate that this is the svg being dragged
-    const cardObj = new Card(card.name, cardAttributes.width, cardAttributes.height,
-      topLevel.getAttribute('x'), topLevel.getAttribute('y'));
-    await cardObj.init();
-    cardObj.draw(document.getElementById('game_svg_workspace'));
-    cardObj.addListeners_shop();
-    currently_dragged_card_svg = cardObj.svg;
-    // copy made, delete old cardObj
-    Card.getByID(topLevel.id).destroy();
-
-    // capture initial mouse coords
-    old_clientX = ev.clientX;
-    old_clientY = ev.clientY;
-
-    old_position_x = topLevel.getAttribute('x');
-    old_position_y = topLevel.getAttribute('y');
-  }
-}
-
-function shop_card_drag(ev) {
-  if(currently_dragged_card_svg && card_checkIfDraggable(ev.target)) {
-    ev.preventDefault();
-
-    // update co-ords of svg to mouse position
-    const topLevel = getTopLevelSVG(ev.target);
-    const coords = getCoords(ev, topLevel);
-    topLevel.setAttribute('x', coords.x);
-    topLevel.setAttribute('y', coords.y);
-
-    old_clientX = ev.clientX;
-    old_clientY = ev.clientY;
-
-    // check if there is a spell slot underneath card (within range)
-    const cardSlot = cardSlot_inRange(coords);
-    if(cardSlot) {
-      // remember card slot for data transfer
-      currently_dragged_over_cardSlot = cardSlot;
-
-      // highlight card slot for dropping
-      cardSlot.svg.classList.add('cardSlot_highlighted');
-      cardSlot.svg.background.setAttribute('fill', 'blue');
-    } else {
-      currently_dragged_over_cardSlot = null;
-
-      cardSlot_removeHighlighting();
-    }
-    // if so then higlight that these will connect if dropped here
-  }
-}
-
-async function shop_card_endDrag(ev) {
-  if(currently_dragged_card_svg && card_checkIfDraggable(ev.target)) {
-    const topLevel = getTopLevelSVG(ev.target);
-
-    // if placed over thing that it can dropped into
-    if(currently_dragged_over_cardSlot) {
-      // data transfer
-
-      // draw miniature version of current card in card slot
-      // get card name as unique identifier of card type
-      const card_name = currently_dragged_card_svg.querySelector('.card_name').textContent;
-      const card = await Card.getCardDetails(card_name);
-
-      const container_companion = currently_dragged_over_cardSlot.svg.parentNode;
-      const index = currently_dragged_over_cardSlot.svg.id.slice(-1);
-
-      const cardSlot_attributes = CardSlot.calculateCardSize(container_companion, index);
-      const game_svg_workspace = document.getElementById('game_svg_workspace');
-
-      currently_dragged_over_cardSlot.card = card;
-      currently_dragged_over_cardSlot.draw_filled(game_svg_workspace, container_companion, index);
-
-      // delete card svg
-      currently_dragged_card_svg.remove();
-
-      // redraw cards remaining cards so they remain at the top level
-    } else {
-      // snapback
-      topLevel.setAttribute('x', old_position_x);
-      topLevel.setAttribute('y', old_position_y);
-    }
-
-    // tear down drag event attributes
-    // indicate that drag is finished on current svg
-    currently_dragged_card_svg = null;
-    // finished dragging over current spellSlot
-    currently_dragged_over_cardSlot = null;
-    // DOM
-    cardSlot_removeHighlighting();
   }
 }
