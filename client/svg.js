@@ -1,4 +1,6 @@
 // abstract class for svgs
+// draggable svgs are drawn at the top level
+// the currently dragged svg is immediately redrawn at the top level so it can't disppear behind other elements
 'use strict'
 
 // svg namespace

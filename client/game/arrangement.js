@@ -4,8 +4,8 @@
 function start_phase_arrangement() {
   // add listeners to card slots
 
-  // filled slots
-  const cardSlots_filled = document.querySelectorAll('.cardSlot_filled');
+  // filled slots that belong to the player
+  const cardSlots_filled = document.querySelectorAll('.cardSlot_player.cardSlot_filled');
   // allow miniature cards to be dragged to other card slots
   // allow miniature cards to be destroyed
   for(const cardSlot_filled of cardSlots_filled) {

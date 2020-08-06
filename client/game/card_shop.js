@@ -77,9 +77,9 @@ async function shop_card_endDrag(ev) {
     // tear down drag event attributes
     // indicate that drag is finished on current svg
     currently_dragged_card_svg = null;
-    // finished dragging over current spellSlot
+    // finished dragging over current card Slot
     currently_dragged_over_cardSlot = null;
     // DOM
-    cardSlot_removeHighlighting();
+    CardSlot.removeHighlighting();
   }
 }

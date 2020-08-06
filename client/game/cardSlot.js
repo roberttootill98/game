@@ -9,10 +9,16 @@ class CardSlot extends SVG {
    * creates new card slot
    * @constructor
    * @param {JSON} card, as a card json or null
+   * @param {string} owner, player or opponent
+   * @param {float} width, width of svg
+   * @param {float} hieght, hieght of svg
+   * @param {float} x, x position of svg
+   * @param {float} y, y position of svg
    */
-  constructor(card, width, height, x, y) {
+  constructor(card, owner, width, height, x, y) {
     super(width, height, x, y);
     this.card = card;
+    this.owner = owner;
 
     cardSlots.push(this);
   }
@@ -70,27 +76,36 @@ class CardSlot extends SVG {
   static inRange(coords) {
     // coords.x, coords.y
     // coords are absolute
-
     for(const [i, cardSlot] of cardSlots.entries()) {
-      // check if cardSlot is empty
-      if(!cardSlot.card) {
-        // get absolute cardSlot coords
-        const cardSlot_coords = SVG.getAbsoluteCoords(cardSlot.svg);
-        const width = parseFloat(cardSlot.svg.getAttribute('width'));
-        const height = parseFloat(cardSlot.svg.getAttribute('height'));
+      if(cardSlot.svg.classList.contains('cardSlot_player')) {
+        // check if cardSlot is empty
+        if(!cardSlot.card) {
+          // get absolute cardSlot coords
+          const cardSlot_coords = SVG.getAbsoluteCoords(cardSlot.svg);
+          const width = parseFloat(cardSlot.svg.getAttribute('width'));
+          const height = parseFloat(cardSlot.svg.getAttribute('height'));
 
-        if((coords.x >= cardSlot_coords.x) &&
-          (coords.x <= (cardSlot_coords.x + width)) &&
-          (coords.y >= cardSlot_coords.y) &&
-          (coords.y <= (cardSlot_coords.y + height))) {
-            return cardSlot;
+          if((coords.x >= cardSlot_coords.x) &&
+            (coords.x <= (cardSlot_coords.x + width)) &&
+            (coords.y >= cardSlot_coords.y) &&
+            (coords.y <= (cardSlot_coords.y + height))) {
+              return cardSlot;
+          }
         }
       }
     }
-
-    // failed to find any cardSlot which the coords fit inside
-    // return false;
   }
+
+  /**
+   * strip all card slots of highlighting
+   */
+  static removeHighlighting() {
+    for(const cardSlot of document.querySelectorAll('.cardSlot_highlighted')) {
+      cardSlot.classList.remove('cardSlot_highlighted');
+      cardSlot.querySelector('rect').setAttribute('fill', 'pink');
+    }
+  }
+
 
   /**
    * draws the svg of the card slot
@@ -110,6 +125,7 @@ class CardSlot extends SVG {
     cardSlot.id = CardSlot.getNextID();
     cardSlot.classList.add('cardSlot' + index);
     cardSlot.classList.add('cardSlot_empty');
+    cardSlot.classList.add('cardSlot_' + this.owner);
     // svg attributes
     cardSlot.setAttribute('width', this.width);
     cardSlot.setAttribute('height', this.height);
@@ -152,6 +168,8 @@ class CardSlot extends SVG {
     card_svg.id = CardSlot.getNextID();
     card_svg.classList.add('cardSlot' + index);
     card_svg.classList.add('cardSlot_filled');
+    card_svg.classList.add('cardSlot_' + this.owner);
+    // svg attributes
     card_svg.setAttribute('width', this.width);
     card_svg.setAttribute('height', this.height);
     card_svg.setAttribute('x', this.x + container_position.x);
@@ -219,12 +237,4 @@ async function cardSlot_drop(ev) {
   const card = await getCard(cardName);
   cardSlot.id = card.name;
   cardSlot.src = card.icon;
-}
-
-function cardSlot_removeHighlighting() {
-  // strip all card slots of highlighting
-  for(const cardSlot of document.querySelectorAll('.cardSlot_highlighted')) {
-    cardSlot.classList.remove('cardSlot_highlighted');
-    cardSlot.querySelector('rect').setAttribute('fill', 'pink');
-  }
 }

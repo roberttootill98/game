@@ -150,7 +150,7 @@ async function createSideContainer(game_svg_workspace, side_type) {
     for(const [j, card] of companion.spells.entries()) {
       const cardSlot_attributes = CardSlot.calculateSize(container_companion, j);
 
-      const cardSlot = new CardSlot(card,
+      const cardSlot = new CardSlot(card, side_type.slice(10),
         cardSlot_attributes.width, cardSlot_attributes.height,
         cardSlot_attributes.x, cardSlot_attributes.y);
 

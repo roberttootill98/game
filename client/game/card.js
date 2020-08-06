@@ -215,13 +215,13 @@ function card_drag(ev) {
 
       // highlight card slot for dropping
       // remove from all other card slots first
-      cardSlot_removeHighlighting();
+      CardSlot.removeHighlighting();
       cardSlot.svg.classList.add('cardSlot_highlighted');
       cardSlot.svg.background.setAttribute('fill', 'blue');
     } else {
       currently_dragged_over_cardSlot = null;
 
-      cardSlot_removeHighlighting();
+      CardSlot.removeHighlighting();
     }
   }
 }
