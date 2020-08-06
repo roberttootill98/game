@@ -10,7 +10,7 @@ function start_phase_arrangement() {
   // allow miniature cards to be destroyed
   for(const cardSlot_filled of cardSlots_filled) {
     // add event listeners
-    cardSlot_filled.addEventListener('mousedown', cardSlot_filled_startDrag);
+    cardSlot_filled.onmousedown = cardSlot_filled_startDrag;
   }
 
   // empty slots

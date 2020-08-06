@@ -207,7 +207,6 @@ function card_drag(ev) {
     old_clientY = ev.clientY;
 
     // check if there is a card slot underneath card (within range)
-    // console.log(coords);
     const cardSlot = CardSlot.inRange(coords);
     if(cardSlot) {
       // if so then higlight that these will connect if dropped here
@@ -215,6 +214,8 @@ function card_drag(ev) {
       currently_dragged_over_cardSlot = cardSlot;
 
       // highlight card slot for dropping
+      // remove from all other card slots first
+      cardSlot_removeHighlighting();
       cardSlot.svg.classList.add('cardSlot_highlighted');
       cardSlot.svg.background.setAttribute('fill', 'blue');
     } else {
