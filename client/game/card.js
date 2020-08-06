@@ -213,11 +213,11 @@ function card_drag(ev) {
       // remember card slot for data transfer
       currently_dragged_over_cardSlot = cardSlot;
 
-      // highlight card slot for dropping
       // remove from all other card slots first
       CardSlot.removeHighlighting();
+      // highlight card slot for dropping
       cardSlot.svg.classList.add('cardSlot_highlighted');
-      cardSlot.svg.background.setAttribute('fill', 'blue');
+      cardSlot.svg.background.setAttribute('stroke', 'red');
     } else {
       currently_dragged_over_cardSlot = null;
 

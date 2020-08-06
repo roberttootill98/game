@@ -78,19 +78,16 @@ class CardSlot extends SVG {
     // coords are absolute
     for(const [i, cardSlot] of cardSlots.entries()) {
       if(cardSlot.svg.classList.contains('cardSlot_player')) {
-        // check if cardSlot is empty
-        if(!cardSlot.card) {
-          // get absolute cardSlot coords
-          const cardSlot_coords = SVG.getAbsoluteCoords(cardSlot.svg);
-          const width = parseFloat(cardSlot.svg.getAttribute('width'));
-          const height = parseFloat(cardSlot.svg.getAttribute('height'));
+        // get absolute cardSlot coords
+        const cardSlot_coords = SVG.getAbsoluteCoords(cardSlot.svg);
+        const width = parseFloat(cardSlot.svg.getAttribute('width'));
+        const height = parseFloat(cardSlot.svg.getAttribute('height'));
 
-          if((coords.x >= cardSlot_coords.x) &&
-            (coords.x <= (cardSlot_coords.x + width)) &&
-            (coords.y >= cardSlot_coords.y) &&
-            (coords.y <= (cardSlot_coords.y + height))) {
-              return cardSlot;
-          }
+        if((coords.x >= cardSlot_coords.x) &&
+          (coords.x <= (cardSlot_coords.x + width)) &&
+          (coords.y >= cardSlot_coords.y) &&
+          (coords.y <= (cardSlot_coords.y + height))) {
+            return cardSlot;
         }
       }
     }
@@ -102,7 +99,7 @@ class CardSlot extends SVG {
   static removeHighlighting() {
     for(const cardSlot of document.querySelectorAll('.cardSlot_highlighted')) {
       cardSlot.classList.remove('cardSlot_highlighted');
-      cardSlot.querySelector('rect').setAttribute('fill', 'pink');
+      cardSlot.querySelector('rect').setAttribute('stroke', 'black');
     }
   }
 

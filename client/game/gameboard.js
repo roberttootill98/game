@@ -176,8 +176,8 @@ async function getCompanions() {
           'element': 'air'
         },
         {
-          'name': 'hot squat',
-          'element': 'fire'
+          'name': 'air 2',
+          'element': 'air'
         },
         null,
         null
