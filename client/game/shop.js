@@ -105,7 +105,7 @@ function closeShop() {
     // remove any remaining cards
     let cardNodes = document.querySelectorAll('.shop_card');
     while(cardNodes.length != 0) {
-      cardNodes[0].remove();
+      Card.getByID(cardNodes[0].id).destroy();
       cardNodes = document.querySelectorAll('.shop_card');
     }
 

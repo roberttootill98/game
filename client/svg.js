@@ -23,7 +23,7 @@ class SVG {
 
   // gets top level svg element from inner svg element
   static getTopLevelSVG(node) {
-    while(node.nodeName != 'svg') {
+    while(node.nodeName != 'svg' || node.classList.contains('card_icon')) {
       node = node.parentNode;
     }
     return node;

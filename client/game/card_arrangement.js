@@ -12,6 +12,10 @@ class Card_Arrangement extends Card {
     this.svg.onmousemove = card_drag;
     this.svg.onmouseup = arrangement_card_endDrag;
     this.svg.onmouseleave = arrangement_card_endDrag;
+
+    this.svg.icon.onmousemove = card_drag;
+    this.svg.icon.onmouseup = arrangement_card_endDrag;
+    this.svg.icon.onmouseleave = arrangement_card_endDrag;
   }
 }
 
@@ -94,7 +98,6 @@ async function arrangement_card_endDrag(ev) {
       // draw miniature version of current card in card slot
       const container_companion = currently_dragged_over_cardSlot.svg.parentNode;
       const index = currently_dragged_over_cardSlot.svg.id.slice(-1);
-
       const cardSlot_attributes = CardSlot.calculateSize(container_companion,
         index);
 

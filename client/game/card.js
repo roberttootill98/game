@@ -102,6 +102,9 @@ class Card extends SVG {
     card_background.setAttribute('fill', element_colours[this.element]);
     card_background.setAttribute('stroke', 'black');
 
+    // icon
+    this.svg.icon = icon_table.draw(this.name, card_svg, 50, 50);
+
     // name container
     // name text
     const name_text = document.createElementNS(svgns, 'text');

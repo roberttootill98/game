@@ -64,8 +64,6 @@ async function gameSocket_phase(ev) {
 // ends current phase
 // stateless
 async function endPhase(ev) {
-  console.log("ending phase...");
-
   // validate that this turn may be ended by this player
 
   // immediately disable button to stop reclicking
@@ -103,7 +101,7 @@ async function endPhase(ev) {
 async function nextPhase() {
   const response = await fetch('/api/game_nextPhase', {method: 'put'});
   if(response.ok) {
-    console.log("moved to next phase");
+    //console.log("moved to next phase");
   } else {
     console.error("failed to move to next phase");
   }
