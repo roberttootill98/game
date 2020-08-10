@@ -10,7 +10,7 @@ function add_shopButtons() {
 
   // open shop button
   const button_openShop = new FooterButton('shop_openButton', promptShop, false,
-    width, height, 'Open shop');
+    'Open shop', width, height);
   button_openShop.draw();
 }
 

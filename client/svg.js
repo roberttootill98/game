@@ -23,7 +23,17 @@ class SVG {
 
   // gets top level svg element from inner svg element
   static getTopLevelSVG(node) {
-    while(node.nodeName != 'svg' || node.classList.contains('card_icon')) {
+    // list of strings that refer to classes that should be ignored when looking for top level svg
+    const excludedClasses = [
+      'card_icon',
+    ];
+    const excludedIDs = [
+      'shopConfirm_yes',
+      'shopConfirm_no'
+    ];
+
+    while(node.nodeName != 'svg' || node.classList.contains(excludedClasses) ||
+      excludedIDs.includes(node.id)) {
       node = node.parentNode;
     }
     return node;
@@ -62,6 +72,30 @@ class SVG {
     return {
       'x': x,
       'y': y
+    }
+  }
+
+  // adds onclick event to all children of an element
+  // calls recursively
+  static add_onclickEvent(element, func) {
+    element.onclick = func;
+    element.classList.add('button_enabled');
+    element.classList.remove('button_disabled');
+
+    for(const child of element.children) {
+      SVG.add_onclickEvent(child, func);
+    }
+  }
+
+  // adds onclick event to all children of an element
+  // calls recursively
+  static remove_onclickEvent(element, func) {
+    element.onclick = null;
+    element.classList.remove('button_enabled');
+    element.classList.add('button_disabled');
+
+    for(const child of element.children) {
+      SVG.remove_onclickEvent(child, func);
     }
   }
 }

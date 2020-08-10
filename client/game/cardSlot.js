@@ -4,6 +4,13 @@
 
 const cardSlots = [];
 
+/** DRAG AND DROP FUNCTIONS **/
+let currently_dragged_over_cardSlot = null;
+let currently_dragged_cardSlot = null;
+let currently_dragged_cardSlot_card = null;
+let currently_dragged_cardSlot_target = null;
+let currently_dragged_cardSlot_oldIndex = null;
+
 class CardSlot extends SVG {
   /**
    * creates new card slot
@@ -140,8 +147,8 @@ class CardSlot extends SVG {
     cardSlot_background.setAttribute('stroke', 'black');
 
     // event listeners
-    cardSlot.onmouseover = cardSlot_mouseover;
-    cardSlot.onmouseleave = cardSlot_mouseleave;
+    cardSlot.onmouseover = CardSlot.mouseover;
+    cardSlot.onmouseleave = CardSlot.mouseleave;
   }
 
   /**
@@ -188,50 +195,43 @@ class CardSlot extends SVG {
 
     // event listeners
   }
-}
 
-// keeps track of the card card slot moused over
-let current_cardSlot_mouseover;
+  /** DRAG AND DROP FUNCTIONS **/
 
-// fires when a card is dragged from the shop over a card slot
-// highlight if drop location is valid
-async function cardSlot_mouseover(ev) {
-  if(currently_dragged_card_svg) {
-    ev.preventDefault();
-    ev.target.classList.add('card_mouseover');
-    current_cardSlot_mouseover = ev.target;
+  static async filled_startDrag(ev) {
+    // immediately draw full sized card, makes sure that it is at the top level
+    // wont disappear behind any elements
+    const topLevel = SVG.getTopLevelSVG(ev.target);
+    // make new card at top level
+    const cardSlot = CardSlot.getByID(topLevel.id);
+
+    // setup data transfer
+    // get details before deleting
+    currently_dragged_cardSlot_card = cardSlot.card;
+    currently_dragged_cardSlot_target = document.querySelectorAll(
+      '.container_companion')[parseInt(cardSlot.svg.id - 1) / 4 >> 0];
+    currently_dragged_cardSlot_oldIndex = parseInt(cardSlot.svg.id - 1) % 4;
+
+    // draw filled slot as empty slot
+    cardSlot.card = null;
+    cardSlot.draw_empty(currently_dragged_cardSlot_target,
+      currently_dragged_cardSlot_oldIndex);
+    // remember card slot
+    currently_dragged_cardSlot = cardSlot;
+
+    // create new fully sized card to be dragged
+    const cardObj = new Card_Arrangement(currently_dragged_cardSlot_card.name,
+      cardAttributes.width, cardAttributes.height,
+      topLevel.getAttribute('x'), topLevel.getAttribute('y'));
+    await cardObj.init();
+    cardObj.draw(document.getElementById('game_svg_workspace'));
+    currently_dragged_card_svg = cardObj.svg;
+
+    // capture initial mouse coords
+    old_clientX = ev.clientX;
+    old_clientY = ev.clientY;
+
+    old_position_x = topLevel.getAttribute('x');
+    old_position_y = topLevel.getAttribute('y');
   }
-}
-
-// fires when a card is dragged away from the shop over a card slot
-// highlight if drop location is valid
-async function cardSlot_mouseleave(ev) {
-  if(currently_dragged_card_svg) {
-    ev.preventDefault();
-    ev.target.classList.remove('card_mouseover');
-    current_cardSlot_mouseover = null;
-  }
-}
-
-async function cardSlot_drop(ev) {
-  ev.preventDefault();
-
-  // get info
-  const cardSlot = ev.target;
-  const cardName = ev.dataTransfer.getData('text/plain');
-
-  // check if purchase is valid
-  // validate move via server
-
-  // check if card slot is full
-  // prompt are you window
-
-  // reduce money
-
-  // remove card from shop
-  document.getElementById(cardName).parentNode.remove();
-  // fill card slot with card
-  const card = await getCard(cardName);
-  cardSlot.id = card.name;
-  cardSlot.src = card.icon;
 }

@@ -20,6 +20,9 @@ const element_colours = {
 
 const cardsInPlay = [];
 
+// for drag and drop
+let currently_dragged_card_svg = null;
+
 class Card extends SVG {
   constructor(name, width, height, x, y) {
     super(width, height, x, y);
@@ -181,50 +184,39 @@ class Card extends SVG {
 
     this.addListeners();
   }
-}
 
-let currently_dragged_card_svg = null;
-let currently_dragged_over_cardSlot = null;
+  /** DRAG AND DROP FUNCTIONS **/
 
-// checks if an element is draggable
-function card_checkIfDraggable(node) {
-  return node.classList.contains('card_draggable');
-}
+  static drag(ev) {
+    if(currently_dragged_card_svg && !modalWindow) {
+      ev.preventDefault();
 
-// checks if the current element is being dragged
-function card_currentDragging(node) {
-  return node.classList.contains('card_dragging');
-}
+      // update co-ords of svg to mouse position
+      const topLevel = SVG.getTopLevelSVG(ev.target);
+      const coords = SVG.getCoords(ev, topLevel);
+      topLevel.setAttribute('x', coords.x);
+      topLevel.setAttribute('y', coords.y);
 
-function card_drag(ev) {
-  if(currently_dragged_card_svg) {
-    ev.preventDefault();
+      old_clientX = ev.clientX;
+      old_clientY = ev.clientY;
 
-    // update co-ords of svg to mouse position
-    const topLevel = SVG.getTopLevelSVG(ev.target);
-    const coords = SVG.getCoords(ev, topLevel);
-    topLevel.setAttribute('x', coords.x);
-    topLevel.setAttribute('y', coords.y);
+      // check if there is a card slot underneath card (within range)
+      const cardSlot = CardSlot.inRange(coords);
+      if(cardSlot) {
+        // if so then higlight that these will connect if dropped here
+        // remember card slot for data transfer
+        currently_dragged_over_cardSlot = cardSlot;
 
-    old_clientX = ev.clientX;
-    old_clientY = ev.clientY;
+        // remove from all other card slots first
+        CardSlot.removeHighlighting();
+        // highlight card slot for dropping
+        cardSlot.svg.classList.add('cardSlot_highlighted');
+        cardSlot.svg.background.setAttribute('stroke', 'red');
+      } else {
+        currently_dragged_over_cardSlot = null;
 
-    // check if there is a card slot underneath card (within range)
-    const cardSlot = CardSlot.inRange(coords);
-    if(cardSlot) {
-      // if so then higlight that these will connect if dropped here
-      // remember card slot for data transfer
-      currently_dragged_over_cardSlot = cardSlot;
-
-      // remove from all other card slots first
-      CardSlot.removeHighlighting();
-      // highlight card slot for dropping
-      cardSlot.svg.classList.add('cardSlot_highlighted');
-      cardSlot.svg.background.setAttribute('stroke', 'red');
-    } else {
-      currently_dragged_over_cardSlot = null;
-
-      CardSlot.removeHighlighting();
+        CardSlot.removeHighlighting();
+      }
     }
   }
 }

@@ -231,30 +231,6 @@ async function getCompanions() {
   ];
 }
 
-// adds onclick event to all children of an element
-// calls recursively
-function svg_add_onclickEvent(element, func) {
-  element.onclick = func;
-  element.classList.add('button_enabled');
-  element.classList.remove('button_disabled');
-
-  for(const child of element.children) {
-    svg_add_onclickEvent(child, func);
-  }
-}
-
-// adds onclick event to all children of an element
-// calls recursively
-function svg_remove_onclickEvent(element, func) {
-  element.onclick = null;
-  element.classList.remove('button_enabled');
-  element.classList.add('button_disabled');
-
-  for(const child of element.children) {
-    svg_remove_onclickEvent(child, func);
-  }
-}
-
 /* FOOTER BAR */
 
 // contains buttons for the game
@@ -313,8 +289,8 @@ function createFooterBar(game_svg_workspace) {
 
   // end phase button
   const button_endPhase = new FooterButton('button_endPhase', endPhase, false,
-    container_footer.getAttribute('width'),
-    container_footer.getAttribute('height'), 'End phase');
+    'End phase', container_footer.getAttribute('width'),
+    container_footer.getAttribute('height'));
   button_endPhase.draw();
 }
 
