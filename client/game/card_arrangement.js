@@ -12,10 +12,6 @@ class Card_Arrangement extends Card {
     this.svg.onmousemove = card_drag;
     this.svg.onmouseup = arrangement_card_endDrag;
     this.svg.onmouseleave = arrangement_card_endDrag;
-
-    this.svg.icon.onmousemove = card_drag;
-    this.svg.icon.onmouseup = arrangement_card_endDrag;
-    this.svg.icon.onmouseleave = arrangement_card_endDrag;
   }
 }
 

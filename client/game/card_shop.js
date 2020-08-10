@@ -13,11 +13,6 @@ class Card_Shop extends Card {
     this.svg.onmousemove = card_drag;
     this.svg.onmouseup = shop_card_endDrag;
     this.svg.onmouseleave = shop_card_endDrag;
-
-    this.svg.icon.onmousedown = shop_card_startDrag;
-    this.svg.icon.onmousemove = card_drag;
-    this.svg.icon.onmouseup = shop_card_endDrag;
-    this.svg.icon.onmouseleave = shop_card_endDrag;
   }
 }
 
