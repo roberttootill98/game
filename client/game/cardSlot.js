@@ -68,12 +68,18 @@ class CardSlot extends SVG {
    * @returns {JSON} of attributes
    */
   static calculateSize(container_companion, index) {
+    const container_icon = container_companion.querySelector('.container_icon');
+    // attributes
+    const companion_width = parseFloat(container_companion.getAttribute('width'));
+    const icon_width = parseFloat(container_icon.getAttribute('width'));
+    const icon_height = parseFloat(container_icon.getAttribute('height'));
+    const icon_y = parseFloat(container_icon.getAttribute('y'));
+
     return {
-      'width': container_companion.getAttribute('width') * 0.35,
-      'height': container_companion.getAttribute('height') * 0.8 * 0.25,
-      'x': container_companion.getAttribute('width') * 0.65,
-      'y': container_companion.getAttribute('height') * 0.2 +
-        container_companion.getAttribute('height') * 0.8 * 0.25 * index
+      'width': companion_width - icon_width,
+      'height': icon_height / 4,
+      'x': icon_width,
+      'y': icon_y + icon_height / 4 * index
     }
   }
 
@@ -184,7 +190,7 @@ class CardSlot extends SVG {
     card_background.setAttribute('height', this.height);
     card_background.setAttribute('x', 0);
     card_background.setAttribute('y', 0);
-    card_background.setAttribute('fill', 'purple');
+    card_background.setAttribute('fill', element_colours[this.card.element]);
     card_background.setAttribute('stroke', 'black');
 
     // make icon using lookup table functions

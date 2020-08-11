@@ -19,6 +19,13 @@ async function gameSocket_message(ev) {
   console.log(ev);
 }
 
+// lookup table for phases that returns more readable text
+const phaseText_lookup = {
+  'phase_shop': 'shopping phase',
+  'phase_arrangement': 'arrangement phase',
+  'phase_attacking': 'attacking phase'
+};
+
 // called when a phase message is sent down the game socket
 async function gameSocket_phase(ev) {
   // if it is the players phase
@@ -33,7 +40,7 @@ async function gameSocket_phase(ev) {
 
     // dom stuff
     // phase text
-    phaseLabel_setText(`My ${phase}`);
+    phaseLabel_setText(`My ${phaseText_lookup[phase]}`);
     // end phase button state
     button_endPhase.enable();
 

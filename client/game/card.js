@@ -1,7 +1,6 @@
 // functions to do with cards
 'use strict'
 
-// GLOBAL CONSTANTS
 const cardAttributes = {
   'width': 100,
   'height': 200,
@@ -10,13 +9,6 @@ const cardAttributes = {
     'vertical': 25
   }
 }
-
-const element_colours = {
-  'air': '#823451',
-  'water': '#123456',
-  'earth': '#154328',
-  'fire': '#654321'
-};
 
 const cardsInPlay = [];
 

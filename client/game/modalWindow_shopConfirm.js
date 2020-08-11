@@ -17,7 +17,7 @@ class ModalWindow_shopConfirm extends ModalWindow {
     mainText.textContent = 'Are you sure you want to do this?';
     // svg attributes
     mainText.setAttribute('x', '50%');
-    mainText.setAttribute('y', '50%');
+    mainText.setAttribute('y', '25%');
     mainText.setAttribute('alignment-baseline', 'middle');
     mainText.setAttribute('text-anchor', 'middle');
     mainText.setAttribute('stroke', 'black');
