@@ -145,10 +145,6 @@ class CardSlot extends SVG {
     cardSlot_background.setAttribute('height', cardSlot.getAttribute('height'));
     cardSlot_background.setAttribute('fill', 'pink');
     cardSlot_background.setAttribute('stroke', 'black');
-
-    // event listeners
-    cardSlot.onmouseover = CardSlot.mouseover;
-    cardSlot.onmouseleave = CardSlot.mouseleave;
   }
 
   /**
@@ -192,11 +188,31 @@ class CardSlot extends SVG {
     card_background.setAttribute('stroke', 'black');
 
     // make icon using lookup table functions
-
-    // event listeners
   }
 
   /** DRAG AND DROP FUNCTIONS **/
+  addListeners() {
+    // events
+    this.svg.onmouseover = CardSlot.mouseover;
+    this.svg.onmouseleave = CardSlot.mouseleave;
+
+    if(this.card) {
+      this.svg.onmousedown = CardSlot.filled_startDrag;
+      // DOM
+      // add draggable class to all elements of svg
+      SVG.addClass(this.svg, 'draggable');
+    }
+  }
+
+  removeListeners() {
+    this.svg.onmousedown = null;
+    this.svg.onmouseover = null;
+    this.svg.onmouseleave = null;
+
+    // DOM
+    // remove draggable class from all elements of svg
+    SVG.removeClass(this.svg, 'draggable');
+  }
 
   static async filled_startDrag(ev) {
     // immediately draw full sized card, makes sure that it is at the top level

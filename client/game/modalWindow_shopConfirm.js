@@ -14,23 +14,25 @@ class ModalWindow_shopConfirm extends ModalWindow {
     const mainText = document.createElementNS(svgns, 'text');
     this.svg.mainText = mainText;
     this.svg.appendChild(mainText);
-    mainText.setAttribute('stroke', 'black');
     mainText.textContent = 'Are you sure you want to do this?';
     // svg attributes
-    mainText.setAttribute('x', this.width * 0.5 -
-      mainText.getComputedTextLength() / 2);
-    mainText.setAttribute('y', this.height * 0.25);
+    mainText.setAttribute('x', '50%');
+    mainText.setAttribute('y', '50%');
+    mainText.setAttribute('alignment-baseline', 'middle');
+    mainText.setAttribute('text-anchor', 'middle');
+    mainText.setAttribute('stroke', 'black');
 
     // sub text
     const subText = document.createElementNS(svgns, 'text');
     this.svg.subText = subText;
     this.svg.appendChild(subText);
-    subText.setAttribute('stroke', 'black');
     subText.textContent = 'Doing this will sell the card in this slot!';
     // svg attributes
-    subText.setAttribute('x', this.width * 0.5 -
-      subText.getComputedTextLength() / 2);
-    subText.setAttribute('y', this.height * 0.35);
+    subText.setAttribute('x', '50%');
+    subText.setAttribute('y', '50%');
+    subText.setAttribute('alignment-baseline', 'middle');
+    subText.setAttribute('text-anchor', 'middle');
+    subText.setAttribute('stroke', 'black');
 
     const buttonWidth = this.width * 0.25;
     const buttonHeight = this.height * 0.25;

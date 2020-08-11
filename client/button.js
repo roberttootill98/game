@@ -83,16 +83,18 @@ class Button extends SVG {
     const button_text = document.createElementNS(svgns, 'text');
     this.svg.text = button_text;
     container_button.appendChild(button_text);
+    button_text.textContent = this.text;
+    // svg attributes
+    button_text.setAttribute('x', '50%');
+    button_text.setAttribute('y', '50%');
+    button_text.setAttribute('alignment-baseline', 'middle');
+    button_text.setAttribute('text-anchor', 'middle');
     // show disabled effect based on state
     if(this.state) {
       button_text.setAttribute('stroke', 'black');
     } else {
       button_text.setAttribute('stroke', 'grey');
     }
-    button_text.textContent = this.text;
-    // svg attributes
-    button_text.setAttribute('x', container_button.getAttribute('width') * 0.5 - button_text.getComputedTextLength() / 2);
-    button_text.setAttribute('y', container_button.getAttribute('height') * 0.5);
 
     // enable on click
     if(this.state) {

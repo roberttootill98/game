@@ -77,3 +77,7 @@ header {
 .button_disabled:hover {
   cursor: default;
 }
+
+.draggable {
+  cursor: grab;
+}

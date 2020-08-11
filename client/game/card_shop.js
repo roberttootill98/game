@@ -13,6 +13,8 @@ class Card_Shop extends Card {
     this.svg.onmousemove = Card.drag;
     this.svg.onmouseup = Card_Shop.endDrag;
     this.svg.onmouseleave = Card_Shop.endDrag;
+
+    super.addListeners();
   }
 
   /** DRAG AND DROP FUNCTIONS **/

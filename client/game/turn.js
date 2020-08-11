@@ -85,6 +85,7 @@ async function endPhase(ev) {
       }
       break;
     case 'phase_arrangement':
+      teardown_phase_arrangement();
       break;
     case 'phase_attacking':
       // disable end phase button, it is now the opponent's phases

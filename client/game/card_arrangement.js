@@ -12,6 +12,8 @@ class Card_Arrangement extends Card {
     this.svg.onmousemove = Card.drag;
     this.svg.onmouseup = Card_Arrangement.endDrag;
     this.svg.onmouseleave = Card_Arrangement.endDrag;
+
+    super.addListeners();
   }
 
   /** DRAG AND DROP FUNCTIONS **/

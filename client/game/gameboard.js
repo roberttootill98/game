@@ -124,12 +124,24 @@ async function createSideContainer(game_svg_workspace, side_type) {
     companion_background.setAttribute('fill', 'blue');
 
     // name
+    // wrapped in an svg for text allignment
+    // container
+    const name_container = document.createElementNS(svgns, 'svg');
+    container_companion.appendChild(name_container);
+    // svg attributes
+    name_container.setAttribute('width', container_companion.getAttribute('width'));
+    name_container.setAttribute('height', container_companion.getAttribute('height') * 0.2);
+    name_container.setAttribute('x', 0);
+    name_container.setAttribute('y', 0);
+    // text
     const name_text = document.createElementNS(svgns, 'text');
-    container_companion.appendChild(name_text);
+    name_container.appendChild(name_text);
     name_text.textContent = companion.name;
     // svg attributes
-    name_text.setAttribute('x', container_companion.getAttribute('width') * 0.5 - name_text.getComputedTextLength() / 2);
-    name_text.setAttribute('y', container_companion.getAttribute('height') * 0.1);
+    name_text.setAttribute('x', '50%');
+    name_text.setAttribute('y', '50%');
+    name_text.setAttribute('alignment-baseline', 'middle');
+    name_text.setAttribute('text-anchor', 'middle');
     name_text.setAttribute('stroke', 'black');
 
     // icon
@@ -239,14 +251,20 @@ function createFooterBar(game_svg_workspace) {
   const width = game_svg_workspace.getAttribute('width');
   const height = game_svg_workspace.getAttribute('height');
 
+  const container_player = document.getElementById('container_player');
+  const container_player_y_end = parseFloat(container_player.getAttribute('y')) +
+    parseFloat(container_player.getAttribute('height'))
+
   const container_footer = document.createElementNS(svgns, 'svg');
   game_svg_workspace.appendChild(container_footer);
   container_footer.id = 'container_footer';
   // svg attributes
   container_footer.setAttribute('width', width);
-  container_footer.setAttribute('height', height * 0.05);
+  container_footer.setAttribute('height',
+    parseFloat(game_svg_workspace.getAttribute('height')) -
+    container_player_y_end);
   container_footer.setAttribute('x', 0);
-  container_footer.setAttribute('y', height * 0.95);
+  container_footer.setAttribute('y', container_player_y_end);
 
   // background
   const footer_background = document.createElementNS(svgns, 'rect');
@@ -280,12 +298,13 @@ function createFooterBar(game_svg_workspace) {
   // text
   const phaseLabel_text = document.createElementNS(svgns, 'text');
   footer_phaseLabel.appendChild(phaseLabel_text);
-  phaseLabel_text.setAttribute('stroke', 'black');
   phaseLabel_text.textContent = 'Waiting for other players...';
   // svg attributes
-  phaseLabel_text.setAttribute('x', footer_phaseLabel.getAttribute('width') *
-    0.5 - phaseLabel_text.getComputedTextLength() / 2);
-  phaseLabel_text.setAttribute('y', footer_phaseLabel.getAttribute('height') * 0.5);
+  phaseLabel_text.setAttribute('x', '50%');
+  phaseLabel_text.setAttribute('y', '50%');
+  phaseLabel_text.setAttribute('alignment-baseline', 'middle');
+  phaseLabel_text.setAttribute('text-anchor', 'middle');
+  phaseLabel_text.setAttribute('stroke', 'black');
 
   // end phase button
   const button_endPhase = new FooterButton('button_endPhase', endPhase, false,
@@ -300,7 +319,4 @@ function phaseLabel_setText(text) {
   const phaseLabel_text = phaseLabel.querySelector('text');
   // change text content
   phaseLabel_text.textContent = text;
-  // reallign x position of text
-  phaseLabel_text.setAttribute('x', phaseLabel.getAttribute('width') *
-    0.5 - phaseLabel_text.getComputedTextLength() / 2);
 }

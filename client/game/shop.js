@@ -78,8 +78,10 @@ async function promptShop() {
   shop_closeButton_text.onclick = closeShop;
   shop_closeButton_text.textContent = 'X';
   // svg attributes
-  shop_closeButton_text.setAttribute('x', container_shop_closeButton.getAttribute('width') * 0.5 - shop_closeButton_text.getComputedTextLength() / 2);
-  shop_closeButton_text.setAttribute('y', container_shop_closeButton.getAttribute('height') / 2);
+  shop_closeButton_text.setAttribute('x', '50%');
+  shop_closeButton_text.setAttribute('y', '50%');
+  shop_closeButton_text.setAttribute('alignment-baseline', 'middle');
+  shop_closeButton_text.setAttribute('text-anchor', 'middle');
   shop_closeButton_text.setAttribute('stroke', 'black');
 
   // cards

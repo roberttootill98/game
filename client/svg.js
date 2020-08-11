@@ -24,15 +24,26 @@ class SVG {
   // gets top level svg element from inner svg element
   static getTopLevelSVG(node) {
     // list of strings that refer to classes that should be ignored when looking for top level svg
+    // svg within svgs that are not top level svgs
     const excludedClasses = [
       'card_icon',
+      'card_attribute_text'
     ];
     const excludedIDs = [
       'shopConfirm_yes',
       'shopConfirm_no'
     ];
 
-    while(node.nodeName != 'svg' || node.classList.contains(excludedClasses) ||
+    // checks if an element has at least one excluded class
+    function checkForExcludedClass(element) {
+      for(const excludedClass of excludedClasses) {
+        if(element.classList.contains(excludedClass)) {
+          return true;
+        }
+      }
+    }
+
+    while(node.nodeName != 'svg' || checkForExcludedClass(node) ||
       excludedIDs.includes(node.id)) {
       node = node.parentNode;
     }
@@ -72,6 +83,32 @@ class SVG {
     return {
       'x': x,
       'y': y
+    }
+  }
+
+  /**
+   * Adds class to all elements contained within an svg
+   * calls recursively
+   * @param {element} element, the element that needs to have the class
+   * @param {string} className, the DOM class that is added to class list
+   */
+  static addClass(element, className) {
+    element.classList.add(className);
+    for(const child of element.children) {
+      SVG.addClass(child, className);
+    }
+  }
+
+  /**
+   * Adds class to all elements contained within an svg
+   * calls recursively
+   * @param {element} element, the element that needs to have the class removed
+   * @param {string} className, the DOM class that is removed from the class list
+   */
+  static removeClass(element, className) {
+    element.classList.remove(className);
+    for(const child of element.children) {
+      SVG.removeClass(child, className);
     }
   }
 

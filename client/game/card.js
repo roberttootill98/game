@@ -88,7 +88,6 @@ class Card extends SVG {
     this.svg = card_svg;
     target.appendChild(card_svg);
     card_svg.id = Card.getNextID();
-    card_svg.classList.add('card_draggable');
     card_svg.setAttribute('width', this.width);
     card_svg.setAttribute('height', this.height);
     card_svg.setAttribute('x', this.x);
@@ -99,7 +98,6 @@ class Card extends SVG {
     const card_background = document.createElementNS(svgns, 'rect');
     this.svg.background = card_background;
     card_svg.appendChild(card_background);
-    card_background.classList.add('card_draggable');
     card_background.setAttribute('width', this.width);
     card_background.setAttribute('height', this.height);
     card_background.setAttribute('fill', element_colours[this.element]);
@@ -114,10 +112,12 @@ class Card extends SVG {
     this.svg.name_text = name_text;
     card_svg.appendChild(name_text);
     name_text.classList.add('card_name');
-    name_text.classList.add('card_draggable');
     name_text.textContent = this.name;
-    name_text.setAttribute('x', this.width * 0.5 - name_text.getComputedTextLength() / 2);
-    name_text.setAttribute('y', this.height * 0.6);
+    // svg attributes
+    name_text.setAttribute('x', '50%');
+    name_text.setAttribute('y', '50%');
+    name_text.setAttribute('alignment-baseline', 'middle');
+    name_text.setAttribute('text-anchor', 'middle');
     name_text.setAttribute('stroke', 'black');
 
     // container for cost, damage and mana info
@@ -126,7 +126,6 @@ class Card extends SVG {
     this.svg.header_line = header_line;
     const header_line_height = this.height * 0.75;
     card_svg.appendChild(header_line);
-    header_line.classList.add('draggable');
     header_line.setAttribute('x1', 0);
     header_line.setAttribute('y1', header_line_height);
     header_line.setAttribute('x2', this.width);
@@ -136,7 +135,6 @@ class Card extends SVG {
     const vertical_line_1 = document.createElementNS(svgns, 'line');
     this.vertical_line_1 = vertical_line_1;
     card_svg.appendChild(vertical_line_1);
-    vertical_line_1.classList.add('card_draggable');
     vertical_line_1.setAttribute('x1', this.width * (1/3));
     vertical_line_1.setAttribute('y1', header_line_height);
     vertical_line_1.setAttribute('x2', this.width * (1/3));
@@ -146,7 +144,6 @@ class Card extends SVG {
     const vertical_line_2 = document.createElementNS(svgns, 'line');
     this.vertical_line_2 = vertical_line_2;
     card_svg.appendChild(vertical_line_2);
-    vertical_line_2.classList.add('draggable');
     vertical_line_2.setAttribute('x1', this.width * 2 * (1/3));
     vertical_line_2.setAttribute('y1', header_line_height);
     vertical_line_2.setAttribute('x2', this.width * 2 * (1/3));
@@ -154,38 +151,85 @@ class Card extends SVG {
     vertical_line_2.setAttribute('stroke', 'black');
 
     // text in container for cost, damage and mana
+    // wrapped in svgs for allignment
+
     // cost
-    const card_cost_text = document.createElementNS(svgns, 'text');
-    this.svg.cost_text = card_cost_text;
-    card_svg.appendChild(card_cost_text);
-    card_cost_text.classList.add('card_draggable');
-    card_cost_text.textContent = '£69';
-    card_cost_text.setAttribute('x', this.width * (1/6) - card_cost_text.getComputedTextLength() / 2);
-    card_cost_text.setAttribute('y', header_line_height + (this.height - header_line_height) / 2);
-    card_cost_text.setAttribute('fill', 'gold');
+    // container
+    const cost_container = document.createElementNS(svgns, 'svg');
+    this.svg.cost_container = cost_container;
+    card_svg.appendChild(cost_container);
+    cost_container.classList.add('card_attribute_text');
+    // svg attributes
+    cost_container.setAttribute('width', `${1/3 * 100}%`);
+    cost_container.setAttribute('height', card_svg.getAttribute('height') - header_line_height);
+    cost_container.setAttribute('x', 0);
+    cost_container.setAttribute('y', header_line_height);
+    // text
+    const cost_text = document.createElementNS(svgns, 'text');
+    this.svg.cost_text = cost_text;
+    cost_container.appendChild(cost_text);
+    cost_text.textContent = '£69';
+    // svg attributes
+    cost_text.setAttribute('x', '50%');
+    cost_text.setAttribute('y', '50%');
+    cost_text.setAttribute('alignment-baseline', 'middle');
+    cost_text.setAttribute('text-anchor', 'middle');
+    cost_text.setAttribute('fill', 'gold');
+
     // damage
-    const card_damage_text = document.createElementNS(svgns, 'text');
-    this.svg.damage_text = card_damage_text;
-    card_svg.appendChild(card_damage_text);
-    card_damage_text.classList.add('card_draggable');
-    card_damage_text.textContent = this.damage;
-    card_damage_text.setAttribute('x', this.width * 0.5 - card_damage_text.getComputedTextLength() / 2);
-    card_damage_text.setAttribute('y', header_line_height + (this.height - header_line_height) / 2);
-    card_damage_text.setAttribute('fill', 'red');
+    // container
+    const damage_container = document.createElementNS(svgns, 'svg');
+    this.svg.damage_container = damage_container;
+    card_svg.appendChild(damage_container);
+    damage_container.classList.add('card_attribute_text');
+    // svg attributes
+    damage_container.setAttribute('width', `${1/3 * 100}%`);
+    damage_container.setAttribute('height', card_svg.getAttribute('height') - header_line_height);
+    damage_container.setAttribute('x', `${1/3 * 100}%`);
+    damage_container.setAttribute('y', header_line_height);
+    // text
+    const damage_text = document.createElementNS(svgns, 'text');
+    this.svg.damage_text = damage_text;
+    damage_container.appendChild(damage_text);
+    damage_text.textContent = this.damage;
+    // svg attributes
+    damage_text.setAttribute('x', '50%');
+    damage_text.setAttribute('y', '50%');
+    damage_text.setAttribute('alignment-baseline', 'middle');
+    damage_text.setAttribute('text-anchor', 'middle');
+    damage_text.setAttribute('stroke', 'red');
+
     // mana
-    const card_mana_text = document.createElementNS(svgns, 'text');
-    this.svg.mana_text = card_mana_text;
-    card_svg.appendChild(card_mana_text);
-    card_mana_text.classList.add('card_draggable');
-    card_mana_text.textContent = this.mana;
-    card_mana_text.setAttribute('x', this.width * 5 * (1/6) - card_mana_text.getComputedTextLength() / 2);
-    card_mana_text.setAttribute('y', header_line_height + (this.height - header_line_height) / 2);
-    card_mana_text.setAttribute('fill', 'mana');
+    // container
+    const mana_container = document.createElementNS(svgns, 'svg');
+    this.svg.mana_container = mana_container;
+    card_svg.appendChild(mana_container);
+    mana_container.classList.add('card_attribute_text');
+    // svg attributes
+    mana_container.setAttribute('width', `${1/3 * 100}%`);
+    mana_container.setAttribute('height', card_svg.getAttribute('height') - header_line_height);
+    mana_container.setAttribute('x', `${2/3 * 100}%`);
+    mana_container.setAttribute('y', header_line_height);
+    // text
+    const mana_text = document.createElementNS(svgns, 'text');
+    this.svg.mana_text = mana_text;
+    mana_container.appendChild(mana_text);
+    mana_text.textContent = this.mana;
+    // svg attributes
+    mana_text.setAttribute('x', '50%');
+    mana_text.setAttribute('y', '50%');
+    mana_text.setAttribute('alignment-baseline', 'middle');
+    mana_text.setAttribute('text-anchor', 'middle');
+    mana_text.setAttribute('stroke', 'blue');
 
     this.addListeners();
   }
 
   /** DRAG AND DROP FUNCTIONS **/
+
+  addListeners() {
+    SVG.addClass(this.svg, 'draggable');
+  }
 
   static drag(ev) {
     if(currently_dragged_card_svg && !modalWindow) {
