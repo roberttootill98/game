@@ -8,24 +8,21 @@ const cards = [
     'name': 'air 1',
     'element': 'air',
     'damage': 1,
-    'mana': 1,
-    'icon': 'hotSquat.png'
+    'mana': 1
     // hits 2 people
   },
   {
     'name': 'air 2',
     'element': 'air',
     'damage': 2,
-    'mana': 2,
-    'icon': 'freeze.png'
+    'mana': 2
     // 50% dodge chance
   },
   {
     'name': 'air 3',
     'element': 'air',
     'damage': 3,
-    'mana': 3,
-    'icon': 'shield.png'
+    'mana': 3
     // 100% dodge chance
   },
   {

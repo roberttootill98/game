@@ -74,6 +74,7 @@ class Companion extends SVG {
     // container
     this.svg.name = document.createElementNS(svgns, 'svg');
     this.svg.appendChild(this.svg.name);
+    this.svg.name.classList.add('container_companion_name');
     // svg attributes
     this.svg.name.setAttribute('width', this.svg.getAttribute('width') * 0.65);
     this.svg.name.setAttribute('height', this.svg.getAttribute('height') * 0.2);
@@ -93,6 +94,7 @@ class Companion extends SVG {
     // health
     this.svg.health = document.createElementNS(svgns, 'svg');
     this.svg.appendChild(this.svg.health);
+    this.svg.health.classList.add('container_companion_health');
     // svg attributes
     this.svg.health.setAttribute('width', (this.svg.getAttribute('width') -
       this.svg.name.getAttribute('width')) / 2);
@@ -123,6 +125,7 @@ class Companion extends SVG {
     // mana
     this.svg.mana = document.createElementNS(svgns, 'svg');
     this.svg.appendChild(this.svg.mana);
+    this.svg.mana.classList.add('container_companion_mana');
     // svg attributes
     this.svg.mana.setAttribute('width', this.svg.health.getAttribute('width'));
     this.svg.mana.setAttribute('height', this.svg.name.getAttribute('height'));
@@ -153,7 +156,7 @@ class Companion extends SVG {
     // icon
     this.svg.icon = document.createElementNS(svgns, 'svg');
     this.svg.appendChild(this.svg.icon);
-    this.svg.icon.classList.add('container_icon');
+    this.svg.icon.classList.add('container_companion_icon');
     // svg attributes
     this.svg.icon.setAttribute('width', this.svg.name.getAttribute('width'));
     this.svg.icon.setAttribute('height', this.svg.getAttribute('height') -
@@ -178,6 +181,18 @@ class Companion extends SVG {
         cardSlot_attributes.x, cardSlot_attributes.y);
       this.cardSlots.push(cardSlot);
       cardSlot.draw(this.svg, i);
+    }
+  }
+
+  highlight() {
+    this.svg.classList.add('companion_highlighted');
+    this.svg.background.setAttribute('stroke', 'yellow');
+  }
+
+  static removeHighlighting() {
+    for(const companion of document.querySelectorAll('.companion_highlighted')) {
+      companion.classList.remove('companion_highlighted');
+      companion.querySelector('rect').setAttribute('stroke', 'black');
     }
   }
 

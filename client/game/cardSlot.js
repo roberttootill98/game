@@ -69,7 +69,7 @@ class CardSlot extends SVG {
    * @returns {JSON} of attributes
    */
   static calculateSize(container_companion, index) {
-    const container_icon = container_companion.querySelector('.container_icon');
+    const container_icon = container_companion.querySelector('.container_companion_icon');
     // attributes
     const companion_width = parseFloat(container_companion.getAttribute('width'));
     const icon_width = parseFloat(container_icon.getAttribute('width'));
@@ -108,19 +108,9 @@ class CardSlot extends SVG {
   }
 
   /**
-   * strip all card slots of highlighting
-   */
-  static removeHighlighting() {
-    for(const cardSlot of document.querySelectorAll('.cardSlot_highlighted')) {
-      cardSlot.classList.remove('cardSlot_highlighted');
-      cardSlot.querySelector('rect').setAttribute('stroke', 'black');
-    }
-  }
-
-  /**
    * draws the cardSlot
    * @param {element} target, which companion svg it is being appended to
-   * @param {integer} index, which card slot within the companion this is 
+   * @param {integer} index, which card slot within the companion this is
    */
   draw(target, index) {
     // get rid of current svg
@@ -158,39 +148,27 @@ class CardSlot extends SVG {
     this.svg.background.setAttribute('stroke', 'black');
   }
 
-  /** DRAG AND DROP FUNCTIONS **/
-  async addListeners() {
-    switch((await getPhase()).slice(8)) {
-      case "phase_arrangement":
-        // events
-        this.svg.onmouseover = CardSlot.mouseover;
-        this.svg.onmouseleave = CardSlot.mouseleave;
-
-        if(this.card) {
-          this.svg.onmousedown = CardSlot.filled_startDrag;
-          // DOM
-          // add draggable class to all elements of svg
-          SVG.addClass(this.svg, 'draggable');
-        }
-        break;
-      case "phase_attacking":
-        if(this.card) {
-          this.svg.onmousedown = CardSlot.attacking_onmousedown;
-        }
-        break;
-      default:
-        break;
-    }
+  /**
+   * highlights the card slot
+   */
+  highlight() {
+    this.svg.classList.add('cardSlot_highlighted');
+    this.svg.background.setAttribute('stroke', 'red');
   }
 
-  removeListeners() {
-    this.svg.onmousedown = null;
-    this.svg.onmouseover = null;
-    this.svg.onmouseleave = null;
-
-    // DOM
-    // remove draggable class from all elements of svg
-    SVG.removeClass(this.svg, 'draggable');
+  /**
+   * strip all card slots of highlighting
+   * ignores the currently clicked card slot
+   */
+  static removeHighlighting() {
+    for(const cardSlot of document.querySelectorAll('.cardSlot_highlighted')) {
+      if(clicked_cardSlot && cardSlot == clicked_cardSlot.svg) {
+        continue;
+      } else {
+        cardSlot.classList.remove('cardSlot_highlighted');
+        cardSlot.querySelector('rect').setAttribute('stroke', 'black');
+      }
+    }
   }
 
   /**
@@ -211,6 +189,43 @@ class CardSlot extends SVG {
    */
   getIndex() {
     return parseInt(this.svg.id - 1) % 4;
+  }
+
+  /** DRAG AND DROP FUNCTIONS **/
+  async addListeners() {
+    switch((await getPhase()).slice(8)) {
+      case "phase_arrangement":
+        // events
+        this.svg.onmouseover = CardSlot.mouseover;
+        this.svg.onmouseleave = CardSlot.mouseleave;
+
+        if(this.card) {
+          this.svg.onmousedown = CardSlot.filled_startDrag;
+          // DOM
+          // add draggable class to all elements of svg
+          SVG.addClass(this.svg, 'draggable');
+        }
+        break;
+      case "phase_attacking":
+        if(this.card) {
+          this.svg.onmouseover = CardSlot.attacking_onmouseover;
+          this.svg.onmouseleave = CardSlot.attacking_onmouseleave;
+          this.svg.onmousedown = CardSlot.attacking_onmousedown;
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  removeListeners() {
+    this.svg.onmousedown = null;
+    this.svg.onmouseover = null;
+    this.svg.onmouseleave = null;
+
+    // DOM
+    // remove draggable class from all elements of svg
+    SVG.removeClass(this.svg, 'draggable');
   }
 
   static async filled_startDrag(ev) {
@@ -248,9 +263,24 @@ class CardSlot extends SVG {
     old_position_y = topLevel.getAttribute('y');
   }
 
+  static attacking_onmouseover(ev) {
+    const topLevel = SVG.getTopLevelSVG(ev.target);
+    const cardSlot = CardSlot.getByID(topLevel.id);
+    cardSlot.highlight();
+  }
+
+  static attacking_onmouseleave(ev) {
+    CardSlot.removeHighlighting();
+  }
+
   static attacking_onmousedown(ev) {
     const topLevel = SVG.getTopLevelSVG(ev.target);
     clicked_cardSlot = CardSlot.getByID(topLevel.id);
+
+    // deny if insufficient attributes
+
+    // highlight this cardSlot
+    clicked_cardSlot.highlight();
 
     // add listeners to opponent companions
     const opponent_side = document.getElementById('container_opposition');
@@ -264,19 +294,30 @@ class CardSlot extends SVG {
 
   static opponent_onmouseover(ev) {
     const topLevel = SVG.getTopLevelSVG(ev.target);
-
-    console.log("highlighting...");
+    const companion = Companion.getByID(topLevel.id);
+    companion.highlight();
   }
 
   static opponent_onmouseleave(ev) {
-    console.log("removing highligting...");
+    Companion.removeHighlighting();
   }
 
   static opponent_onmousedown(ev) {
-    console.log("mouse down");
+    const topLevel = SVG.getTopLevelSVG(ev.target);
+    const player_companion = clicked_cardSlot.getCompanion();
+    const opponent_companion = Companion.getByID(topLevel.id);
 
     // execute card damage
+    opponent_companion.setHealth(opponent_companion.health -
+      clicked_cardSlot.card.damage);
     // execute card effect
     // execute card cost
+    player_companion.setMana(player_companion.mana - clicked_cardSlot.card.mana);
+
+    if(opponent_companion >= 0) {
+      console.log("companion dead");
+    }
+
+    clicked_cardSlot = null;
   }
 }

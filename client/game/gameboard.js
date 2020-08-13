@@ -122,14 +122,8 @@ async function getCompanions() {
       'health': 5,
       'mana': 7,
       'cards': [
-        {
-          'name': 'air 1',
-          'element': 'air'
-        },
-        {
-          'name': 'air 2',
-          'element': 'air'
-        },
+        await Card.getCardDetails('air 1'),
+        await Card.getCardDetails('air 2'),
         null,
         null
       ]

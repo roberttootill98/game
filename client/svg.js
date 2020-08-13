@@ -35,7 +35,11 @@ class SVG {
     // svg within svgs that are not top level svgs
     const excludedClasses = [
       'card_icon',
-      'card_attribute_text'
+      'card_attribute_text',
+      'container_companion_name',
+      'container_companion_health',
+      'container_companion_mana',
+      'container_companion_icon'
     ];
     const excludedIDs = [
       'shopConfirm_yes',
