@@ -216,6 +216,26 @@ class CardSlot extends SVG {
     SVG.removeClass(this.svg, 'draggable');
   }
 
+  /**
+   * @returns {Companion} that the CardSlot is associated with
+   */
+  getCompanion() {
+    if(this.card) {
+      const container_companion = document.querySelectorAll('.container_companion')[
+        parseInt(this.svg.id - 1) / 4 >> 0];
+      return Companion.getByID(container_companion.id);
+    } else {
+      return Companion.getByID(this.svg.parentNode.id);
+    }
+  }
+
+  /**
+   * @returns {integer} index of the card slot in reference to its companion
+   */
+  getIndex() {
+    return parseInt(this.svg.id - 1) % 4;
+  }
+
   static async filled_startDrag(ev) {
     // immediately draw full sized card, makes sure that it is at the top level
     // wont disappear behind any elements
@@ -226,14 +246,12 @@ class CardSlot extends SVG {
     // setup data transfer
     // get details before deleting
     currently_dragged_cardSlot_card = cardSlot.card;
-    currently_dragged_cardSlot_target = document.querySelectorAll(
-      '.container_companion')[parseInt(cardSlot.svg.id - 1) / 4 >> 0];
-    currently_dragged_cardSlot_oldIndex = parseInt(cardSlot.svg.id - 1) % 4;
+    const companion = cardSlot.getCompanion();
+    currently_dragged_cardSlot_target = companion.svg;
+    currently_dragged_cardSlot_oldIndex = cardSlot.getIndex();
 
     // draw filled slot as empty slot
-    cardSlot.card = null;
-    cardSlot.draw_empty(currently_dragged_cardSlot_target,
-      currently_dragged_cardSlot_oldIndex);
+    companion.setCard(null, currently_dragged_cardSlot_oldIndex)
     // remember card slot
     currently_dragged_cardSlot = cardSlot;
 

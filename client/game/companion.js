@@ -36,10 +36,19 @@ class Companion extends SVG {
     companions.push(this);
   }
 
+  static getByID(id) {
+    for(const companion of companions) {
+      if(companion.svg.id == id) {
+        return companion;
+      }
+    }
+  }
+
   draw(container_side) {
     // container
     this.svg = document.createElementNS(svgns, 'svg');
     container_side.appendChild(this.svg);
+    this.svg.id = companions.length;
     this.svg.classList.add('container_companion');
     // type dependent
     if(this.side == 'container_opposition') {
@@ -194,7 +203,15 @@ class Companion extends SVG {
    */
   setCard(card, index) {
     this.cards[index] = card;
+    const cardSlot = this.cardSlots[index];
+    cardSlot.card = card;
 
     // redraw card slot
+    if(card) {
+      cardSlot.draw_filled(document.getElementById('game_svg_workspace'),
+        this.svg, index);
+    } else {
+      cardSlot.draw_empty(this.svg, index);
+    }
   }
 }

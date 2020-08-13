@@ -84,15 +84,10 @@ class Card_Shop extends Card {
     const card_name = currently_dragged_card_svg.querySelector('.card_name').textContent;
     const card = await Card.getCardDetails(card_name);
 
-    const container_companion = document.querySelectorAll('.container_companion')[
-      parseInt(currently_dragged_over_cardSlot.svg.id - 1) / 4 >> 0];
-    const index = parseInt(currently_dragged_over_cardSlot.svg.id - 1) % 4;
+    const companion = currently_dragged_over_cardSlot.getCompanion();
+    const index = currently_dragged_over_cardSlot.getIndex();
 
-    const cardSlot_attributes = CardSlot.calculateSize(container_companion, index);
-    const game_svg_workspace = document.getElementById('game_svg_workspace');
-
-    currently_dragged_over_cardSlot.card = card;
-    currently_dragged_over_cardSlot.draw_filled(game_svg_workspace, container_companion, index);
+    companion.setCard(card, index);
 
     // delete card svg
     currently_dragged_card_svg.remove();
