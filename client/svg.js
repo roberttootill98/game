@@ -14,6 +14,14 @@ let old_position_x;
 let old_position_y;
 
 class SVG {
+  /**
+   * creates an SVG
+   * @constructor
+   * @param {float} width, of SVG
+   * @param {float} height, of SVG
+   * @param {float} x, position of SVG
+   * @param {float} y, position of SVG
+   */
   constructor(width, height, x, y) {
     this.width = width;
     this.height = height;

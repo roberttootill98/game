@@ -11,28 +11,26 @@ class ModalWindow_shopConfirm extends ModalWindow {
 
     // elements specific to this modal window
     // main text
-    const mainText = document.createElementNS(svgns, 'text');
-    this.svg.mainText = mainText;
-    this.svg.appendChild(mainText);
-    mainText.textContent = 'Are you sure you want to do this?';
+    this.svg.mainText = document.createElementNS(svgns, 'text');
+    this.svg.appendChild(this.svg.mainText);
+    this.svg.mainText.textContent = 'Are you sure you want to do this?';
     // svg attributes
-    mainText.setAttribute('x', '50%');
-    mainText.setAttribute('y', '25%');
-    mainText.setAttribute('alignment-baseline', 'middle');
-    mainText.setAttribute('text-anchor', 'middle');
-    mainText.setAttribute('stroke', 'black');
+    this.svg.mainText.setAttribute('x', '50%');
+    this.svg.mainText.setAttribute('y', '25%');
+    this.svg.mainText.setAttribute('alignment-baseline', 'middle');
+    this.svg.mainText.setAttribute('text-anchor', 'middle');
+    this.svg.mainText.setAttribute('stroke', 'black');
 
     // sub text
-    const subText = document.createElementNS(svgns, 'text');
-    this.svg.subText = subText;
-    this.svg.appendChild(subText);
-    subText.textContent = 'Doing this will sell the card in this slot!';
+    this.svg.subText = document.createElementNS(svgns, 'text');
+    this.svg.appendChild(this.svg.subText);
+    this.svg.subText.textContent = 'Doing this will sell the card in this slot!';
     // svg attributes
-    subText.setAttribute('x', '50%');
-    subText.setAttribute('y', '50%');
-    subText.setAttribute('alignment-baseline', 'middle');
-    subText.setAttribute('text-anchor', 'middle');
-    subText.setAttribute('stroke', 'black');
+    this.svg.subText.setAttribute('x', '50%');
+    this.svg.subText.setAttribute('y', '50%');
+    this.svg.subText.setAttribute('alignment-baseline', 'middle');
+    this.svg.subText.setAttribute('text-anchor', 'middle');
+    this.svg.subText.setAttribute('stroke', 'black');
 
     const buttonWidth = this.width * 0.25;
     const buttonHeight = this.height * 0.25;

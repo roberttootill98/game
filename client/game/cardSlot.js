@@ -129,28 +129,26 @@ class CardSlot extends SVG {
       this.svg.remove();
     }
 
-    const cardSlot = document.createElementNS(svgns, 'svg');
-    this.svg = cardSlot;
-    target.appendChild(cardSlot);
-    cardSlot.id = CardSlot.getNextID();
-    cardSlot.classList.add('cardSlot' + index);
-    cardSlot.classList.add('cardSlot_empty');
-    cardSlot.classList.add('cardSlot_' + this.owner);
+    this.svg = document.createElementNS(svgns, 'svg');
+    target.appendChild(this.svg);
+    this.svg.id = CardSlot.getNextID();
+    this.svg.classList.add('cardSlot' + index);
+    this.svg.classList.add('cardSlot_empty');
+    this.svg.classList.add('cardSlot_' + this.owner);
     // svg attributes
-    cardSlot.setAttribute('width', this.width);
-    cardSlot.setAttribute('height', this.height);
-    cardSlot.setAttribute('x', this.x);
-    cardSlot.setAttribute('y', this.y);
+    this.svg.setAttribute('width', this.width);
+    this.svg.setAttribute('height', this.height);
+    this.svg.setAttribute('x', this.x);
+    this.svg.setAttribute('y', this.y);
 
     // background
-    const cardSlot_background = document.createElementNS(svgns, 'rect');
-    this.svg.background = cardSlot_background;
-    cardSlot.appendChild(cardSlot_background);
+    this.svg.background = document.createElementNS(svgns, 'rect');
+    this.svg.appendChild(this.svg.background);
     // svg attributes
-    cardSlot_background.setAttribute('width', cardSlot.getAttribute('width'));
-    cardSlot_background.setAttribute('height', cardSlot.getAttribute('height'));
-    cardSlot_background.setAttribute('fill', 'pink');
-    cardSlot_background.setAttribute('stroke', 'black');
+    this.svg.background.setAttribute('width', this.svg.getAttribute('width'));
+    this.svg.background.setAttribute('height', this.svg.getAttribute('height'));
+    this.svg.background.setAttribute('fill', 'pink');
+    this.svg.background.setAttribute('stroke', 'black');
   }
 
   /**
@@ -168,30 +166,28 @@ class CardSlot extends SVG {
 
     const container_position = SVG.getAbsoluteCoords(target);
 
-    const card_svg = document.createElementNS(svgns, 'svg');
-    this.svg = card_svg;
-    topLevel.appendChild(card_svg);
-    card_svg.id = CardSlot.getNextID();
-    card_svg.classList.add('cardSlot' + index);
-    card_svg.classList.add('cardSlot_filled');
-    card_svg.classList.add('cardSlot_' + this.owner);
+    this.svg = document.createElementNS(svgns, 'svg');
+    topLevel.appendChild(this.svg);
+    this.svg.id = CardSlot.getNextID();
+    this.svg.classList.add('cardSlot' + index);
+    this.svg.classList.add('cardSlot_filled');
+    this.svg.classList.add('cardSlot_' + this.owner);
     // svg attributes
-    card_svg.setAttribute('width', this.width);
-    card_svg.setAttribute('height', this.height);
-    card_svg.setAttribute('x', this.x + container_position.x);
-    card_svg.setAttribute('y', this.y + container_position.y);
+    this.svg.setAttribute('width', this.width);
+    this.svg.setAttribute('height', this.height);
+    this.svg.setAttribute('x', this.x + container_position.x);
+    this.svg.setAttribute('y', this.y + container_position.y);
 
     // background
-    const card_background = document.createElementNS(svgns, 'rect');
-    this.svg.background = card_background;
-    card_svg.appendChild(card_background);
+    this.svg.background = document.createElementNS(svgns, 'rect');
+    this.svg.appendChild(this.svg.background);
     // svg attributes
-    card_background.setAttribute('width', this.width);
-    card_background.setAttribute('height', this.height);
-    card_background.setAttribute('x', 0);
-    card_background.setAttribute('y', 0);
-    card_background.setAttribute('fill', element_colours[this.card.element]);
-    card_background.setAttribute('stroke', 'black');
+    this.svg.background.setAttribute('width', this.width);
+    this.svg.background.setAttribute('height', this.height);
+    this.svg.background.setAttribute('x', 0);
+    this.svg.background.setAttribute('y', 0);
+    this.svg.background.setAttribute('fill', element_colours[this.card.element]);
+    this.svg.background.setAttribute('stroke', 'black');
 
     // make icon using lookup table functions
   }

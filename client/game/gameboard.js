@@ -107,147 +107,9 @@ async function createSideContainer(game_svg_workspace, side_type) {
   const companions = await getCompanions();
 
   for(const [i, companion] of companions.entries()) {
-    // container rect
-    const container_companion = document.createElementNS(svgns, 'svg');
-    container_side.appendChild(container_companion);
-    container_companion.classList.add('container_companion');
-    // type dependent
-    if(side_type == 'container_opposition') {
-      container_companion.classList.add('opposition_companion');
-    } else if(side_type == 'container_player') {
-      container_companion.classList.add('player_companion');
-    }
-    // svg attributes
-    container_companion.setAttribute('width', width * 0.2);
-    container_companion.setAttribute('height',
-      container_side.getAttribute('height') * 0.9);
-    container_companion.setAttribute('x', width / 4 * i);
-    container_companion.setAttribute('y', 0);
-
-    const companion_background = document.createElementNS(svgns, 'rect');
-    container_companion.appendChild(companion_background);
-    // svg attributes
-    companion_background.setAttribute('width',
-      container_companion.getAttribute('width'));
-    companion_background.setAttribute('height',
-      container_companion.getAttribute('height'));
-    companion_background.setAttribute('fill', 'pink');
-
-    // name
-    // wrapped in an svg for text allignment
-    // container
-    const name_container = document.createElementNS(svgns, 'svg');
-    container_companion.appendChild(name_container);
-    // svg attributes
-    name_container.setAttribute('width',
-      container_companion.getAttribute('width') * 0.65);
-    name_container.setAttribute('height',
-      container_companion.getAttribute('height') * 0.2);
-    name_container.setAttribute('x', 0);
-    name_container.setAttribute('y', 0);
-    // text
-    const name_text = document.createElementNS(svgns, 'text');
-    name_container.appendChild(name_text);
-    name_text.textContent = companion.name;
-    // svg attributes
-    name_text.setAttribute('x', '50%');
-    name_text.setAttribute('y', '50%');
-    name_text.setAttribute('alignment-baseline', 'middle');
-    name_text.setAttribute('text-anchor', 'middle');
-    name_text.setAttribute('stroke', 'black');
-
-    // health
-    const health_container = document.createElementNS(svgns, 'svg');
-    container_companion.appendChild(health_container);
-    // svg attributes
-    health_container.setAttribute('width',
-      (container_companion.getAttribute('width') -
-      name_container.getAttribute('width')) / 2);
-    health_container.setAttribute('height', name_container.getAttribute('height'));
-    health_container.setAttribute('x', name_container.getAttribute('width'));
-    health_container.setAttribute('y', 0);
-    // background
-    const health_background = document.createElementNS(svgns, 'rect');
-    health_container.appendChild(health_background);
-    // svg attributes
-    health_background.setAttribute('width', health_container.getAttribute('width'));
-    health_background.setAttribute('height', health_container.getAttribute('height'));
-    health_background.setAttribute('fill', 'green');
-    health_background.setAttribute('stroke', 'black');
-    // text
-    const health_text = document.createElementNS(svgns, 'text');
-    health_container.appendChild(health_text);
-    health_text.textContent = companion.health;
-    // svg attributes
-    health_text.setAttribute('x', '50%');
-    health_text.setAttribute('y', '50%');
-    health_text.setAttribute('alignment-baseline', 'middle');
-    health_text.setAttribute('text-anchor', 'middle');
-    health_text.setAttribute('stroke', 'black');
-
-    // mana
-    const mana_container = document.createElementNS(svgns, 'svg');
-    container_companion.appendChild(mana_container);
-    // svg attributes
-    mana_container.setAttribute('width', health_container.getAttribute('width'));
-    mana_container.setAttribute('height', name_container.getAttribute('height'));
-    mana_container.setAttribute('x', parseFloat(health_container.getAttribute('x')) +
-      parseFloat(health_container.getAttribute('width')));
-    mana_container.setAttribute('y', 0);
-    // background
-    const mana_background = document.createElementNS(svgns, 'rect');
-    mana_container.appendChild(mana_background);
-    // svg attributes
-    mana_background.setAttribute('width', mana_container.getAttribute('width'));
-    mana_background.setAttribute('height', mana_container.getAttribute('height'));
-    mana_background.setAttribute('fill', 'blue');
-    mana_background.setAttribute('stroke', 'black');
-
-    // text
-    const mana_text = document.createElementNS(svgns, 'text');
-    mana_container.appendChild(mana_text);
-    mana_text.textContent = companion.health;
-    // svg attributes
-    mana_text.setAttribute('x', '50%');
-    mana_text.setAttribute('y', '50%');
-    mana_text.setAttribute('alignment-baseline', 'middle');
-    mana_text.setAttribute('text-anchor', 'middle');
-    mana_text.setAttribute('stroke', 'black');
-
-    // icon
-    const icon_container = document.createElementNS(svgns, 'svg');
-    container_companion.appendChild(icon_container);
-    icon_container.classList.add('container_icon');
-    // svg attributes
-    icon_container.setAttribute('width',
-      name_container.getAttribute('width'));
-    icon_container.setAttribute('height',
-      container_companion.getAttribute('height') -
-      name_container.getAttribute('height'));
-    icon_container.setAttribute('y', name_container.getAttribute('height'));
-
-    // background
-    const icon_background = document.createElementNS(svgns, 'rect');
-    icon_container.appendChild(icon_background);
-    // svg attributes
-    icon_background.setAttribute('width', icon_container.getAttribute('width'));
-    icon_background.setAttribute('height', icon_container.getAttribute('height'));
-    icon_background.setAttribute('fill', 'brown');
-
-    // card slots
-    for(const [j, card] of companion.spells.entries()) {
-      const cardSlot_attributes = CardSlot.calculateSize(container_companion, j);
-
-      const cardSlot = new CardSlot(card, side_type.slice(10),
-        cardSlot_attributes.width, cardSlot_attributes.height,
-        cardSlot_attributes.x, cardSlot_attributes.y);
-
-      if(cardSlot.card) {
-        cardSlot.draw_filled(game_svg_workspace, container_companion, j);
-      } else {
-        cardSlot.draw_empty(container_companion, j);
-      }
-    }
+    const companionObj = new Companion(side_type, i, companion.name,
+      companion.health, companion.mana, companion.cards);
+    companionObj.draw(container_side);
   }
 
   return container_side;
@@ -259,8 +121,7 @@ async function getCompanions() {
       'name': 'aang',
       'health': 5,
       'mana': 7,
-      'icon': '/assets/companions/aang.png',
-      'spells': [
+      'cards': [
         {
           'name': 'air 1',
           'element': 'air'
@@ -277,8 +138,7 @@ async function getCompanions() {
       'name': 'katara',
       'health': 5,
       'mana': 7,
-      'icon': '/assets/companions/katara.png',
-      'spells': [
+      'cards': [
         {
           'name': 'healing',
           'element': 'water'
@@ -298,8 +158,7 @@ async function getCompanions() {
       'name': 'sokka',
       'health': 5,
       'mana': 7,
-      'icon': '/assets/companions/sokka.png',
-      'spells': [
+      'cards': [
         {
           'name': 'boomerang',
           'element': 'none'
@@ -313,8 +172,7 @@ async function getCompanions() {
       'name': 'suki',
       'health': 5,
       'mana': 7,
-      'icon': '/assets/companions/suki.png',
-      'spells': [
+      'cards': [
         {
           'name': 'shield',
           'element': 'none'
