@@ -2,6 +2,14 @@
 // shop is a modal window
 'use strict';
 
+// when previous turn has ended for enemy
+async function start_phase_shop() {
+  // add shop related buttons
+  add_shopButtons();
+  // load shop
+  await promptShop();
+}
+
 function add_shopButtons() {
   // get container
   const container_footer = document.getElementById('container_footer');
@@ -87,13 +95,14 @@ async function promptShop() {
   // cards
   const cards = await getShopCards();
   for(const [i, card] of cards.entries()) {
-    const card_x = parseFloat(container_shop.getAttribute('x')) + cardAttributes.seperation.horizontal * (i + 1) + cardAttributes.width * i;
-    const card_y = parseFloat(container_shop.getAttribute('y')) + cardAttributes.seperation.vertical * 3;
+    const card_x = cardAttributes.seperation.horizontal * (i + 1) +
+      cardAttributes.width * i;
+    const card_y = cardAttributes.seperation.vertical * 3;
 
     const cardObj = new Card_Shop(card.name, cardAttributes.width, cardAttributes.height,
       card_x, card_y);
     await cardObj.init();
-    cardObj.draw(game_svg_workspace);
+    cardObj.draw(container_shop);
   }
 }
 

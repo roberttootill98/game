@@ -10,6 +10,7 @@ let currently_dragged_cardSlot = null;
 let currently_dragged_cardSlot_card = null;
 let currently_dragged_cardSlot_target = null;
 let currently_dragged_cardSlot_oldIndex = null;
+let clicked_cardSlot = null;
 
 class CardSlot extends SVG {
   /**
@@ -18,7 +19,7 @@ class CardSlot extends SVG {
    * @param {JSON} card, as a card json or null
    * @param {string} owner, player or opponent
    * @param {float} width, width of svg
-   * @param {float} hieght, hieght of svg
+   * @param {float} height, hieght of svg
    * @param {float} x, x position of svg
    * @param {float} y, y position of svg
    */
@@ -116,14 +117,12 @@ class CardSlot extends SVG {
     }
   }
 
-
   /**
-   * draws the svg of the card slot
-   * associates svg with object
-   * @param {svg node} target, for appending the card slot to, should be a container_companion
-   * @param {integer} index, indicates which number card slot is being drawn
+   * draws the cardSlot
+   * @param {element} target, which companion svg it is being appended to
+   * @param {integer} index, which card slot within the companion this is 
    */
-  draw_empty(target, index) {
+  draw(target, index) {
     // get rid of current svg
     if(this.svg) {
       this.svg.remove();
@@ -133,7 +132,11 @@ class CardSlot extends SVG {
     target.appendChild(this.svg);
     this.svg.id = CardSlot.getNextID();
     this.svg.classList.add('cardSlot' + index);
-    this.svg.classList.add('cardSlot_empty');
+    if(this.card) {
+      this.svg.classList.add('cardSlot_filled');
+    } else {
+      this.svg.classList.add('cardSlot_empty');
+    }
     this.svg.classList.add('cardSlot_' + this.owner);
     // svg attributes
     this.svg.setAttribute('width', this.width);
@@ -147,62 +150,36 @@ class CardSlot extends SVG {
     // svg attributes
     this.svg.background.setAttribute('width', this.svg.getAttribute('width'));
     this.svg.background.setAttribute('height', this.svg.getAttribute('height'));
-    this.svg.background.setAttribute('fill', 'pink');
-    this.svg.background.setAttribute('stroke', 'black');
-  }
-
-  /**
-   * draws the svg of a card in miniature form in the card slot
-   * drawn at top level in workspace for drag and drop events
-   * @param {svg node} topLevel, top level workspace element
-   * @param {svg node} target, gets position of svg, should be a container_companion
-   * @param {integer} index, indicates which number card slot is being drawn
-   */
-  draw_filled(topLevel, target, index) {
-    // get rid of current svg
-    if(this.svg) {
-      this.svg.remove();
+    if(this.card) {
+      this.svg.background.setAttribute('fill', element_colours[this.card.element]);
+    } else {
+      this.svg.background.setAttribute('fill', 'pink');
     }
-
-    const container_position = SVG.getAbsoluteCoords(target);
-
-    this.svg = document.createElementNS(svgns, 'svg');
-    topLevel.appendChild(this.svg);
-    this.svg.id = CardSlot.getNextID();
-    this.svg.classList.add('cardSlot' + index);
-    this.svg.classList.add('cardSlot_filled');
-    this.svg.classList.add('cardSlot_' + this.owner);
-    // svg attributes
-    this.svg.setAttribute('width', this.width);
-    this.svg.setAttribute('height', this.height);
-    this.svg.setAttribute('x', this.x + container_position.x);
-    this.svg.setAttribute('y', this.y + container_position.y);
-
-    // background
-    this.svg.background = document.createElementNS(svgns, 'rect');
-    this.svg.appendChild(this.svg.background);
-    // svg attributes
-    this.svg.background.setAttribute('width', this.width);
-    this.svg.background.setAttribute('height', this.height);
-    this.svg.background.setAttribute('x', 0);
-    this.svg.background.setAttribute('y', 0);
-    this.svg.background.setAttribute('fill', element_colours[this.card.element]);
     this.svg.background.setAttribute('stroke', 'black');
-
-    // make icon using lookup table functions
   }
 
   /** DRAG AND DROP FUNCTIONS **/
-  addListeners() {
-    // events
-    this.svg.onmouseover = CardSlot.mouseover;
-    this.svg.onmouseleave = CardSlot.mouseleave;
+  async addListeners() {
+    switch((await getPhase()).slice(8)) {
+      case "phase_arrangement":
+        // events
+        this.svg.onmouseover = CardSlot.mouseover;
+        this.svg.onmouseleave = CardSlot.mouseleave;
 
-    if(this.card) {
-      this.svg.onmousedown = CardSlot.filled_startDrag;
-      // DOM
-      // add draggable class to all elements of svg
-      SVG.addClass(this.svg, 'draggable');
+        if(this.card) {
+          this.svg.onmousedown = CardSlot.filled_startDrag;
+          // DOM
+          // add draggable class to all elements of svg
+          SVG.addClass(this.svg, 'draggable');
+        }
+        break;
+      case "phase_attacking":
+        if(this.card) {
+          this.svg.onmousedown = CardSlot.attacking_onmousedown;
+        }
+        break;
+      default:
+        break;
     }
   }
 
@@ -242,6 +219,7 @@ class CardSlot extends SVG {
     const topLevel = SVG.getTopLevelSVG(ev.target);
     // make new card at top level
     const cardSlot = CardSlot.getByID(topLevel.id);
+    const coords = SVG.getAbsoluteCoords(cardSlot.svg);
 
     // setup data transfer
     // get details before deleting
@@ -257,8 +235,7 @@ class CardSlot extends SVG {
 
     // create new fully sized card to be dragged
     const cardObj = new Card_Arrangement(currently_dragged_cardSlot_card.name,
-      cardAttributes.width, cardAttributes.height,
-      topLevel.getAttribute('x'), topLevel.getAttribute('y'));
+      cardAttributes.width, cardAttributes.height, coords.x, coords.y);
     await cardObj.init();
     cardObj.draw(document.getElementById('game_svg_workspace'));
     currently_dragged_card_svg = cardObj.svg;
@@ -269,5 +246,37 @@ class CardSlot extends SVG {
 
     old_position_x = topLevel.getAttribute('x');
     old_position_y = topLevel.getAttribute('y');
+  }
+
+  static attacking_onmousedown(ev) {
+    const topLevel = SVG.getTopLevelSVG(ev.target);
+    clicked_cardSlot = CardSlot.getByID(topLevel.id);
+
+    // add listeners to opponent companions
+    const opponent_side = document.getElementById('container_opposition');
+    for(const companion of opponent_side.querySelectorAll('.container_companion')) {
+      // to companion
+      companion.onmouseover = CardSlot.opponent_onmouseover;
+      companion.onmouseleave = CardSlot.opponent_onmouseleave;
+      companion.onmousedown = CardSlot.opponent_onmousedown;
+    }
+  }
+
+  static opponent_onmouseover(ev) {
+    const topLevel = SVG.getTopLevelSVG(ev.target);
+
+    console.log("highlighting...");
+  }
+
+  static opponent_onmouseleave(ev) {
+    console.log("removing highligting...");
+  }
+
+  static opponent_onmousedown(ev) {
+    console.log("mouse down");
+
+    // execute card damage
+    // execute card effect
+    // execute card cost
   }
 }

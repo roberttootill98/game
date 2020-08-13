@@ -53,6 +53,7 @@ async function gameSocket_phase(ev) {
         await start_phase_arrangement();
         break;
       case 'phase_attacking':
+        await start_phase_attacking();
         break;
       default:
         break;
@@ -138,16 +139,4 @@ async function startGame() {
     console.error("failed to start game...");
     // do teardown
   }
-}
-
-// when previous turn has ended for enemy
-async function start_phase_shop() {
-  // add shop related buttons
-  add_shopButtons();
-  // load shop
-  await promptShop();
-}
-
-async function start_phase_attacking() {
-  // add listeners to companion in move order
 }

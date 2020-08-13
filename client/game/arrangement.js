@@ -1,7 +1,7 @@
 // functions handling the arragement phase
 'use strict'
 
-function start_phase_arrangement() {
+async function start_phase_arrangement() {
   // add listeners to card slots
   // all card slots that belong to the player
   const cardSlots = document.querySelectorAll('.cardSlot_player');
@@ -9,7 +9,7 @@ function start_phase_arrangement() {
   for(let cardSlot of cardSlots) {
     cardSlot = CardSlot.getByID(cardSlot.id);
     // remove listeners
-    cardSlot.addListeners();
+    await cardSlot.addListeners();
   }
 }
 

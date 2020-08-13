@@ -30,26 +30,7 @@ const io = require('socket.io')(server);
 const sockets = [];
 exports.sockets = sockets;
 
-// game listings
-app.get('/api/game', getGame);
-app.get('/api/games', getGames);
-app.post('/api/game', postGame);
-app.put('/api/game_join', joinGame);
-
-// gets game using player id
-async function getGame(req, res) {
-  const game = _game.utility.search_playerID(req.session.passport.user.id);
-  res.json(game.info());
-}
-
-// gets all games
-async function getGames(req, res) {
-  const games = [];
-  for(const game of _game.games) {
-    games.push(game.info());
-  }
-  res.json(games);
-}
+// GAME LISTING FUNCTIONS
 
 io.on('connection', (socket) => {
   console.log('a user connected');
@@ -58,7 +39,22 @@ io.on('connection', (socket) => {
   });
 });
 
-async function postGame(req, res) {
+// gets game using player id
+app.get('/api/game', (req, res) => {
+  const game = _game.utility.search_playerID(req.session.passport.user.id);
+  res.json(game.info());
+});
+
+// gets all games
+app.get('/api/games', (req, res) => {
+  const games = [];
+  for(const game of _game.games) {
+    games.push(game.info());
+  }
+  res.json(games);
+});
+
+app.post('/api/game', (req, res) => {
   try {
     const name = req.query.name;
     const game = new _game.Game(name, req.session.passport.user.id);
@@ -72,10 +68,10 @@ async function postGame(req, res) {
     console.log(e);
     res.sendStatus(404);
   }
-}
+});
 
 // adds a player to an existing game
-async function joinGame(req, res) {
+app.put('/api/game_join', (req, res) => {
   const game = _game.utility.search_gameID(req.query.id);
 
   if(game.addPlayer(req.session.passport.user.id)) {
@@ -85,31 +81,24 @@ async function joinGame(req, res) {
   } else {
     res.sendStatus(404);
   }
-}
+});
+
+// GAMEBOARD FUNCTIONS
 
 // init gameboard functions
-app.get('/api/companions', getCompanions);
+app.get('/api/companions', (req, res) => {
 
-async function getCompanions(req, res) {
+});
 
-}
-
-// turn gameboard functions
-app.get('/api/game_getPlayerNumber', game_getPlayerNumber);
-app.put('/api/game_start', startGame);
-app.get('/api/game_getPhase', game_getPhase);
-app.put('/api/game_nextPhase', game_nextPhase);
-// cards
-app.get('/api/card', getCard);
-app.get('/api/cards_shop', getShopCards);
+// TURN FUNCTIONS
 
 // returns player1 or player2
-async function game_getPlayerNumber(req, res) {
+app.get('/api/game_getPlayerNumber', (req, res) => {
   const game = _game.utility.search_playerID(req.session.passport.user.id);
   res.json({'playerNumber': `player${game.players.indexOf(req.session.passport.user.id) + 1}`});
-}
+});
 
-async function startGame(req, res) {
+app.put('/api/game_start', (req, res) => {
   try {
     const game = _game.utility.search_playerID(req.session.passport.user.id);
 
@@ -123,18 +112,16 @@ async function startGame(req, res) {
     console.log(e);
     res.sendStatus(404);
   }
-}
+});
 
-function game_getPhase(req, res) {
+app.get('/api/game_getPhase', (req, res) => {
   const game = _game.utility.search_playerID(req.session.passport.user.id);
   res.json({'phase': game.phase});
-}
+});
 
-async function game_nextPhase(req, res) {
+app.put('/api/game_nextPhase', (req, res) => {
   try {
     const game = _game.utility.search_playerID(req.session.passport.user.id);
-    console.log("ending phase: " + game.phase);
-    console.log("starting phase: " + _game.utility.getNextPhase(game.phase));
     game.setPhase(_game.utility.getNextPhase(game.phase));
 
     res.sendStatus(200);
@@ -142,37 +129,44 @@ async function game_nextPhase(req, res) {
     console.log(e);
     res.sendStatus(404);
   }
-}
+});
 
 // gets a single card using name
-async function getCard(req, res) {
+app.get('/api/card', (req, res) => {
   // find card
   res.json(card.getCard_name(req.query.name));
-}
+});
+
+// SHOPPING PHASE
 
 // gets 3 cards for shop
-async function getShopCards(req, res) {
+app.get('/api/cards_shop', (req, res) => {
   // decide which cards will be selected
   // for now first three
   const cards = card.getCards();
   // associate cards with game
 
   res.json(cards.slice(0, 3));
-}
+});
+
+// ATTACKING PHASE
+
+// get current attacking companion
+app.get('/api/game/attacking/companion', (req, res) => {
+  res.json({'index': 0});
+});
 
 // 0auth 2.0
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get('/api/user_name', get_user_name);
-
-async function get_user_name(req, res) {
+app.get('/api/user_name', (req, res) => {
   if(req.session.auth) {
     res.send(req.session.passport.user.displayName);
   } else {
     res.send(null);
   }
-}
+});
 
 app.get('/google',
   passport.authenticate('google', {scope: ['profile', 'email']}));
@@ -201,22 +195,3 @@ app.get('/logout', (req, res) => {
 app.get('/failed', (req, res) => res.send('You failed to login'));
 
 console.log('Server listening on port:', port);
-
-// debug
-app.get('/debug/sendsocketmessage', sendsocketmessage);
-
-// sends message down game socket
-// in req.query.message
-async function sendsocketmessage(req, res) {
-  // get game using player id
-  const game = _game.utility.search_playerID(req.session.passport.user.id);
-  console.log("sending message: " + req.query.message);
-  console.log("down socket: " + game.socket.name);
-
-  game.socket.emit('message', req.query.message);
-}
-
-async function gameSocket_updateReceived(ev) {
-  console.log("game socket update received");
-  console.log(ev);
-}

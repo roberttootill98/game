@@ -20,14 +20,15 @@ class Card_Shop extends Card {
   /** DRAG AND DROP FUNCTIONS **/
 
   static async startDrag(ev) {
-    // immediately redraw card to make sure that it is at the top level
+    // immediately redraw card at the top level
     // wont disappear behind any elements
     const topLevel = SVG.getTopLevelSVG(ev.target);
     // make new card at top level
+    const coords = SVG.getAbsoluteCoords(topLevel);
     const card = await Card.getCardDetails(topLevel.querySelector('text').textContent);
     // indicate that this is the svg being dragged
-    const cardObj = new Card_Shop(card.name, cardAttributes.width, cardAttributes.height,
-      topLevel.getAttribute('x'), topLevel.getAttribute('y'));
+    const cardObj = new Card_Shop(card.name, cardAttributes.width,
+      cardAttributes.height, coords.x, coords.y);
     await cardObj.init();
     cardObj.draw(document.getElementById('game_svg_workspace'));
     currently_dragged_card_svg = cardObj.svg;
@@ -94,6 +95,8 @@ class Card_Shop extends Card {
   }
 
   static snapback(card) {
+    // put back in shop
+    document.getElementById('container_shop').appendChild(card);
     card.setAttribute('x', old_position_x);
     card.setAttribute('y', old_position_y);
   }

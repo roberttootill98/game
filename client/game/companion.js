@@ -177,12 +177,7 @@ class Companion extends SVG {
         cardSlot_attributes.width, cardSlot_attributes.height,
         cardSlot_attributes.x, cardSlot_attributes.y);
       this.cardSlots.push(cardSlot);
-
-      if(cardSlot.card) {
-        cardSlot.draw_filled(game_svg_workspace, this.svg, i);
-      } else {
-        cardSlot.draw_empty(this.svg, i);
-      }
+      cardSlot.draw(this.svg, i);
     }
   }
 
@@ -207,11 +202,6 @@ class Companion extends SVG {
     cardSlot.card = card;
 
     // redraw card slot
-    if(card) {
-      cardSlot.draw_filled(document.getElementById('game_svg_workspace'),
-        this.svg, index);
-    } else {
-      cardSlot.draw_empty(this.svg, index);
-    }
+    cardSlot.draw(this.svg, index);
   }
 }

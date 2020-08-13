@@ -71,7 +71,7 @@ class Card extends SVG {
 
   /**
    * draws the card
-   * @param {element} target, where the svg is appended to, should be top level
+   * @param {element} target, where the svg is appended to
    * @param {string} location, the context for the use of the card
    */
   draw(target, location) {
