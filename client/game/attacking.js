@@ -7,7 +7,7 @@ async function start_phase_attacking() {
   const companion = Companion.getByID(attacker + 5);
 
   // highlight attacking companion
-  companion.svg.setAttribute('stroke', 'yellow');
+  companion.highlight();
 
   // add listeners to card slots for attacking companion
   for(const cardSlot of companion.cardSlots) {
@@ -15,6 +15,14 @@ async function start_phase_attacking() {
   }
 
   console.log();
+}
+
+function teardown_phase_attacking() {
+  // disable end phase button, it is now the opponent's phases
+  FooterButton.getByID('button_endPhase').disable();
+
+  Companion.removeHighlighting();
+  CardSlot.removeHighlighting();
 }
 
 // as index, 0-3

@@ -10,6 +10,17 @@ async function start_phase_shop() {
   await promptShop();
 }
 
+function teardown_phase_shop() {
+  // tear down shop related features
+  // remove shop is present
+  closeShop();
+  // remove open shop button
+  const button_openShop = FooterButton.getByID('shop_openButton');
+  if(button_openShop) {
+    button_openShop.destroy();
+  }
+}
+
 function add_shopButtons() {
   // get container
   const container_footer = document.getElementById('container_footer');
@@ -127,7 +138,7 @@ function closeShop() {
 
 // gets items for shop from server
 async function getShopCards() {
-  const response = await fetch('/api/cards_shop');
+  const response = await fetch('/api/game/shop/cards');
   if(response.ok) {
     return await response.json();
   } else {

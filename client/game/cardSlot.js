@@ -282,6 +282,8 @@ class CardSlot extends SVG {
     // highlight this cardSlot
     clicked_cardSlot.highlight();
 
+    // consider the card's target
+
     // add listeners to opponent companions
     const opponent_side = document.getElementById('container_opposition');
     for(const companion of opponent_side.querySelectorAll('.container_companion')) {
@@ -310,7 +312,10 @@ class CardSlot extends SVG {
     // execute card damage
     opponent_companion.setHealth(opponent_companion.health -
       clicked_cardSlot.card.damage);
+
     // execute card effect
+
+
     // execute card cost
     player_companion.setMana(player_companion.mana - clicked_cardSlot.card.mana);
 
@@ -318,6 +323,9 @@ class CardSlot extends SVG {
       console.log("companion dead");
     }
 
+    // tear down
     clicked_cardSlot = null;
+    CardSlot.removeHighlighting();
+    Companion.removeHighlighting();
   }
 }

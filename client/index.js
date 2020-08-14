@@ -58,7 +58,7 @@ async function add_headerButtons() {
 }
 
 async function getName() {
-  const response = await fetch("/api/user_name");
+  const response = await fetch("/api/user/name");
   if(response.ok) {
     return await response.text();
   }

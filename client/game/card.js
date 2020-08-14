@@ -47,7 +47,7 @@ class Card extends SVG {
 
   // gets card details using name
   static async getCardDetails(name) {
-    const response = await fetch(`/api/card?name=${name}`);
+    const response = await fetch(`/api/game/card?name=${name}`);
     if(response.ok) {
       return await response.json();
     } else {

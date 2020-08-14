@@ -86,6 +86,8 @@ app.put('/api/game_join', (req, res) => {
 // GAMEBOARD FUNCTIONS
 
 // init gameboard functions
+
+// get companions associated with account
 app.get('/api/companions', (req, res) => {
 
 });
@@ -93,12 +95,12 @@ app.get('/api/companions', (req, res) => {
 // TURN FUNCTIONS
 
 // returns player1 or player2
-app.get('/api/game_getPlayerNumber', (req, res) => {
+app.get('/api/game/player/number', (req, res) => {
   const game = _game.utility.search_playerID(req.session.passport.user.id);
   res.json({'playerNumber': `player${game.players.indexOf(req.session.passport.user.id) + 1}`});
 });
 
-app.put('/api/game_start', (req, res) => {
+app.put('/api/game/start', (req, res) => {
   try {
     const game = _game.utility.search_playerID(req.session.passport.user.id);
 
@@ -114,12 +116,12 @@ app.put('/api/game_start', (req, res) => {
   }
 });
 
-app.get('/api/game_getPhase', (req, res) => {
+app.get('/api/game/phase', (req, res) => {
   const game = _game.utility.search_playerID(req.session.passport.user.id);
   res.json({'phase': game.phase});
 });
 
-app.put('/api/game_nextPhase', (req, res) => {
+app.put('/api/game/phase/next', (req, res) => {
   try {
     const game = _game.utility.search_playerID(req.session.passport.user.id);
     game.setPhase(_game.utility.getNextPhase(game.phase));
@@ -132,7 +134,7 @@ app.put('/api/game_nextPhase', (req, res) => {
 });
 
 // gets a single card using name
-app.get('/api/card', (req, res) => {
+app.get('/api/game/card', (req, res) => {
   // find card
   res.json(card.getCard_name(req.query.name));
 });
@@ -140,7 +142,7 @@ app.get('/api/card', (req, res) => {
 // SHOPPING PHASE
 
 // gets 3 cards for shop
-app.get('/api/cards_shop', (req, res) => {
+app.get('/api/game/shop/cards', (req, res) => {
   // decide which cards will be selected
   // for now first three
   const cards = card.getCards();
@@ -160,7 +162,7 @@ app.get('/api/game/attacking/companion', (req, res) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get('/api/user_name', (req, res) => {
+app.get('/api/user/name', (req, res) => {
   if(req.session.auth) {
     res.send(req.session.passport.user.displayName);
   } else {

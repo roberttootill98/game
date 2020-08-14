@@ -7,7 +7,7 @@ let gameSocket;
 
 // returns player1 or player2
 async function getPlayerNumber() {
-  const response = await fetch('/api/game_getPlayerNumber');
+  const response = await fetch('/api/game/player/number');
   if(response.ok) {
     return (await response.json()).playerNumber;
   }
@@ -83,21 +83,13 @@ async function endPhase(ev) {
   // if attacking phase then disable next phase button
   switch(phase.slice(8)) {
     case 'phase_shop':
-      // tear down shop related features
-      // remove shop is present
-      closeShop();
-      // remove open shop button
-      const button_openShop = FooterButton.getByID('shop_openButton');
-      if(button_openShop) {
-        button_openShop.destroy();
-      }
+      teardown_phase_shop();
       break;
     case 'phase_arrangement':
       teardown_phase_arrangement();
       break;
     case 'phase_attacking':
-      // disable end phase button, it is now the opponent's phases
-      FooterButton.getByID('button_endPhase').disable();
+      teardown_phase_attacking();
       break;
     default:
       break;
@@ -108,7 +100,7 @@ async function endPhase(ev) {
 
 // sends request to server to move to next phase
 async function nextPhase() {
-  const response = await fetch('/api/game_nextPhase', {method: 'put'});
+  const response = await fetch('/api/game/phase/next', {method: 'put'});
   if(response.ok) {
     //console.log("moved to next phase");
   } else {
@@ -118,7 +110,7 @@ async function nextPhase() {
 
 // gets current phase
 async function getPhase() {
-  const response = await fetch('/api/game_getPhase');
+  const response = await fetch('/api/game/phase');
   if(response.ok) {
     return (await response.json()).phase;
   } else {
@@ -129,7 +121,7 @@ async function getPhase() {
 // call to the server to start the game
 // made when game has two players
 async function startGame() {
-  const url = '/api/game_start';
+  const url = '/api/game/start';
 
   const response = await fetch(url, {method: 'put'});
   if(response.ok) {
