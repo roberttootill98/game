@@ -248,7 +248,7 @@ async function joinGame(ev) {
 
 // put request to join game
 async function game_addPlayer(gameID) {
-  let url = '/api/game_join';
+  let url = '/api/game/join';
   url += `?id=${gameID}`;
 
   const response = await fetch(url, {method: 'put'});

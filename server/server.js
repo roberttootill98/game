@@ -7,12 +7,12 @@ const passport = require('passport');
 const cookieSession = require('cookie-session');
 // our modules
 require('./auth.js');
-const _game = require('./game/game.js');
-_game.utility = require('./game/game_utility.js');
+const mod_game = require('./game/game.js');
 const card = require('./game/card.js');
-
+// config
 const config = require('./config');
 
+// network
 const port = config.network.port;
 const server = app.listen(port);
 app.use('/', express.static('client', {'extensions': ['html']}));
@@ -41,23 +41,22 @@ io.on('connection', (socket) => {
 
 // gets game using player id
 app.get('/api/game', (req, res) => {
-  const game = _game.utility.search_playerID(req.session.passport.user.id);
-  res.json(game.info());
+  const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
+  res.json(game.info);
 });
 
 // gets all games
 app.get('/api/games', (req, res) => {
   const games = [];
-  for(const game of _game.games) {
-    games.push(game.info());
+  for(const game of mod_game.games) {
+    games.push(game.info);
   }
   res.json(games);
 });
 
 app.post('/api/game', (req, res) => {
   try {
-    const name = req.query.name;
-    const game = new _game.Game(name, req.session.passport.user.id);
+    const game = new mod_game.Game(req.query.name, req.session.passport.user.id);
 
     // create socket
     const socket = io.of(game.id);
@@ -71,8 +70,8 @@ app.post('/api/game', (req, res) => {
 });
 
 // adds a player to an existing game
-app.put('/api/game_join', (req, res) => {
-  const game = _game.utility.search_gameID(req.query.id);
+app.put('/api/game/join', (req, res) => {
+  const game = mod_game.Game.getByGameID(req.query.id);
 
   if(game.addPlayer(req.session.passport.user.id)) {
     // join socket game room
@@ -96,15 +95,15 @@ app.get('/api/companions', (req, res) => {
 
 // returns player1 or player2
 app.get('/api/game/player/number', (req, res) => {
-  const game = _game.utility.search_playerID(req.session.passport.user.id);
-  res.json({'playerNumber': `player${game.players.indexOf(req.session.passport.user.id) + 1}`});
+  const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
+  res.json({'playerNumber': `player${game.getPlayerNumber(req.session.passport.user.id)}`});
 });
 
 app.put('/api/game/start', (req, res) => {
   try {
-    const game = _game.utility.search_playerID(req.session.passport.user.id);
+    const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
 
-    _game.utility.getSocket(game.id).emit('message', 'game starting...');
+    game.socket.emit('message', 'game starting...');
 
     game.turn = 0;
     game.setPhase('player1_phase_shop');
@@ -117,14 +116,14 @@ app.put('/api/game/start', (req, res) => {
 });
 
 app.get('/api/game/phase', (req, res) => {
-  const game = _game.utility.search_playerID(req.session.passport.user.id);
+  const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
   res.json({'phase': game.phase});
 });
 
 app.put('/api/game/phase/next', (req, res) => {
   try {
-    const game = _game.utility.search_playerID(req.session.passport.user.id);
-    game.setPhase(_game.utility.getNextPhase(game.phase));
+    const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
+    game.setPhase(game.nextPhase);
 
     res.sendStatus(200);
   } catch(e) {
