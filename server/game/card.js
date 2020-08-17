@@ -7,22 +7,31 @@ const cards = [
   {
     'name': 'air 1',
     'element': 'air',
+    'cost': {
+      'mana': 1
+    },
     'damage': 1,
-    'mana': 1
+    'target': ['enemy']
     // hits 2 people
   },
   {
     'name': 'air 2',
     'element': 'air',
+    'cost': {
+      'mana': 2
+    },
     'damage': 2,
-    'mana': 2
+    'target': ['enemy']
     // 50% dodge chance
   },
   {
     'name': 'air 3',
     'element': 'air',
-    'damage': 3,
-    'mana': 3
+    'cost': {
+      'mana': 1,
+    },
+    'heal': 2,
+    'target': ['self', 'ally']
     // 100% dodge chance
   },
   {

@@ -5,8 +5,12 @@ const express = require('express');
 const app = express();
 const passport = require('passport');
 const cookieSession = require('cookie-session');
+
 // our modules
 require('./auth.js');
+// database
+const db = require('./db/interface.js');
+// game modules
 const mod_game = require('./game/game.js');
 const card = require('./game/card.js');
 // config
@@ -30,14 +34,53 @@ const io = require('socket.io')(server);
 const sockets = [];
 exports.sockets = sockets;
 
-// GAME LISTING FUNCTIONS
-
 io.on('connection', (socket) => {
   console.log('a user connected');
   socket.on('disconnect', () => {
     console.log('user disconnected');
   });
 });
+
+// LOADOUT FUNCTIONS
+
+// gets a users loadout using goog id
+// no loadout id => get current loadout
+// provide loadout id => get that loadout
+app.get('/api/loadout', async (req, res) => {
+  const loadout = await db.loadout.getLoadout(req.session.passport.user.id);
+  res.json(loadout);
+});
+
+// gets all of users loadouts using goog id
+app.get('/api/loadouts', async (req, res) => {
+  res.json(await db.loadout.getLoadouts(req.session.passport.user.id));
+});
+
+// update a loadout
+app.put('/api/loadout', (req, res) => {
+
+});
+
+// create a new loadout
+app.post('/api/loadout', async (req, res) => {
+  // try {
+  await (db.loadout.addLoadout(req.session.passport.user.id, req.query.name,
+    req.query.companions.split(',')));
+
+  res.sendStatus(200);
+  // } catch(e) {
+  //   res.sendStatus(500);
+  // }
+});
+
+// delete a loadout
+// no loadout id => delete current loadout
+// provide loadout id => delete that loadout
+app.delete('/api/loadout', async (req, res) => {
+
+});
+
+// GAME LISTING FUNCTIONS
 
 // gets game using player id
 app.get('/api/game', (req, res) => {
@@ -74,8 +117,6 @@ app.put('/api/game/join', (req, res) => {
   const game = mod_game.Game.getByGameID(req.query.id);
 
   if(game.addPlayer(req.session.passport.user.id)) {
-    // join socket game room
-    //io.socket
     res.sendStatus(200);
   } else {
     res.sendStatus(404);
@@ -86,9 +127,11 @@ app.put('/api/game/join', (req, res) => {
 
 // init gameboard functions
 
-// get companions associated with account
-app.get('/api/companions', (req, res) => {
-
+// get companion by id
+app.get('/api/companion', async (req, res) => {
+  const result = await db.getCompanion(req.query.id);
+  console.log(result);
+  res.json(result);
 });
 
 // TURN FUNCTIONS
@@ -96,7 +139,8 @@ app.get('/api/companions', (req, res) => {
 // returns player1 or player2
 app.get('/api/game/player/number', (req, res) => {
   const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
-  res.json({'playerNumber': `player${game.getPlayerNumber(req.session.passport.user.id)}`});
+  res.json({'playerNumber':
+    `player${game.getPlayerNumber(req.session.passport.user.id)}`});
 });
 
 app.put('/api/game/start', (req, res) => {
@@ -174,17 +218,24 @@ app.get('/google',
 
 app.get('/google/callback',
   passport.authenticate('google', {failureRedirect: '/failed'}),
+  //async function(req, res) {
   function(req, res) {
-    // Successful authentication, redirect home.
-
-    // validate session
     req.session.auth = true;
 
     // store user profile
-    console.log(`User: ${req.user.displayName} authenticated`);
+    // check for record in database using goog id
+    // const results = await db.getUser(req.session.passport.user.id);
+    // console.log(results);
+    // if(!db.getUser(req.session.passport.user.id)) {
+    //   // if no record found then add new record
+    //   db.addUser(req.session.passport.user.id);
+    // }
 
+
+    // Successful authentication, redirect home.
+    console.log(`User: ${req.user.displayName} authenticated`);
     res.redirect('/');
-  });
+});
 
 app.get('/logout', (req, res) => {
   req.session = null;

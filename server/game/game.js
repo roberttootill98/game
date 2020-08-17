@@ -42,6 +42,8 @@ exports.Game = class Game {
     this.players = []
     this.players.push({
       'id': creatorID,
+      // retrieve ids from joiner table
+      // then instantiate companions
       'companions': ''
     });
 

@@ -283,14 +283,23 @@ class CardSlot extends SVG {
     clicked_cardSlot.highlight();
 
     // consider the card's target
+    if(clicked_cardSlot.card.target.includes('self')) {
 
-    // add listeners to opponent companions
-    const opponent_side = document.getElementById('container_opposition');
-    for(const companion of opponent_side.querySelectorAll('.container_companion')) {
-      // to companion
-      companion.onmouseover = CardSlot.opponent_onmouseover;
-      companion.onmouseleave = CardSlot.opponent_onmouseleave;
-      companion.onmousedown = CardSlot.opponent_onmousedown;
+    }
+
+    if(clicked_cardSlot.card.target.includes('ally')) {
+
+    }
+
+    if(clicked_cardSlot.card.target.includes('enemy')) {
+        // add listeners to opponent companions
+        const opponent_side = document.getElementById('container_opposition');
+        for(const companion of opponent_side.querySelectorAll('.container_companion')) {
+          // to companion
+          companion.onmouseover = CardSlot.opponent_onmouseover;
+          companion.onmouseleave = CardSlot.opponent_onmouseleave;
+          companion.onmousedown = CardSlot.opponent_onmousedown;
+        }
     }
   }
 
@@ -309,9 +318,11 @@ class CardSlot extends SVG {
     const player_companion = clicked_cardSlot.getCompanion();
     const opponent_companion = Companion.getByID(topLevel.id);
 
-    // execute card damage
-    opponent_companion.setHealth(opponent_companion.health -
-      clicked_cardSlot.card.damage);
+    if(clicked_cardSlot.damage) {
+      // execute card damage
+      opponent_companion.setHealth(opponent_companion.health -
+        clicked_cardSlot.card.damage);
+    }
 
     // execute card effect
 
