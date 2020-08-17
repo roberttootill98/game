@@ -174,7 +174,7 @@ class CardSlot extends SVG {
   /**
    * @returns {Companion} that the CardSlot is associated with
    */
-  getCompanion() {
+  get companion() {
     if(this.card) {
       const container_companion = document.querySelectorAll('.container_companion')[
         parseInt(this.svg.id - 1) / 4 >> 0];
@@ -187,7 +187,7 @@ class CardSlot extends SVG {
   /**
    * @returns {integer} index of the card slot in reference to its companion
    */
-  getIndex() {
+  get index() {
     return parseInt(this.svg.id - 1) % 4;
   }
 
@@ -239,9 +239,9 @@ class CardSlot extends SVG {
     // setup data transfer
     // get details before deleting
     currently_dragged_cardSlot_card = cardSlot.card;
-    const companion = cardSlot.getCompanion();
+    const companion = cardSlot.companion;
     currently_dragged_cardSlot_target = companion.svg;
-    currently_dragged_cardSlot_oldIndex = cardSlot.getIndex();
+    currently_dragged_cardSlot_oldIndex = cardSlot.index;
 
     // draw filled slot as empty slot
     companion.setCard(null, currently_dragged_cardSlot_oldIndex)
@@ -283,60 +283,38 @@ class CardSlot extends SVG {
     clicked_cardSlot.highlight();
 
     // consider the card's target
+    // card may have more than one target
     if(clicked_cardSlot.card.target.includes('self')) {
-
+      // add listeners to parent companion of card slot
+      const companion = clicked_cardSlot.companion.svg;
+      companion.onmouseover = attacking_onmouseover;
+      companion.onmouseleave = attacking_onmouseleave;
+      companion.onmousedown = self_onmousedown;
     }
 
     if(clicked_cardSlot.card.target.includes('ally')) {
+      // add listeners to player side companions except self
+      const self = clicked_cardSlot.companion.svg;
 
+      const player_side = document.getElementById('container_player');
+      for(const companion of player_side.querySelectorAll('.container_companion')) {
+        if(companion == self) {
+          continue;
+        }
+        companion.onmouseover = attacking_onmouseover;
+        companion.onmouseleave = attacking_onmouseleave;
+        companion.onmousedown = ally_onmousedown;
+      }
     }
 
     if(clicked_cardSlot.card.target.includes('enemy')) {
-        // add listeners to opponent companions
-        const opponent_side = document.getElementById('container_opposition');
-        for(const companion of opponent_side.querySelectorAll('.container_companion')) {
-          // to companion
-          companion.onmouseover = CardSlot.opponent_onmouseover;
-          companion.onmouseleave = CardSlot.opponent_onmouseleave;
-          companion.onmousedown = CardSlot.opponent_onmousedown;
-        }
+      // add listeners to opponent companions
+      const opponent_side = document.getElementById('container_opposition');
+      for(const companion of opponent_side.querySelectorAll('.container_companion')) {
+        companion.onmouseover = attacking_onmouseover;
+        companion.onmouseleave = attacking_onmouseleave;
+        companion.onmousedown = opponent_onmousedown;
+      }
     }
-  }
-
-  static opponent_onmouseover(ev) {
-    const topLevel = SVG.getTopLevelSVG(ev.target);
-    const companion = Companion.getByID(topLevel.id);
-    companion.highlight();
-  }
-
-  static opponent_onmouseleave(ev) {
-    Companion.removeHighlighting();
-  }
-
-  static opponent_onmousedown(ev) {
-    const topLevel = SVG.getTopLevelSVG(ev.target);
-    const player_companion = clicked_cardSlot.getCompanion();
-    const opponent_companion = Companion.getByID(topLevel.id);
-
-    if(clicked_cardSlot.damage) {
-      // execute card damage
-      opponent_companion.setHealth(opponent_companion.health -
-        clicked_cardSlot.card.damage);
-    }
-
-    // execute card effect
-
-
-    // execute card cost
-    player_companion.setMana(player_companion.mana - clicked_cardSlot.card.mana);
-
-    if(opponent_companion >= 0) {
-      console.log("companion dead");
-    }
-
-    // tear down
-    clicked_cardSlot = null;
-    CardSlot.removeHighlighting();
-    Companion.removeHighlighting();
   }
 }

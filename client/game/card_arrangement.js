@@ -31,22 +31,22 @@ class Card_Arrangement extends Card {
         // do swap
         // so instead of just drawning in the new slot
         // also draw contents of new slot in old slot
-        const swapIndex = currently_dragged_cardSlot.getIndex();
-        currently_dragged_cardSlot.getCompanion().setCard(
+        const swapIndex = currently_dragged_cardSlot.index;
+        currently_dragged_cardSlot.companion.setCard(
           currently_dragged_over_cardSlot.card, swapIndex);
         currently_dragged_cardSlot.svg.onmousedown = CardSlot.filled_startDrag;
 
         // draw held card in swap target card slot
-        currently_dragged_over_cardSlot.getCompanion().setCard(
+        currently_dragged_over_cardSlot.companion.setCard(
           currently_dragged_cardSlot_card,
-          currently_dragged_over_cardSlot.getIndex());
+          currently_dragged_over_cardSlot.index);
         currently_dragged_over_cardSlot.svg.onmousedown = CardSlot.filled_startDrag;
       } else {
         // we are dropping into an empty slot
         // draw miniature version of current card in card slot
-        currently_dragged_over_cardSlot.getCompanion().setCard(
+        currently_dragged_over_cardSlot.companion.setCard(
           currently_dragged_cardSlot_card,
-          currently_dragged_over_cardSlot.getIndex());
+          currently_dragged_over_cardSlot.index);
         // add arrangement listener back in
         currently_dragged_over_cardSlot.svg.onmousedown = CardSlot.filled_startDrag;
       }
@@ -55,7 +55,7 @@ class Card_Arrangement extends Card {
       currently_dragged_card_svg.remove();
     } else {
       // old card slot filled again
-      currently_dragged_cardSlot.getCompanion().setCard(
+      currently_dragged_cardSlot.companion.setCard(
         currently_dragged_cardSlot_card, currently_dragged_cardSlot_oldIndex);
       // add arrangement listener back in
       currently_dragged_cardSlot.svg.onmousedown = CardSlot.filled_startDrag;

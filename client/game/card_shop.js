@@ -85,8 +85,8 @@ class Card_Shop extends Card {
     const card_name = currently_dragged_card_svg.querySelector('.card_name').textContent;
     const card = await Card.getCardDetails(card_name);
 
-    const companion = currently_dragged_over_cardSlot.getCompanion();
-    const index = currently_dragged_over_cardSlot.getIndex();
+    const companion = currently_dragged_over_cardSlot.companion;
+    const index = currently_dragged_over_cardSlot.index;
 
     companion.setCard(card, index);
 

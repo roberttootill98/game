@@ -123,7 +123,7 @@ async function getCompanions() {
       'mana': 7,
       'cards': [
         await Card.getCardDetails('air 1'),
-        await Card.getCardDetails('air 2'),
+        await Card.getCardDetails('air 3'),
         null,
         null
       ]
