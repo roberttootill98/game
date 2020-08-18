@@ -209,6 +209,31 @@ class Card extends SVG {
     this.addListeners();
   }
 
+  /**
+   * gets the coordinates of the top left of a card following a mouse movement event
+   * @param {event} ev, event object
+   * @param {element} topLevel, top level svg element
+   * @returns {json} containing x and y values
+   */
+  static getCoords(ev, topLevel) {
+    // from (0, 0)
+    const old_x = topLevel.getAttribute('x');
+    const old_y = topLevel.getAttribute('y');
+
+    const x_mousePosition_relative = old_clientX - old_x;
+    const y_mousePosition_relative = old_clientY - old_y;
+
+    // new position of top left of card
+    const new_x = ev.clientX - x_mousePosition_relative;
+    const new_y = ev.clientY - y_mousePosition_relative;
+
+    return {
+      'x': new_x,
+      'y': new_y
+    };
+  }
+
+
   /** DRAG AND DROP FUNCTIONS **/
 
   addListeners() {
@@ -221,7 +246,7 @@ class Card extends SVG {
 
       // update co-ords of svg to mouse position
       const topLevel = SVG.getTopLevelSVG(ev.target);
-      const coords = SVG.getCoords(ev, topLevel);
+      const coords = Card.getCoords(ev, topLevel);
       topLevel.setAttribute('x', coords.x);
       topLevel.setAttribute('y', coords.y);
 

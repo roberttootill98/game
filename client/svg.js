@@ -29,8 +29,14 @@ class SVG {
     this.y = y;
   }
 
-  // gets top level svg element from inner svg element
-  static getTopLevelSVG(node) {
+  /**
+   * gets top level svg element from inner svg element
+   * @param {node} node, the starting node
+   * @param {<string>} classes, list of class names to be added to predefined excluded classes
+   * @param {<string>} ids, list of ids to be added to predefined excluded ids
+   * @returns {node} the top level node
+   */
+  static getTopLevelSVG(node, classes, ids) {
     // list of strings that refer to classes that should be ignored when looking for top level svg
     // svg within svgs that are not top level svgs
     const excludedClasses = [
@@ -40,11 +46,11 @@ class SVG {
       'container_companion_health',
       'container_companion_mana',
       'container_companion_icon'
-    ];
+    ].concat(classes);
     const excludedIDs = [
       'shopConfirm_yes',
       'shopConfirm_no'
-    ];
+    ].concat(ids);
 
     // checks if an element has at least one excluded class
     function checkForExcludedClass(element) {
@@ -61,25 +67,12 @@ class SVG {
     }
     return node;
   }
-
-  static getCoords(ev, topLevel) {
-    // from (0, 0)
-    const old_x = topLevel.getAttribute('x');
-    const old_y = topLevel.getAttribute('y');
-
-    const x_mousePosition_relative = old_clientX - old_x;
-    const y_mousePosition_relative = old_clientY - old_y;
-
-    // new position of top left of card
-    const new_x = ev.clientX - x_mousePosition_relative;
-    const new_y = ev.clientY - y_mousePosition_relative;
-
-    return {
-      'x': new_x,
-      'y': new_y
-    };
-  }
-
+  
+  /**
+   * gets the absolute coordinates of a given element relative to the game svg workspace
+   * @param {element} target, the element we are retrieving the coordinates of
+   * @returns {json} containing x and y values
+   */
   static getAbsoluteCoords(target) {
     let svg_element = target;
     let x = 0;
@@ -124,8 +117,12 @@ class SVG {
     }
   }
 
-  // adds onclick event to all children of an element
-  // calls recursively
+  /**
+   * adds onclick event to all children of an element and the element
+   * calls recursively
+   * @param {element} element, the element we are adding the event to
+   * @param {function} func, the function called when the event is run
+   */
   static add_onclickEvent(element, func) {
     element.onclick = func;
     element.classList.add('button_enabled');
@@ -136,15 +133,18 @@ class SVG {
     }
   }
 
-  // adds onclick event to all children of an element
-  // calls recursively
-  static remove_onclickEvent(element, func) {
+  /**
+   * removes onclick event from all children of an element and the element
+   * calls recursively
+   * @param {element} element, the element we are remove the event from
+   */
+  static remove_onclickEvent(element) {
     element.onclick = null;
     element.classList.remove('button_enabled');
     element.classList.add('button_disabled');
 
     for(const child of element.children) {
-      SVG.remove_onclickEvent(child, func);
+      SVG.remove_onclickEvent(child);
     }
   }
 }
