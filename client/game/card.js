@@ -13,22 +13,14 @@ const cardAttributes = {
 const cardsInPlay = [];
 
 // for drag and drop
-let currently_dragged_card_svg = null;
+let currently_dragged_card = null;
 
 class Card extends SVG {
-  constructor(name, width, height, x, y) {
+  constructor(card, width, height, x, y) {
     super(width, height, x, y);
-    this.name = name;
+    this.card = card;
 
     cardsInPlay.push(this);
-  }
-
-  async init() {
-    // get rest of card details from server
-    const cardDetails = await Card.getCardDetails(this.name);
-    this.element = cardDetails.element;
-    this.damage = cardDetails.damage;
-    this.mana = cardDetails.mana;
   }
 
   destroy() {
@@ -90,7 +82,7 @@ class Card extends SVG {
     this.svg.appendChild(this.svg.background);
     this.svg.background.setAttribute('width', this.width);
     this.svg.background.setAttribute('height', this.height);
-    this.svg.background.setAttribute('fill', element_colours[this.element]);
+    this.svg.background.setAttribute('fill', element_colours[this.card.element]);
     this.svg.background.setAttribute('stroke', 'black');
 
     // icon
@@ -102,7 +94,7 @@ class Card extends SVG {
     this.svg.name.text = document.createElementNS(svgns, 'text');
     this.svg.appendChild(this.svg.name.text);
     this.svg.name.text.classList.add('card_name');
-    this.svg.name.text.textContent = this.name;
+    this.svg.name.text.textContent = this.card.name.replace("_", " ");
     // svg attributes
     this.svg.name.text.setAttribute('x', '50%');
     this.svg.name.text.setAttribute('y', '50%');
@@ -176,7 +168,7 @@ class Card extends SVG {
     // text
     this.svg.damage.text = document.createElementNS(svgns, 'text');
     this.svg.damage.appendChild(this.svg.damage.text);
-    this.svg.damage.text.textContent = this.damage;
+    this.svg.damage.text.textContent = this.card.damage;
     // svg attributes
     this.svg.damage.text.setAttribute('x', '50%');
     this.svg.damage.text.setAttribute('y', '50%');
@@ -198,7 +190,7 @@ class Card extends SVG {
     // text
     this.svg.mana.text = document.createElementNS(svgns, 'text');
     this.svg.mana.appendChild(this.svg.mana.text);
-    this.svg.mana.text.textContent = this.mana;
+    this.svg.mana.text.textContent = this.card.mana;
     // svg attributes
     this.svg.mana.text.setAttribute('x', '50%');
     this.svg.mana.text.setAttribute('y', '50%');
@@ -241,7 +233,7 @@ class Card extends SVG {
   }
 
   static drag(ev) {
-    if(currently_dragged_card_svg && !modalWindow) {
+    if(currently_dragged_card && !modalWindow) {
       ev.preventDefault();
 
       // update co-ords of svg to mouse position

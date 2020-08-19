@@ -128,7 +128,7 @@ class Button extends SVG {
    */
   disable() {
     this.state = false;
-    SVG.remove_onclickEvent(this.svg, this.func)
+    SVG.remove_onclickEvent(this.svg)
     this.svg.text.setAttribute('stroke', 'grey');
   }
 }

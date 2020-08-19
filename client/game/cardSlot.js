@@ -17,16 +17,21 @@ class CardSlot extends SVG {
    * creates new card slot
    * @constructor
    * @param {JSON} card, as a card json or null
-   * @param {string} owner, player or opponent
    * @param {float} width, width of svg
    * @param {float} height, hieght of svg
    * @param {float} x, x position of svg
    * @param {float} y, y position of svg
    */
-  constructor(card, owner, width, height, x, y) {
+  constructor(card, width, height, x, y) {
     super(width, height, x, y);
     this.card = card;
-    this.owner = owner;
+    if(this.card) {
+      if(card_effects[card.name]) {
+        this.card.effect = card_effects.default;
+      } else {
+        this.card.effect = card_effects[card.name];
+      }
+    }
 
     cardSlots.push(this);
   }
@@ -38,7 +43,9 @@ class CardSlot extends SVG {
   }
 
   /**
-   * gets a card based on the id
+   * gets a card based on the id of svg
+   * @param {integer} id, of the svg
+   * @returns {cardSlot} object if found else null
    */
   static getByID(id) {
     for(const cardSlot of cardSlots) {
@@ -127,7 +134,12 @@ class CardSlot extends SVG {
     } else {
       this.svg.classList.add('cardSlot_empty');
     }
-    this.svg.classList.add('cardSlot_' + this.owner);
+    // get owner
+    if(this.companion.svg.classList.contains('player_companion')) {
+      this.svg.classList.add('cardSlot_player');
+    } else if(this.companion.svg.classList.contains('opposition_companion')) {
+      this.svg.classList.add('cardSlot_opposition');
+    }
     // svg attributes
     this.svg.setAttribute('width', this.width);
     this.svg.setAttribute('height', this.height);
@@ -149,7 +161,7 @@ class CardSlot extends SVG {
   }
 
   /**
-   * highlights the card slot
+   * highlights the card slot as moused over
    */
   highlight() {
     this.svg.classList.add('cardSlot_highlighted');
@@ -157,11 +169,20 @@ class CardSlot extends SVG {
   }
 
   /**
+   * highlights the card slot as being selected
+   */
+  highlight_selected() {
+    this.svg.classList.add('cardSlot_highlighted_selected');
+    this.svg.background.setAttribute('stroke', 'green');
+  }
+
+  /**
    * strip all card slots of highlighting
    * ignores the currently clicked card slot
    */
   static removeHighlighting() {
-    for(const cardSlot of document.querySelectorAll('.cardSlot_highlighted')) {
+    for(const cardSlot of Array.from(document.querySelectorAll('.cardSlot_highlighted')).concat(
+      Array.from(document.querySelectorAll('.cardSlot_highlighted_selected')))) {
       if(clicked_cardSlot && cardSlot == clicked_cardSlot.svg) {
         continue;
       } else {
@@ -249,11 +270,10 @@ class CardSlot extends SVG {
     currently_dragged_cardSlot = cardSlot;
 
     // create new fully sized card to be dragged
-    const cardObj = new Card_Arrangement(currently_dragged_cardSlot_card.name,
+    const cardObj = new Card_Arrangement(currently_dragged_cardSlot_card,
       cardAttributes.width, cardAttributes.height, coords.x, coords.y);
-    await cardObj.init();
     cardObj.draw(document.getElementById('game_svg_workspace'));
-    currently_dragged_card_svg = cardObj.svg;
+    currently_dragged_card = cardObj;
 
     // capture initial mouse coords
     old_clientX = ev.clientX;
@@ -266,7 +286,10 @@ class CardSlot extends SVG {
   static attacking_onmouseover(ev) {
     const topLevel = SVG.getTopLevelSVG(ev.target);
     const cardSlot = CardSlot.getByID(topLevel.id);
-    cardSlot.highlight();
+
+    if(!cardSlot.svg.classList.contains('cardSlot_highlighted_selected')) {
+      cardSlot.highlight();
+    }
   }
 
   static attacking_onmouseleave(ev) {
@@ -276,29 +299,35 @@ class CardSlot extends SVG {
   static attacking_onmousedown(ev) {
     const topLevel = SVG.getTopLevelSVG(ev.target);
     clicked_cardSlot = CardSlot.getByID(topLevel.id);
+    const self_companion = clicked_cardSlot.companion;
 
     // deny if insufficient attributes
+    for(const key in clicked_cardSlot.card.cost) {
+      if(clicked_cardSlot.card.cost[key] > self_companion[key]) {
+        return;
+      }
+    }
 
     // highlight this cardSlot
-    clicked_cardSlot.highlight();
+    clicked_cardSlot.highlight_selected();
+
+    // display full sized card in the middle of page
+
 
     // consider the card's target
     // card may have more than one target
     if(clicked_cardSlot.card.target.includes('self')) {
       // add listeners to parent companion of card slot
-      const companion = clicked_cardSlot.companion.svg;
-      companion.onmouseover = attacking_onmouseover;
-      companion.onmouseleave = attacking_onmouseleave;
-      companion.onmousedown = self_onmousedown;
+      self_companion.svg.onmouseover = attacking_onmouseover;
+      self_companion.svg.onmouseleave = attacking_onmouseleave;
+      self_companion.svg.onmousedown = self_onmousedown;
     }
 
     if(clicked_cardSlot.card.target.includes('ally')) {
       // add listeners to player side companions except self
-      const self = clicked_cardSlot.companion.svg;
-
       const player_side = document.getElementById('container_player');
       for(const companion of player_side.querySelectorAll('.container_companion')) {
-        if(companion == self) {
+        if(companion == self_companion.svg) {
           continue;
         }
         companion.onmouseover = attacking_onmouseover;

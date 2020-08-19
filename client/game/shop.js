@@ -30,7 +30,6 @@ function add_shopButtons() {
   // open shop button
   const button_openShop = new FooterButton('shop_openButton', promptShop, false,
     'Open shop', width, height);
-  button_openShop.draw();
 }
 
 async function promptShop() {
@@ -110,9 +109,8 @@ async function promptShop() {
       cardAttributes.width * i;
     const card_y = cardAttributes.seperation.vertical * 3;
 
-    const cardObj = new Card_Shop(card.name, cardAttributes.width, cardAttributes.height,
+    const cardObj = new Card_Shop(card, cardAttributes.width, cardAttributes.height,
       card_x, card_y);
-    await cardObj.init();
     cardObj.draw(container_shop);
   }
 }

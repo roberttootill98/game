@@ -29,6 +29,8 @@ class FooterButton extends Button {
     super(id, func, state, text, calculatedWidth, height * 0.75,
       width * 0.01 * (x_offset + 1) + calculatedWidth * x_offset,
       height * 0.125);
+      
+    this.draw();
 
     footerButtons.push(this);
   }

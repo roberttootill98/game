@@ -5,7 +5,7 @@
 // name and icon are unique
 const cards = [
   {
-    'name': 'air 1',
+    'name': 'air_1',
     'element': 'air',
     'cost': {
       'mana': 1
@@ -15,7 +15,7 @@ const cards = [
     // hits 2 people
   },
   {
-    'name': 'air 2',
+    'name': 'air_2',
     'element': 'air',
     'cost': {
       'mana': 2
@@ -25,7 +25,7 @@ const cards = [
     // 50% dodge chance
   },
   {
-    'name': 'air 3',
+    'name': 'air_3',
     'element': 'air',
     'cost': {
       'mana': 1,

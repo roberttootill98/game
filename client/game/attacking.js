@@ -13,8 +13,6 @@ async function start_phase_attacking() {
   for(const cardSlot of companion.cardSlots) {
     await cardSlot.addListeners();
   }
-
-  console.log();
 }
 
 function teardown_phase_attacking() {
@@ -36,7 +34,8 @@ async function getAttacker() {
 }
 
 function attacking_onmouseover(ev) {
-  const topLevel = SVG.getTopLevelSVG(ev.target);
+  const topLevel = SVG.getTopLevelSVG(ev.target,
+    ['cardSlot_empty', 'cardSlot_filled']);
   const companion = Companion.getByID(topLevel.id);
   companion.highlight();
 }
@@ -46,31 +45,58 @@ function attacking_onmouseleave(ev) {
 }
 
 async function self_onmousedown(ev) {
+  const topLevel = SVG.getTopLevelSVG(ev.target);
 
+  if(!topLevel.classList.contains('cardSlot_filled')) {
+    console.log("casting on self...");
+
+    executeCard(clicked_cardSlot.card, clicked_cardSlot.companion,
+      clicked_cardSlot.companion);
+  }
 }
 
 async function ally_onmousedown(ev) {
+  console.log("casting on ally");
 
+  const topLevel = SVG.getTopLevelSVG(ev.target,
+    ['cardSlot_empty', 'cardSlot_filled']);
+
+  executeCard(clicked_cardSlot.card, clicked_cardSlot.companion,
+    Companion.getByID(topLevel.id));
 }
 
 async function opponent_onmousedown(ev) {
-  const topLevel = SVG.getTopLevelSVG(ev.target);
-  const player_companion = clicked_cardSlot.companion;
-  const opponent_companion = Companion.getByID(topLevel.id);
+  const topLevel = SVG.getTopLevelSVG(ev.target,
+    ['cardSlot_empty', 'cardSlot_filled']);
 
-  if(clicked_cardSlot.damage) {
+  executeCard(clicked_cardSlot.card, clicked_cardSlot.companion,
+    Companion.getByID(topLevel.id));
+}
+
+/**
+ * generic function for executing a cards effect to be used in all types of card cast
+ * @param {json} card, the card being used
+ * @param {Companion} user, the user of the card
+ * @param {Companion} target, the target of the cards use
+ */
+async function executeCard(card, user, target) {
+  if(card.damage) {
     // execute card damage
-    opponent_companion.setHealth(opponent_companion.health -
-      clicked_cardSlot.card.damage);
+    target.setHealth(target.health -
+      card.damage);
+  }
+  if(card.heal) {
+    target.setHealth(target.health + card.heal);
   }
 
   // execute card effect
 
 
   // execute card cost
-  player_companion.setMana(player_companion.mana - clicked_cardSlot.card.mana);
+  // it has already been checked that the user can afford the cost
+  user.setMana(user.mana - card.cost.mana);
 
-  if(opponent_companion >= 0) {
+  if(target.health >= 0) {
     console.log("companion dead");
   }
 

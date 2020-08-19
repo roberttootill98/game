@@ -122,8 +122,8 @@ async function getCompanions() {
       'health': 5,
       'mana': 7,
       'cards': [
-        await Card.getCardDetails('air 1'),
-        await Card.getCardDetails('air 3'),
+        await Card.getCardDetails('air_1'),
+        await Card.getCardDetails('air_3'),
         null,
         null
       ]
@@ -246,7 +246,6 @@ function createFooterBar(game_svg_workspace) {
   const button_endPhase = new FooterButton('button_endPhase', endPhase, false,
     'End phase', container_footer.getAttribute('width'),
     container_footer.getAttribute('height'));
-  button_endPhase.draw();
 }
 
 function phaseLabel_setText(text) {

@@ -4,6 +4,8 @@
 class ModalWindow_shopConfirm extends ModalWindow {
   constructor(width, height) {
     super('modalWindow_shopConfirm', width, height);
+
+    this.draw();
   }
 
   draw() {
@@ -68,11 +70,11 @@ class ModalWindow_shopConfirm extends ModalWindow {
       modalWindow.destroy();
 
       // snapback card to shop
-      Card_Shop.snapback(currently_dragged_card_svg);
+      Card_Shop.snapback(currently_dragged_card.svg);
 
       // tear down drag event attributes
       // indicate that drag is finished on current svg
-      currently_dragged_card_svg = null;
+      currently_dragged_card = null;
       // finished dragging over current card Slot
       currently_dragged_over_cardSlot = null;
       // DOM

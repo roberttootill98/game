@@ -52,7 +52,7 @@ class Card_Arrangement extends Card {
       }
 
       // delete card svg
-      currently_dragged_card_svg.remove();
+      currently_dragged_card.svg.remove();
     } else {
       // old card slot filled again
       currently_dragged_cardSlot.companion.setCard(
@@ -66,7 +66,7 @@ class Card_Arrangement extends Card {
 
     // tear down drag event attributes
     // indicate that drag is finished on current svg
-    currently_dragged_card_svg = null;
+    currently_dragged_card = null;
     // finished dragging over current card slot
     currently_dragged_cardSlot = null;
     currently_dragged_over_cardSlot = null;

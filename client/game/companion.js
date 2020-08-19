@@ -176,9 +176,8 @@ class Companion extends SVG {
     for(const [i, card] of this.cards.entries()) {
       const cardSlot_attributes = CardSlot.calculateSize(this.svg, i);
 
-      const cardSlot = new CardSlot(card, this.side.slice(10),
-        cardSlot_attributes.width, cardSlot_attributes.height,
-        cardSlot_attributes.x, cardSlot_attributes.y);
+      const cardSlot = new CardSlot(card, cardSlot_attributes.width,
+        cardSlot_attributes.height, cardSlot_attributes.x, cardSlot_attributes.y);
       this.cardSlots.push(cardSlot);
       cardSlot.draw(this.svg, i);
     }

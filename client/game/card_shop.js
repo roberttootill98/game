@@ -25,13 +25,12 @@ class Card_Shop extends Card {
     const topLevel = SVG.getTopLevelSVG(ev.target);
     // make new card at top level
     const coords = SVG.getAbsoluteCoords(topLevel);
-    const card = await Card.getCardDetails(topLevel.querySelector('text').textContent);
+    const card = await Card.getCardDetails(topLevel.querySelector('text').textContent.replace(" ", "_"));
     // indicate that this is the svg being dragged
-    const cardObj = new Card_Shop(card.name, cardAttributes.width,
+    const cardObj = new Card_Shop(card, cardAttributes.width,
       cardAttributes.height, coords.x, coords.y);
-    await cardObj.init();
     cardObj.draw(document.getElementById('game_svg_workspace'));
-    currently_dragged_card_svg = cardObj.svg;
+    currently_dragged_card = cardObj;
     // copy made, delete old cardObj
     Card.getByID(topLevel.id).destroy();
 
@@ -44,7 +43,7 @@ class Card_Shop extends Card {
   }
 
   static async endDrag(ev) {
-    if(currently_dragged_card_svg) {
+    if(currently_dragged_card) {
       const topLevel = SVG.getTopLevelSVG(ev.target);
 
       // if placed over thing that it can dropped into
@@ -57,7 +56,6 @@ class Card_Shop extends Card {
 
             // prompt modal window
             const confirm_window = new ModalWindow_shopConfirm(500, 500);
-            confirm_window.draw();
           }
 
           // to avoid code at end of func
@@ -71,7 +69,7 @@ class Card_Shop extends Card {
 
       // tear down drag event attributes
       // indicate that drag is finished on current svg
-      currently_dragged_card_svg = null;
+      currently_dragged_card = null;
       // finished dragging over current card Slot
       currently_dragged_over_cardSlot = null;
       // DOM
@@ -81,9 +79,7 @@ class Card_Shop extends Card {
 
   static async drawCard_inSlot() {
     // draw miniature version of current card in card slot
-    // get card name as unique identifier of card type
-    const card_name = currently_dragged_card_svg.querySelector('.card_name').textContent;
-    const card = await Card.getCardDetails(card_name);
+    const card = await Card.getCardDetails(currently_dragged_card.card.name);
 
     const companion = currently_dragged_over_cardSlot.companion;
     const index = currently_dragged_over_cardSlot.index;
@@ -91,13 +87,13 @@ class Card_Shop extends Card {
     companion.setCard(card, index);
 
     // delete card svg
-    currently_dragged_card_svg.remove();
+    currently_dragged_card.destroy();
   }
 
-  static snapback(card) {
+  static snapback(card_svg) {
     // put back in shop
-    document.getElementById('container_shop').appendChild(card);
-    card.setAttribute('x', old_position_x);
-    card.setAttribute('y', old_position_y);
+    document.getElementById('container_shop').appendChild(card_svg);
+    card_svg.setAttribute('x', old_position_x);
+    card_svg.setAttribute('y', old_position_y);
   }
 }
