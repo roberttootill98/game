@@ -43,52 +43,96 @@ io.on('connection', (socket) => {
 
 // LOADOUT FUNCTIONS
 
-// gets a users loadout using goog id
-// no loadout id => get current loadout
-// provide loadout id => get that loadout
+/**
+ * gets a users loadout using loadout id
+ * @query_param {integer} id, of loadout
+ * @response {json} of loadouts
+ */
 app.get('/api/loadout', async (req, res) => {
-  const loadout = await db.loadout.getLoadout(req.session.passport.user.id);
-  res.json(loadout);
+  try {
+    const result = await db.loadout.getByID(req.query.id);
+    if(result) {
+      res.json(result);
+    } else {
+      throw 'Record not found';
+    }
+  } catch(e) {
+    res.sendStatus(404);
+  }
 });
 
-// gets all of users loadouts using goog id
+/**
+ * gets all loadouts associated with a user
+ * uses goog id
+ * @response {<json>} of loadouts
+ */
 app.get('/api/loadouts', async (req, res) => {
-  res.json(await db.loadout.getLoadouts(req.session.passport.user.id));
+  res.json(await db.loadout.getByUserID(req.session.passport.user.id));
 });
 
-// update a loadout
-app.put('/api/loadout', (req, res) => {
-
-});
-
-// create a new loadout
+/**
+ * creates a new loadout
+ * @query_param {string} name, of new loadout
+ * @query_param {<integer>} companion_ids, list of companion ids for new loadout
+ * @response {status}
+ */
 app.post('/api/loadout', async (req, res) => {
-  // try {
-  await (db.loadout.addLoadout(req.session.passport.user.id, req.query.name,
-    req.query.companions.split(',')));
-
-  res.sendStatus(200);
-  // } catch(e) {
-  //   res.sendStatus(500);
-  // }
+  try {
+    const result = await db.loadout.add(req.session.passport.user.id,
+      req.query.name, req.query.companion_ids.split(','));
+    res.sendStatus(result);
+  } catch(e) {
+    res.sendStatus(400);
+  }
 });
 
-// delete a loadout
-// no loadout id => delete current loadout
-// provide loadout id => delete that loadout
-app.delete('/api/loadout', async (req, res) => {
+/**
+ * update a loadout
+ * @query_param {integer} id, of loadout
+ * @query_param {string} name, of loadout
+ * @query_param {<integer>} companion_ids, list of companion ids for loadout
+ * @response {status}
+ */
+app.put('/api/loadout', async (req, res) => {
+  try {
+    const result = await db.loadout.update(req.session.passport.user.id,
+      req.query.id, req.query.name, req.query.companion_ids.split(','));
+    res.sendStatus(result);
+  } catch(e) {
+    res.sendStatus(500);
+  }
+});
 
+/**
+ * delete a loadout using loadout id
+ * @query_param {integer} id, of loadout
+ * @response {status}
+ */
+app.delete('/api/loadout', async (req, res) => {
+  try {
+    const result = await db.loadout.delete(req.session.passport.user.id,
+      req.query.id);
+    res.sendStatus(result);
+  } catch(e) {
+    res.sendStatus(500);
+  }
 });
 
 // GAME LISTING FUNCTIONS
 
-// gets game using player id
+/**
+ * gets game using player id
+ * @response {json} of game information
+ */
 app.get('/api/game', (req, res) => {
   const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
   res.json(game.info);
 });
 
-// gets all games
+/**
+ * gets all games
+ * @response {<json>} of game information
+ */
 app.get('/api/games', (req, res) => {
   const games = [];
   for(const game of mod_game.games) {
@@ -97,6 +141,11 @@ app.get('/api/games', (req, res) => {
   res.json(games);
 });
 
+/**
+ * creates a new game
+ * @query_param {string} name, of new game
+ * @response {status}
+ */
 app.post('/api/game', (req, res) => {
   try {
     const game = new mod_game.Game(req.query.name, req.session.passport.user.id);
@@ -105,19 +154,22 @@ app.post('/api/game', (req, res) => {
     const socket = io.of(game.id);
     sockets.push(socket);
 
-    res.sendStatus(200);
+    res.sendStatus(204);
   } catch(e) {
-    console.log(e);
     res.sendStatus(404);
   }
 });
 
-// adds a player to an existing game
+/**
+ * adds a player to an existing game
+ * @query_param {integer} id, goog id of player to be added
+ * @response {status}
+ */
 app.put('/api/game/join', (req, res) => {
   const game = mod_game.Game.getByGameID(req.query.id);
 
   if(game.addPlayer(req.session.passport.user.id)) {
-    res.sendStatus(200);
+    res.sendStatus(204);
   } else {
     res.sendStatus(404);
   }
@@ -127,64 +179,90 @@ app.put('/api/game/join', (req, res) => {
 
 // init gameboard functions
 
-// get companion by id
+/**
+ * get companion by id
+ * @query_param {integer} id, of companion
+ * @response {json} of companion
+ */
 app.get('/api/companion', async (req, res) => {
-  const result = await db.getCompanion(req.query.id);
-  console.log(result);
-  res.json(result);
+  res.json(await db.companion.getByID(req.query.id));
 });
 
 // TURN FUNCTIONS
 
-// returns player1 or player2
+/**
+ * starts the game associated with a player
+ * @response {status}
+ */
+app.put('/api/game/start', (req, res) => {
+  try {
+    const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
+    // check if the game can be started
+
+    game.socket.emit('message', 'game starting...');
+
+    // start the game
+    game.turn = 0;
+    game.setPhase('player1_phase_shop');
+
+    res.sendStatus(204);
+  } catch(e) {
+    res.sendStatus(404);
+  }
+});
+
+/**
+ * identifies if player is player1 or player2
+ * @response {json} should be res.send
+ */
 app.get('/api/game/player/number', (req, res) => {
   const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
   res.json({'playerNumber':
     `player${game.getPlayerNumber(req.session.passport.user.id)}`});
 });
 
-app.put('/api/game/start', (req, res) => {
-  try {
-    const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
-
-    game.socket.emit('message', 'game starting...');
-
-    game.turn = 0;
-    game.setPhase('player1_phase_shop');
-
-    res.sendStatus(200);
-  } catch(e) {
-    console.log(e);
-    res.sendStatus(404);
-  }
-});
-
+/**
+ * gets the current phase
+ * @response {json} should be res.send
+ */
 app.get('/api/game/phase', (req, res) => {
   const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
   res.json({'phase': game.phase});
 });
 
+/**
+ * moves the game to the next phase
+ * @response {status}
+ */
 app.put('/api/game/phase/next', (req, res) => {
   try {
     const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
     game.setPhase(game.nextPhase);
 
-    res.sendStatus(200);
+    res.sendStatus(204);
   } catch(e) {
     console.log(e);
     res.sendStatus(404);
   }
 });
 
-// gets a single card using name
+/**
+ * gets a card's details using a given name
+ * @query_param {string} name, of card
+ * @response {json} card details
+ */
 app.get('/api/game/card', (req, res) => {
   // find card
-  res.json(card.getCard_name(req.query.name));
+  res.json(card.getByName(req.query.name));
 });
 
 // SHOPPING PHASE
 
-// gets 3 cards for shop
+/**
+ * gets 3 cards for shop
+ * generated pseudo-randomly
+ * @response {<json>} containing 3 cards
+ */
 app.get('/api/game/shop/cards', (req, res) => {
   // decide which cards will be selected
   // for now first three
@@ -196,7 +274,10 @@ app.get('/api/game/shop/cards', (req, res) => {
 
 // ATTACKING PHASE
 
-// get current attacking companion
+/**
+ * gets current attacking companion
+ * @response {json} should be res.send
+ */
 app.get('/api/game/attacking/companion', (req, res) => {
   res.json({'index': 0});
 });
@@ -230,7 +311,6 @@ app.get('/google/callback',
     //   // if no record found then add new record
     //   db.addUser(req.session.passport.user.id);
     // }
-
 
     // Successful authentication, redirect home.
     console.log(`User: ${req.user.displayName} authenticated`);

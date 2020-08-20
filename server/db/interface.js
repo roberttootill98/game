@@ -7,6 +7,7 @@ const config = require('../config');
 const mysql = require('mysql2/promise');
 exports.mysql = mysql;
 // our modules
+exports.companion = require('./companion.js');
 exports.loadout = require('./loadout.js');
 
 /**
@@ -30,18 +31,10 @@ exports.getUser = async function(id) {
   ));
 }
 
+/**
+ * adds a new user to the database
+ * @param {integer} id, goog id of new user
+ */
 exports.addUser = async function(id) {
 
-}
-
-/**
- * gets a companion using id
- * @param {integer} id, of companion
- */
-exports.getCompanion = async function(id) {
-  return await ((await getConnection()).execute(
-    'SELECT * FROM Companions WHERE ID = ?', [id], (err, rows, fields) => {
-      return rows;
-    }
-  ));
 }
