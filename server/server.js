@@ -125,10 +125,6 @@ app.delete('/api/loadout', async (req, res) => {
  * @response {json} of game information
  */
 app.get('/api/game', (req, res) => {
-  console.log(req.session.passport.user.id);
-  if(mod_game.games[0]) {
-    console.log(mod_game.games[0].players);
-  }
   const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
   res.json(game.info);
 });
