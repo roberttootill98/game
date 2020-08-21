@@ -125,6 +125,10 @@ app.delete('/api/loadout', async (req, res) => {
  * @response {json} of game information
  */
 app.get('/api/game', (req, res) => {
+  console.log(req.session.passport.user.id);
+  if(mod_game.games[0]) {
+    console.log(mod_game.games[0].players);
+  }
   const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
   res.json(game.info);
 });
@@ -315,7 +319,8 @@ app.get('/google/callback',
     // Successful authentication, redirect home.
     console.log(`User: ${req.user.displayName} authenticated`);
     res.redirect('/');
-});
+  }
+);
 
 app.get('/logout', (req, res) => {
   req.session = null;
@@ -326,4 +331,33 @@ app.get('/logout', (req, res) => {
 
 app.get('/failed', (req, res) => res.send('You failed to login'));
 
+/**
+ * checks if the user has an authenticated session
+ * @response {status}
+ */
+app.get('/api/authCheck', (req, res) => {
+  if(req.session.auth) {
+    res.sendStatus(204);
+  } else {
+    res.sendStatus(403);
+  }
+});
+
 console.log('Server listening on port:', port);
+
+// DEBUG
+
+// logins into an account
+// user id as query_param.id
+app.get('/api/debug/login', (req, res) => {
+  req.session.auth = true;
+  req.session.passport = {'user': {'id': req.query.id}};
+  res.redirect('/');
+  res.end();
+});
+
+app.get('/api/debug/logout', (req, res) => {
+  req.session = null;
+  res.redirect('/');
+  res.end();
+});

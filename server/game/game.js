@@ -43,7 +43,7 @@ exports.Game = class Game {
     this.players.push({
       'id': creatorID,
       // retrieve ids from joiner table
-      // then instantiate companions
+      // then instantiate companion objects
       'companions': ''
     });
 
@@ -163,7 +163,12 @@ exports.Game = class Game {
     if(this.playerCount < 2) {
       // check user is not in this game...
       if(this.players[0].id != id) {
-        this.players.push(id);
+        this.players.push({
+          'id': id,
+          // retrieve ids from joiner table
+          // then instantiate companion objects
+          'companions': ''
+        });
         return true;
       }
     }

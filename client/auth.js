@@ -19,3 +19,16 @@ async function logout() {
   remove_headerButtons();
   await add_headerButtons();
 }
+
+/**
+ * checks if the user has an authenticated session
+ * @returns {boolean} true if authenticated
+ */
+async function checkAuth() {
+  try {
+    const response = await fetch('/api/authCheck');
+    return response.ok;
+  } catch(e) {
+    return response.ok;
+  }
+}

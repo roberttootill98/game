@@ -6,7 +6,7 @@ let loggedIn = false;
 async function boot() {
   await add_headerButtons();
 
-  if(loggedIn) {
+  if(await checkAuth()) {
     add_createGameButton();
     await add_gameList();
   } else {
@@ -33,15 +33,10 @@ async function add_headerButtons() {
   button_login.classList.add('headerButton');
 
   // if the user is logged in
-  const name = await getName();
-
-
-  if(name) {
+  if(await checkAuth()) {
     // - add logout button
     button_login.textContent = 'Logout';
     button_login.onclick = logout;
-
-    loggedIn = true;
   } else {
     // - else add login button
     button_login.textContent = 'Login';
