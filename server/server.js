@@ -144,11 +144,14 @@ app.get('/api/games', (req, res) => {
 /**
  * creates a new game
  * @query_param {string} name, of new game
+ * @query_param {integer} loadout_id, id of loadout creating player is using
  * @response {status}
  */
-app.post('/api/game', (req, res) => {
+app.post('/api/game', async (req, res) => {
   try {
-    const game = new mod_game.Game(req.query.name, req.session.passport.user.id);
+    const loadout = await db.loadout.getByID(req.query.loadout_id);
+    const game = new mod_game.Game(req.query.name, req.session.passport.user.id,
+      loadout);
 
     // create socket
     const socket = io.of(game.id);
@@ -162,13 +165,15 @@ app.post('/api/game', (req, res) => {
 
 /**
  * adds a player to an existing game
- * @query_param {integer} id, goog id of player to be added
+ * @query_param {integer} id, of game that player is joining
+ * @query_param {integer} loadout_id, id of loadout joining player is using
  * @response {status}
  */
-app.put('/api/game/join', (req, res) => {
+app.put('/api/game/join', async (req, res) => {
   const game = mod_game.Game.getByGameID(req.query.id);
+  const loadout = await db.loadout.getByID(req.query.loadout_id);
 
-  if(game.addPlayer(req.session.passport.user.id)) {
+  if(game.addPlayer(req.session.passport.user.id, loadout)) {
     res.sendStatus(204);
   } else {
     res.sendStatus(404);
@@ -302,16 +307,6 @@ app.get('/google/callback',
   //async function(req, res) {
   function(req, res) {
     req.session.auth = true;
-
-    // store user profile
-    // check for record in database using goog id
-    // const results = await db.getUser(req.session.passport.user.id);
-    // console.log(results);
-    // if(!db.getUser(req.session.passport.user.id)) {
-    //   // if no record found then add new record
-    //   db.addUser(req.session.passport.user.id);
-    // }
-
     // Successful authentication, redirect home.
     console.log(`User: ${req.user.displayName} authenticated`);
     res.redirect('/');
@@ -348,6 +343,11 @@ console.log('Server listening on port:', port);
 app.get('/api/debug/login', (req, res) => {
   req.session.auth = true;
   req.session.passport = {'user': {'id': req.query.id}};
+
+  if(!(await db.getUser(req.query.id))) {
+    db.addUser(req.query.id);
+  }
+
   res.redirect('/');
   res.end();
 });

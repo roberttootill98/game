@@ -1,9 +1,12 @@
 // oauth 2.0 functions for server
 'use strict'
 
+// modules
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const config = require('./config');
+// our modules
+const db = require('./db/interface.js');
 
 passport.serializeUser(function(user, done) {
     done(null, user);
@@ -20,10 +23,13 @@ passport.use(new GoogleStrategy({
     clientSecret: config.oauth.secret,
     callbackURL: config.network.domain
   },
-  function(accessToken, refreshToken, profile, done) {
+  async function(accessToken, refreshToken, profile, done) {
     // use the profile info to check if the user is in db
-    // if not in add new record
-    // or load existing
+    // if no record found then add new user record
+    if(!(await db.getUser(profile.id))) {
+      db.addUser(profile.id);
+    }
+
     return done(null, profile);
   }
 ));
