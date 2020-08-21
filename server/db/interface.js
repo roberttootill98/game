@@ -24,11 +24,9 @@ exports.getConnection = getConnection;
  * @returns {record} single record or empty set
  */
 exports.getUser = async function(id) {
-  return await ((await getConnection()).execute(
-    'SELECT * FROM Users WHERE ID = ?', [id], (err, rows, fields) => {
-      return rows;
-    }
-  ));
+  const result = await ((await getConnection()).query(mysql.format(
+    'SELECT * FROM Users WHERE ID = ?', [id])));
+  return result[0][0];
 }
 
 /**
@@ -36,5 +34,6 @@ exports.getUser = async function(id) {
  * @param {integer} id, goog id of new user
  */
 exports.addUser = async function(id) {
-
+  await (await getConnection()).query(mysql.format(
+    'INSERT INTO Users(ID) VALUES(?)', [[id]]));
 }

@@ -7,6 +7,8 @@
 // modules
 const server = require('../server.js');
 const io = require('socket.io')(server);
+// our modules
+const player = require('./player.js');
 
 const games = [];
 exports.games = games;
@@ -40,12 +42,9 @@ exports.Game = class Game {
 
     // players - array of jsons, max length 2
     this.players = []
-    this.players.push({
-      'id': creatorID,
-      // retrieve ids from joiner table
-      // then instantiate companion objects
-      'companions': ''
-    });
+    this.players.push(new player.Player(creatorID));
+
+    this.phase = 'lobby';
 
     games.push(this);
   }
@@ -136,6 +135,14 @@ exports.Game = class Game {
   }
 
   /**
+   * starts the game
+   * at least two players must be present
+   */
+  start() {
+
+  }
+
+  /**
    * sets phase and emits socket message
    * @setter
    * @param {string} phase, the phase which is being set, must be from phaseOrder
@@ -155,6 +162,14 @@ exports.Game = class Game {
   }
 
   /**
+   * @getter
+   * @returns {integer} number of spectator of the game
+   */
+  get spectatorCount() {
+    return this.spectators.length;
+  }
+
+  /**
    * adds a player to game using goog id
    * @param {integer} id, goog id of player to be added
    * @returns {boolean} true if successful
@@ -163,12 +178,7 @@ exports.Game = class Game {
     if(this.playerCount < 2) {
       // check user is not in this game...
       if(this.players[0].id != id) {
-        this.players.push({
-          'id': id,
-          // retrieve ids from joiner table
-          // then instantiate companion objects
-          'companions': ''
-        });
+        this.players.push(new player.Player(id));
         return true;
       }
     }
@@ -191,7 +201,8 @@ exports.Game = class Game {
     return {
       'id': this.id,
       'name': this.name,
-      'playerCount': this.playerCount
+      'playerCount': this.playerCount,
+      'spectatorCount': this.spectatorCount
     };
   }
 };

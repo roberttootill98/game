@@ -136,7 +136,7 @@ exports.getCards = function() {
   return cards;
 }
 
-exports.getCard_name = function(name) {
+exports.getByName = function(name) {
   for(const card of cards) {
     if(card.name == name) {
       return card;

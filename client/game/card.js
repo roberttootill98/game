@@ -66,7 +66,7 @@ class Card extends SVG {
    * @param {element} target, where the svg is appended to
    * @param {string} location, the context for the use of the card
    */
-  draw(target, location) {
+  draw(target) {
     // container
     this.svg = document.createElementNS(svgns, 'svg');
     target.appendChild(this.svg);
@@ -230,6 +230,15 @@ class Card extends SVG {
 
   addListeners() {
     SVG.addClass(this.svg, 'draggable');
+  }
+
+  removeListeners() {
+    this.onmousedown = null;
+    this.onmouseover = null;
+    this.onmouseleave = null;
+    this.onmouseup = null;
+    // DOM
+    SVG.removeClass(this.svg, 'draggable');
   }
 
   static drag(ev) {

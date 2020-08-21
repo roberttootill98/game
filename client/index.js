@@ -1,7 +1,24 @@
-'use strict'
+'use strict';
 
-// if the user is logged in
-let loggedIn = false;
+function getWidth() {
+  return Math.max(
+    document.body.scrollWidth,
+    document.documentElement.scrollWidth,
+    document.body.offsetWidth,
+    document.documentElement.offsetWidth,
+    document.documentElement.clientWidth
+  );
+}
+
+function getHeight() {
+  return Math.max(
+    document.body.scrollHeight,
+    document.documentElement.scrollHeight,
+    document.body.offsetHeight,
+    document.documentElement.offsetHeight,
+    document.documentElement.clientHeight
+  );
+}
 
 async function boot() {
   await add_headerButtons();
@@ -135,11 +152,15 @@ async function confirm_createGame() {
   // get game socket using game id
   gameSocket = io("/" + game.id);
   gameSocket.on('message', gameSocket_message);
+  gameSocket.on('ready', gameSocket_readyMessage);
   gameSocket.on('phase', gameSocket_phase);
 
-  // load gameboard
-  clearContent();
-  await createGameBoard();
+  // load lobby
+  await drawLobby(game);
+
+  // // load gameboard
+  // clearContent();
+  // await createGameBoard();
 }
 
 async function createGame(name) {
@@ -231,14 +252,18 @@ async function joinGame(ev) {
   // get game socket using game id
   gameSocket = io("/" + game.id);
   gameSocket.on('message', gameSocket_message);
+  gameSocket.on('ready', gameSocket_readyMessage);
   gameSocket.on('phase', gameSocket_phase);
 
-  // load gameboard
-  clearContent();
-  await createGameBoard();
+  // load lobby
+  await drawLobby(game);
 
-  // make request to server to start game
-  await startGame();
+  // // load gameboard
+  // clearContent();
+  // await createGameBoard();
+  //
+  // // make request to server to start game
+  // await startGame();
 }
 
 // put request to join game

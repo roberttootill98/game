@@ -104,4 +104,5 @@ async function executeCard(card, user, target) {
   clicked_cardSlot = null;
   CardSlot.removeHighlighting();
   Companion.removeHighlighting();
+  // remove listeners
 }

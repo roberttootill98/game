@@ -8,26 +8,6 @@ const element_colours = {
   'fire': '#654321'
 };
 
-function getWidth() {
-  return Math.max(
-    document.body.scrollWidth,
-    document.documentElement.scrollWidth,
-    document.body.offsetWidth,
-    document.documentElement.offsetWidth,
-    document.documentElement.clientWidth
-  );
-}
-
-function getHeight() {
-  return Math.max(
-    document.body.scrollHeight,
-    document.documentElement.scrollHeight,
-    document.body.offsetHeight,
-    document.documentElement.offsetHeight,
-    document.documentElement.clientHeight
-  );
-}
-
 // checks if an id for an svg element is being used in a list of svg elements
 function checkIfInUse(id, arr) {
   for(const item of arr) {
@@ -55,6 +35,7 @@ async function createGameBoard() {
   const game_svg_workspace = document.createElementNS(svgns, 'svg');
   gameContainer.appendChild(game_svg_workspace);
   game_svg_workspace.id = 'game_svg_workspace';
+  game_svg_workspace.classList.add('svg_workspace');
   // svg attributes
   game_svg_workspace.setAttribute('width', getWidth());
   game_svg_workspace.setAttribute('height', getHeight() * 0.95);

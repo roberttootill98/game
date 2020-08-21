@@ -144,14 +144,11 @@ app.get('/api/games', (req, res) => {
 /**
  * creates a new game
  * @query_param {string} name, of new game
- * @query_param {integer} loadout_id, id of loadout creating player is using
  * @response {status}
  */
 app.post('/api/game', async (req, res) => {
   try {
-    const loadout = await db.loadout.getByID(req.query.loadout_id);
-    const game = new mod_game.Game(req.query.name, req.session.passport.user.id,
-      loadout);
+    const game = new mod_game.Game(req.query.name, req.session.passport.user.id);
 
     // create socket
     const socket = io.of(game.id);
@@ -166,24 +163,56 @@ app.post('/api/game', async (req, res) => {
 /**
  * adds a player to an existing game
  * @query_param {integer} id, of game that player is joining
- * @query_param {integer} loadout_id, id of loadout joining player is using
  * @response {status}
  */
 app.put('/api/game/join', async (req, res) => {
   const game = mod_game.Game.getByGameID(req.query.id);
-  const loadout = await db.loadout.getByID(req.query.loadout_id);
 
-  if(game.addPlayer(req.session.passport.user.id, loadout)) {
+  if(game.addPlayer(req.session.passport.user.id)) {
     res.sendStatus(204);
   } else {
     res.sendStatus(404);
   }
 });
 
+// LOBBY FUNCTIONS
+
+/**
+ * player announcing they are ready to start
+ * sends socket message
+ * @response {status}
+ */
+app.put('/api/lobby/ready', (req, res) => {
+  const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
+  const playerNumber = game.getPlayerNumber(req.session.passport.user.id);
+  const player = game.players[playerNumber - 1];
+  player.ready = true;
+
+  // send socket message
+  game.socket.emit('ready', playerNumber + '_ready');
+
+  res.sendStatus(204);
+});
+
+/**
+ * player announcing they are ready to start
+ * sends socket message
+ * @response {status}
+ */
+app.put('/api/lobby/unready', (req, res) => {
+  const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
+  const playerNumber = game.getPlayerNumber(req.session.passport.user.id);
+  const player = game.players[playerNumber - 1];
+  player.ready = false;
+
+  // send socket message
+  game.socket.emit('ready', playerNumber + '_unready');
+
+  res.sendStatus(204);
+});
+
+
 // GAMEBOARD FUNCTIONS
-
-// init gameboard functions
-
 /**
  * get companion by id
  * @query_param {integer} id, of companion
@@ -204,9 +233,9 @@ app.put('/api/game/start', (req, res) => {
     const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
     // check if the game can be started
 
-    game.socket.emit('message', 'game starting...');
+    game.start();
 
-    // start the game
+    game.socket.emit('message', 'game starting...');
     game.turn = 0;
     game.setPhase('player1_phase_shop');
 
@@ -340,7 +369,7 @@ console.log('Server listening on port:', port);
 
 // logins into an account
 // user id as query_param.id
-app.get('/api/debug/login', (req, res) => {
+app.get('/api/debug/login', async (req, res) => {
   req.session.auth = true;
   req.session.passport = {'user': {'id': req.query.id}};
 

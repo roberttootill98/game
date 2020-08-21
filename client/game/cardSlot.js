@@ -11,6 +11,7 @@ let currently_dragged_cardSlot_card = null;
 let currently_dragged_cardSlot_target = null;
 let currently_dragged_cardSlot_oldIndex = null;
 let clicked_cardSlot = null;
+let clicked_card = null;
 
 class CardSlot extends SVG {
   /**
@@ -312,7 +313,18 @@ class CardSlot extends SVG {
     clicked_cardSlot.highlight_selected();
 
     // display full sized card in the middle of page
-
+    // delete current card if present
+    if(clicked_card) {
+      clicked_card.destroy();
+    }
+    // create new card
+    const game_svg_workspace = document.getElementById('game_svg_workspace');
+    clicked_card = new Card(clicked_cardSlot.card, cardAttributes.width,
+      cardAttributes.height, game_svg_workspace.getAttribute('width') * 0.5 -
+      cardAttributes.width * 0.5, game_svg_workspace.getAttribute('height') *
+      0.5 - cardAttributes.height * 0.5);
+    clicked_card.draw(game_svg_workspace);
+    clicked_card.removeListeners();
 
     // consider the card's target
     // card may have more than one target

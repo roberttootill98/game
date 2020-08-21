@@ -13,12 +13,6 @@ async function getPlayerNumber() {
   }
 }
 
-// called when a message is sent down the game socket
-async function gameSocket_message(ev) {
-  console.log("game socket message received");
-  console.log(ev);
-}
-
 // lookup table for phases that returns more readable text
 const phaseText_lookup = {
   'phase_shop': 'shopping phase',
