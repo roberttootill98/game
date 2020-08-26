@@ -8,7 +8,7 @@
 const server = require('../server.js');
 const io = require('socket.io')(server);
 // our modules
-const player = require('./player.js');
+const mod_player = require('./player.js');
 
 const games = [];
 exports.games = games;
@@ -41,8 +41,8 @@ exports.Game = class Game {
     this.spectators = [];
 
     // players - array of jsons, max length 2
-    this.players = []
-    this.players.push(new player.Player(creatorID));
+    this.players = Array(2);
+    this.addPlayer(creatorID);
 
     this.phase = 'lobby';
 
@@ -139,7 +139,8 @@ exports.Game = class Game {
    * at least two players must be present
    */
   start() {
-
+    this.turn = 0;
+    this.setPhase('player1_phase_shop');
   }
 
   /**
@@ -148,6 +149,9 @@ exports.Game = class Game {
    * @param {string} phase, the phase which is being set, must be from phaseOrder
    */
   setPhase(phase) {
+    if(this.phase == phase) {
+      return;
+    }
     console.log("setting phase to: " + phase);
     this.phase = phase;
     this.socket.emit('phase', phase);
@@ -158,7 +162,13 @@ exports.Game = class Game {
    * @returns {integer} number of players in the game
    */
   get playerCount() {
-    return this.players.length;
+    let length = 0;
+    for(const player of this.players) {
+      if(player) {
+        length++;
+      }
+    }
+    return length;
   }
 
   /**
@@ -177,9 +187,17 @@ exports.Game = class Game {
   addPlayer(id) {
     if(this.playerCount < 2) {
       // check user is not in this game...
-      if(this.players[0].id != id) {
-        this.players.push(new player.Player(id));
-        return true;
+      for(const player of this.players) {
+        if(player && player.id == id) {
+          return false;
+        }
+      }
+
+      for(const [i, player] of this.players.entries()) {
+        if(!player) {
+          this.players[i] = new mod_player.Player(id);
+          return true;
+        }
       }
     }
   }
@@ -193,16 +211,23 @@ exports.Game = class Game {
   }
 
   /**
-   * gets info about game that is available to users
-   * @getter
+   * gets info about game that is safe for users
    * @returns {json} of info
    */
-  get info() {
+  async retrieveInfo() {
+    const players = [];
+    for(const player of this.players) {
+      if(player) {
+        players.push(await player.retrieveInfo());
+      }
+    }
+
     return {
       'id': this.id,
       'name': this.name,
       'playerCount': this.playerCount,
-      'spectatorCount': this.spectatorCount
+      'players': players,
+      'spectatorCount': this.spectatorCount,
     };
   }
 };

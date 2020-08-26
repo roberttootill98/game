@@ -7,7 +7,6 @@ const passport = require('passport');
 const cookieSession = require('cookie-session');
 
 // our modules
-require('./auth.js');
 // database
 const db = require('./db/interface.js');
 // game modules
@@ -15,10 +14,11 @@ const mod_game = require('./game/game.js');
 const card = require('./game/card.js');
 // config
 const config = require('./config');
+// modules we need locally
+require('./auth.js');
 
 // network
-const port = config.network.port;
-const server = app.listen(port);
+const server = app.listen(config.network.port);
 app.use('/', express.static('client', {'extensions': ['html']}));
 
 // session stuff - player specific
@@ -44,6 +44,16 @@ io.on('connection', (socket) => {
 // LOADOUT FUNCTIONS
 
 /**
+ * gets all loadouts associated with a user
+ * uses goog id
+ * @response {<json>} of loadouts
+ */
+app.get('/api/loadouts', async (req, res) => {
+  console.log(req.session);
+  res.json(await db.loadout.getByUserID(req.session.passport.user.id));
+});
+
+/**
  * gets a users loadout using loadout id
  * @query_param {integer} id, of loadout
  * @response {json} of loadouts
@@ -59,15 +69,6 @@ app.get('/api/loadout', async (req, res) => {
   } catch(e) {
     res.sendStatus(404);
   }
-});
-
-/**
- * gets all loadouts associated with a user
- * uses goog id
- * @response {<json>} of loadouts
- */
-app.get('/api/loadouts', async (req, res) => {
-  res.json(await db.loadout.getByUserID(req.session.passport.user.id));
 });
 
 /**
@@ -118,25 +119,26 @@ app.delete('/api/loadout', async (req, res) => {
   }
 });
 
+
 // GAME LISTING FUNCTIONS
 
 /**
  * gets game using player id
  * @response {json} of game information
  */
-app.get('/api/game', (req, res) => {
+app.get('/api/game', async (req, res) => {
   const game = mod_game.Game.getByPlayerID(req.session.passport.user.id);
-  res.json(game.info);
+  res.json(await game.retrieveInfo());
 });
 
 /**
  * gets all games
  * @response {<json>} of game information
  */
-app.get('/api/games', (req, res) => {
+app.get('/api/games', async (req, res) => {
   const games = [];
   for(const game of mod_game.games) {
-    games.push(game.info);
+    games.push(await game.retrieveInfo());
   }
   res.json(games);
 });
@@ -234,10 +236,6 @@ app.put('/api/game/start', (req, res) => {
     // check if the game can be started
 
     game.start();
-
-    game.socket.emit('message', 'game starting...');
-    game.turn = 0;
-    game.setPhase('player1_phase_shop');
 
     res.sendStatus(204);
   } catch(e) {
@@ -363,7 +361,8 @@ app.get('/api/authCheck', (req, res) => {
   }
 });
 
-console.log('Server listening on port:', port);
+console.log('Server listening on:', config.network.domain + ':' +
+  config.network.port);
 
 // DEBUG
 

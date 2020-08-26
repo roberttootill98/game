@@ -1,10 +1,9 @@
 // class for modal window made as svgs
 'use strict';
 
-// only one modal window present at a time
-let modalWindow = null;
-
 class ModalWindow extends SVG {
+  static instance;
+
   constructor(id, width, height) {
     const topLevel = document.getElementById('game_svg_workspace');
 
@@ -12,13 +11,7 @@ class ModalWindow extends SVG {
       topLevel.getAttribute('height') * 0.5 - height * 0.5);
     this.id = id;
 
-    modalWindow = this;
-  }
-
-  destroy() {
-    this.svg.remove();
-    delete this;
-    modalWindow = null;
+    ModalWindow.instance = this;
   }
 
   /**

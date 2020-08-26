@@ -30,6 +30,50 @@ class SVG {
   }
 
   /**
+   * detroys instance of object and related data
+   */
+  destroy() {
+    if(this.svg) {
+      this.svg.remove();
+    }
+    if(this.instance) {
+      this.instance = undefined;
+    }
+    if(this.instances) {
+      this.instances.splice(this.instances.indexOf(this), 1);
+    }
+    delete this;
+  }
+
+  /**
+   * gets the button with the corresponding id otherwise return null
+   * @param {string} id, id of the button in terms of DOM
+   * @returns {~Class} instance of class this is called from
+   */
+  static getByID(id) {
+    for(const instance of this.instances) {
+      if(instance.svg.id == id) {
+        return instance;
+      }
+    }
+  }
+
+  /**
+   * gets the first unused ID, lowest numeric value that is unused
+   * @param {string} preID, textual information infront on id
+   * @returns {integer} the unused ID
+   */
+  static getNextID(preID) {
+    let id = 0;
+
+    // while id in use
+    while(checkIfInUse(`${preID}${id}`, this.instances)) {
+      id++;
+    }
+    return `${preID}${id}`;
+  }
+
+  /**
    * gets top level svg element from inner svg element
    * @param {node} node, the starting node
    * @param {<string>} classes, list of class names to be added to predefined excluded classes
@@ -67,7 +111,7 @@ class SVG {
     }
     return node;
   }
-  
+
   /**
    * gets the absolute coordinates of a given element relative to the game svg workspace
    * @param {element} target, the element we are retrieving the coordinates of

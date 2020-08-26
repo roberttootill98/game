@@ -11,7 +11,7 @@ const element_colours = {
 // checks if an id for an svg element is being used in a list of svg elements
 function checkIfInUse(id, arr) {
   for(const item of arr) {
-    if(item.svg.id == id) {
+    if(item.svg.id === id) {
       // found match
       return true;
     }
@@ -25,8 +25,6 @@ const spellSlots = [];
 
 // creates dom for game board
 async function createGameBoard() {
-  console.log("creating game board");
-
   const gameContainer = document.createElement('div');
   document.getElementById('main').appendChild(gameContainer);
   gameContainer.id = 'gameContainer';

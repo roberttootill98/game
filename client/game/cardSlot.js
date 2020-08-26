@@ -14,6 +14,8 @@ let clicked_cardSlot = null;
 let clicked_card = null;
 
 class CardSlot extends SVG {
+  static instances = [];
+
   /**
    * creates new card slot
    * @constructor
@@ -34,40 +36,7 @@ class CardSlot extends SVG {
       }
     }
 
-    cardSlots.push(this);
-  }
-
-  destroy() {
-    this.svg.remove();
-    cardSlots.splice(cardSlots.indexOf(this), 1);
-    delete this;
-  }
-
-  /**
-   * gets a card based on the id of svg
-   * @param {integer} id, of the svg
-   * @returns {cardSlot} object if found else null
-   */
-  static getByID(id) {
-    for(const cardSlot of cardSlots) {
-      if(cardSlot.svg.id == id) {
-        return cardSlot;
-      }
-    }
-  }
-
-  /**
-   * gets the first unused ID, lowest numeric value that is unused
-   * @returns {integer} the unused ID
-   */
-  static getNextID() {
-    let id = 0;
-
-    // while id in use
-    while(checkIfInUse(id, cardSlots)) {
-      id++;
-    }
-    return id;
+    CardSlot.instances.push(this);
   }
 
   /**
@@ -98,7 +67,7 @@ class CardSlot extends SVG {
   static inRange(coords) {
     // coords.x, coords.y
     // coords are absolute
-    for(const [i, cardSlot] of cardSlots.entries()) {
+    for(const [i, cardSlot] of CardSlot.instances.entries()) {
       if(cardSlot.svg.classList.contains('cardSlot_player')) {
         // get absolute cardSlot coords
         const cardSlot_coords = SVG.getAbsoluteCoords(cardSlot.svg);
@@ -109,6 +78,7 @@ class CardSlot extends SVG {
           (coords.x <= (cardSlot_coords.x + width)) &&
           (coords.y >= cardSlot_coords.y) &&
           (coords.y <= (cardSlot_coords.y + height))) {
+            console.log("card slot in range!!!");
             return cardSlot;
         }
       }
@@ -128,7 +98,7 @@ class CardSlot extends SVG {
 
     this.svg = document.createElementNS(svgns, 'svg');
     target.appendChild(this.svg);
-    this.svg.id = CardSlot.getNextID();
+    this.svg.id = CardSlot.getNextID('cardSlot');
     this.svg.classList.add('cardSlot' + index);
     if(this.card) {
       this.svg.classList.add('cardSlot_filled');
@@ -199,7 +169,7 @@ class CardSlot extends SVG {
   get companion() {
     if(this.card) {
       const container_companion = document.querySelectorAll('.container_companion')[
-        parseInt(this.svg.id - 1) / 4 >> 0];
+        parseInt(this.svg.id.split('cardSlot')[1]) / 4 >> 0];
       return Companion.getByID(container_companion.id);
     } else {
       return Companion.getByID(this.svg.parentNode.id);
@@ -210,7 +180,7 @@ class CardSlot extends SVG {
    * @returns {integer} index of the card slot in reference to its companion
    */
   get index() {
-    return parseInt(this.svg.id - 1) % 4;
+    return parseInt(this.svg.id.split('cardSlot')[1]) % 4;
   }
 
   /** DRAG AND DROP FUNCTIONS **/

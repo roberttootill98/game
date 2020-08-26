@@ -1,9 +1,9 @@
 // class for button svgs
 'use strict';
 
-let buttons = [];
-
 class Button extends SVG {
+  static instances = [];
+
   /**
    * creates a button
    * @constructor
@@ -23,29 +23,7 @@ class Button extends SVG {
     this.state = state;
     this.text = text;
 
-    buttons.push(this);
-  }
-
-  /**
-   * gets the button with the corresponding id otherwise return null
-   * @param {string} id, id of the button in terms of DOM
-   * @returns {Button} footer button object
-   */
-  static getByID(id) {
-    for(const button of buttons) {
-      if(button.svg.id == id) {
-        return button;
-      }
-    }
-  }
-
-  /**
-   * destroys button
-   */
-  destroy() {
-    this.svg.remove();
-    buttons.splice(buttons.indexOf(this))
-    delete this;
+    Button.instances.push(this);
   }
 
   /**

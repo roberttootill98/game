@@ -23,7 +23,7 @@ exports.getByID = getByID;
 exports.getByUserID = async function(user_id) {
   const result = await ((await db.getConnection()).query(db.mysql.format(
     'SELECT * FROM Loadouts WHERE User_ID = ?', [user_id])));
-  return result[0][0];
+  return result[0];
 }
 
 /**
@@ -45,6 +45,7 @@ async function getByUserID_AND_name(user_id, name) {
  * @param {integer} user_id, goog id of user that is adding a new loadout
  * @param {string} name, of loadout
  * @param {[integer]} companion_ids, list of companion ids
+ * @returns {status}
  */
 exports.add = async function(user_id, name, companion_ids) {
   // check there isnt already a loadout for this user with this name
@@ -89,6 +90,7 @@ exports.add = async function(user_id, name, companion_ids) {
  * @param {integer} loadout_id, goog id of user that is adding a new loadout
  * @param {string} name, of loadout
  * @param {[integer]} companion_ids, list of companion ids
+ * @returns {status}
  */
 exports.update = async function(user_id, loadout_id, name, companion_ids) {
   // check that this user has permission to update this record
@@ -128,6 +130,7 @@ exports.update = async function(user_id, loadout_id, name, companion_ids) {
  * deletes a loadout using loadout id
  * @param {integer} user_id, to check that the user has permission to update this record
  * @param {integer} loadout_id, of record to be deleted
+ * @returns {status}
  */
 exports.delete = async function(user_id, loadout_id) {
   // check that this user has permission to delete this record

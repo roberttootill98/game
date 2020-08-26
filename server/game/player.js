@@ -2,6 +2,7 @@
 'use strict';
 
 // our modules
+const db = require('../db/interface.js');
 const companion = require('./companion.js');
 
 exports.Player = class Player {
@@ -14,9 +15,41 @@ exports.Player = class Player {
   constructor(id) {
     this.id = id;
     this.ready = false;
-    // this.companions = [];
-    // for(companion_id of loadout) {
-    //   this.companions.push(new companion.Companion(companion_id));
-    // }
+  }
+
+  /**
+   * gets all of the players loadouts
+   * @returns {<json>} jsons are loadouts
+   */
+  async retrieveLoadouts() {
+    return await db.loadout.getByUserID(this.id);
+  }
+
+  /**
+   * updates the players selected loadout
+   * @param {integer} id, of loadout
+   * @returns {boolean} true if successful
+   */
+  async setLoadout(id) {
+    const loadout = await db.loadout.getByID(id);
+    // check loadout exists
+    // check user owns loadout before setting this
+    if(loadout && loadout.User_ID == this.id) {
+      this.loadout = loadout;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * gets info about player that is safe for users
+   * @returns {json} of info
+   */
+  async retrieveInfo() {
+    return {
+      'ready': this.ready,
+      'loadouts': await this.retrieveLoadouts()
+    }
   }
 }

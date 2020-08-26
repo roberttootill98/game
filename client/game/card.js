@@ -10,31 +10,17 @@ const cardAttributes = {
   }
 }
 
-const cardsInPlay = [];
-
 // for drag and drop
 let currently_dragged_card = null;
 
 class Card extends SVG {
+  static instances = [];
+
   constructor(card, width, height, x, y) {
     super(width, height, x, y);
     this.card = card;
 
-    cardsInPlay.push(this);
-  }
-
-  destroy() {
-    this.svg.remove();
-    cardsInPlay.splice(cardsInPlay.indexOf(this), 1);
-    delete this;
-  }
-
-  static getByID(id) {
-    for(const card of cardsInPlay) {
-      if(card.svg.id == id) {
-        return card;
-      }
-    }
+    Card.instances.push(this);
   }
 
   // gets card details using name
@@ -48,20 +34,6 @@ class Card extends SVG {
   }
 
   /**
-   * gets the first unused ID, lowest numeric value that is unused
-   * @returns {integer} the unused ID
-   */
-  static getNextID() {
-    let id = 0;
-
-    // while id in use
-    while(checkIfInUse(id, cardsInPlay)) {
-      id++;
-    }
-    return id;
-  }
-
-  /**
    * draws the card
    * @param {element} target, where the svg is appended to
    * @param {string} location, the context for the use of the card
@@ -70,7 +42,7 @@ class Card extends SVG {
     // container
     this.svg = document.createElementNS(svgns, 'svg');
     target.appendChild(this.svg);
-    this.svg.id = Card.getNextID();
+    this.svg.id = Card.getNextID('card');
     this.svg.setAttribute('width', this.width);
     this.svg.setAttribute('height', this.height);
     this.svg.setAttribute('x', this.x);
@@ -242,7 +214,7 @@ class Card extends SVG {
   }
 
   static drag(ev) {
-    if(currently_dragged_card && !modalWindow) {
+    if(currently_dragged_card && !ModalWindow.instance) {
       ev.preventDefault();
 
       // update co-ords of svg to mouse position

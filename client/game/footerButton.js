@@ -2,9 +2,9 @@
 // defines button as a class
 'use strict'
 
-const footerButtons = [];
-
 class FooterButton extends Button {
+  static instances = [];
+
   /**
    * creates a footer button
    * @constructor
@@ -29,31 +29,10 @@ class FooterButton extends Button {
     super(id, func, state, text, calculatedWidth, height * 0.75,
       width * 0.01 * (x_offset + 1) + calculatedWidth * x_offset,
       height * 0.125);
-      
+
     this.draw();
 
-    footerButtons.push(this);
-  }
-
-  /**
-   * gets the button with the corresponding id otherwise return null
-   * @param {string} id, id of the button in terms of DOM
-   * @returns {FooterButton} footer button object
-   */
-  static getByID(id) {
-    for(const footerButton of footerButtons) {
-      if(footerButton.svg.id == id) {
-        return footerButton;
-      }
-    }
-  }
-
-  /**
-   * destroys button
-   */
-  destroy() {
-    footerButtons.splice(footerButtons.indexOf(this));
-    super.destroy();
+    FooterButton.instances.push(this);
   }
 
   /**

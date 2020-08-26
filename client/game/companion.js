@@ -1,9 +1,9 @@
 // class definition for companion
 'use strict';
 
-const companions = [];
-
 class Companion extends SVG {
+  static instances = []
+
   /**
    * creates a new companion
    * @constructor
@@ -33,22 +33,14 @@ class Companion extends SVG {
     this.cards = cards;
 
     this.cardSlots = [];
-    companions.push(this);
-  }
-
-  static getByID(id) {
-    for(const companion of companions) {
-      if(companion.svg.id == id) {
-        return companion;
-      }
-    }
+    Companion.instances.push(this);
   }
 
   draw(container_side) {
     // container
     this.svg = document.createElementNS(svgns, 'svg');
     container_side.appendChild(this.svg);
-    this.svg.id = companions.length;
+    this.svg.id = 'companion' + Companion.instances.length;
     this.svg.classList.add('container_companion');
     // type dependent
     if(this.side == 'container_opposition') {

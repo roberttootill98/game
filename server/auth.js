@@ -18,10 +18,11 @@ passport.deserializeUser(function(user, done) {
   }
 );
 
+//7070/google/callback
 passport.use(new GoogleStrategy({
     clientID: config.oauth.id,
     clientSecret: config.oauth.secret,
-    callbackURL: config.network.domain
+    callbackURL: `${config.network.domain}:${config.network.port}/google/callback`
   },
   async function(accessToken, refreshToken, profile, done) {
     // use the profile info to check if the user is in db

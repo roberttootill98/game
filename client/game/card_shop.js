@@ -17,6 +17,12 @@ class Card_Shop extends Card {
     super.addListeners();
   }
 
+  destroy() {
+    // acquire instances properly
+    this.instances = Card.instances;
+    super.destroy();
+  }
+
   /** DRAG AND DROP FUNCTIONS **/
 
   static async startDrag(ev) {

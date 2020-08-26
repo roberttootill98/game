@@ -156,11 +156,9 @@ async function confirm_createGame() {
   gameSocket.on('phase', gameSocket_phase);
 
   // load lobby
-  await drawLobby(game);
-
-  // // load gameboard
-  // clearContent();
-  // await createGameBoard();
+  clearContent();
+  const lobby = new Lobby(game, await getPlayerNumber(), getWidth(),
+    getHeight() * 0.95);
 }
 
 async function createGame(name) {
@@ -256,14 +254,9 @@ async function joinGame(ev) {
   gameSocket.on('phase', gameSocket_phase);
 
   // load lobby
-  await drawLobby(game);
-
-  // // load gameboard
-  // clearContent();
-  // await createGameBoard();
-  //
-  // // make request to server to start game
-  // await startGame();
+  clearContent();
+  const lobby = new Lobby(game, await getPlayerNumber(), getWidth(),
+    getHeight() * 0.95);
 }
 
 // put request to join game
