@@ -48,10 +48,8 @@ async function self_onmousedown(ev) {
   const topLevel = SVG.getTopLevelSVG(ev.target);
 
   if(!topLevel.classList.contains('cardSlot_filled')) {
-    console.log("casting on self...");
-
-    executeCard(clicked_cardSlot.card, clicked_cardSlot.companion,
-      clicked_cardSlot.companion);
+    executeCard(CardSlot.attack_using.card, CardSlot.attack_using.companion,
+      CardSlot.attack_using.companion);
   }
 }
 
@@ -61,7 +59,7 @@ async function ally_onmousedown(ev) {
   const topLevel = SVG.getTopLevelSVG(ev.target,
     ['cardSlot_empty', 'cardSlot_filled']);
 
-  executeCard(clicked_cardSlot.card, clicked_cardSlot.companion,
+  executeCard(CardSlot.attack_using.card, CardSlot.attack_using.companion,
     Companion.getByID(topLevel.id));
 }
 
@@ -69,7 +67,7 @@ async function opponent_onmousedown(ev) {
   const topLevel = SVG.getTopLevelSVG(ev.target,
     ['cardSlot_empty', 'cardSlot_filled']);
 
-  executeCard(clicked_cardSlot.card, clicked_cardSlot.companion,
+  executeCard(CardSlot.attack_using.card, CardSlot.attack_using.companion,
     Companion.getByID(topLevel.id));
 }
 
@@ -101,7 +99,7 @@ async function executeCard(card, user, target) {
   }
 
   // tear down
-  clicked_cardSlot = null;
+  CardSlot.attack_using = undefined;
   CardSlot.removeHighlighting();
   Companion.removeHighlighting();
   // remove listeners

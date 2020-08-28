@@ -152,7 +152,7 @@ async function confirm_createGame() {
   // get game socket using game id
   gameSocket = io("/" + game.id);
   gameSocket.on('message', gameSocket_message);
-  gameSocket.on('ready', gameSocket_readyMessage);
+  gameSocket.on('ready', Lobby.gameSocket_readyMessage);
   gameSocket.on('phase', gameSocket_phase);
 
   // load lobby
@@ -250,7 +250,7 @@ async function joinGame(ev) {
   // get game socket using game id
   gameSocket = io("/" + game.id);
   gameSocket.on('message', gameSocket_message);
-  gameSocket.on('ready', gameSocket_readyMessage);
+  gameSocket.on('ready', Lobby.gameSocket_readyMessage);
   gameSocket.on('phase', gameSocket_phase);
 
   // load lobby

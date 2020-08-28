@@ -22,8 +22,6 @@ const phaseText_lookup = {
 
 // called when a phase message is sent down the game socket
 async function gameSocket_phase(ev) {
-  console.log(ev);
-
   // if it is the players phase
   const player = ev.slice(0, 7);
   const phase = ev.slice(8);

@@ -23,55 +23,49 @@ class Card_Arrangement extends Card {
     const game_svg_workspace = document.getElementById('game_svg_workspace');
 
     // if placed over thing that it can dropped into
-    if(currently_dragged_over_cardSlot) {
+    if(CardSlot.dragged_over_cardSlot) {
       // data transfer
-      if(currently_dragged_over_cardSlot.card) {
+      if(CardSlot.dragged_over_cardSlot.card) {
         // we are dropping into a filled slot
 
         // do swap
         // so instead of just drawning in the new slot
         // also draw contents of new slot in old slot
-        const swapIndex = currently_dragged_cardSlot.index;
-        currently_dragged_cardSlot.companion.setCard(
-          currently_dragged_over_cardSlot.card, swapIndex);
-        currently_dragged_cardSlot.svg.onmousedown = CardSlot.filled_startDrag;
+        const swapIndex = Card.dragged_cardSlot.index;
+        Card.dragged_cardSlot.companion.setCard(
+          CardSlot.dragged_over_cardSlot.card, swapIndex);
+        Card.dragged_cardSlot.svg.onmousedown = CardSlot.filled_startDrag;
 
         // draw held card in swap target card slot
-        currently_dragged_over_cardSlot.companion.setCard(
-          currently_dragged_cardSlot_card,
-          currently_dragged_over_cardSlot.index);
-        currently_dragged_over_cardSlot.svg.onmousedown = CardSlot.filled_startDrag;
+        CardSlot.dragged_over_cardSlot.companion.setCard(
+          Card.dragged_cardSlot_card,
+          CardSlot.dragged_over_cardSlot.index);
+        CardSlot.dragged_over_cardSlot.svg.onmousedown = CardSlot.filled_startDrag;
       } else {
         // we are dropping into an empty slot
         // draw miniature version of current card in card slot
-        currently_dragged_over_cardSlot.companion.setCard(
-          currently_dragged_cardSlot_card,
-          currently_dragged_over_cardSlot.index);
+        CardSlot.dragged_over_cardSlot.companion.setCard(
+          Card.dragged_cardSlot_card,
+          CardSlot.dragged_over_cardSlot.index);
         // add arrangement listener back in
-        currently_dragged_over_cardSlot.svg.onmousedown = CardSlot.filled_startDrag;
+        CardSlot.dragged_over_cardSlot.svg.onmousedown = CardSlot.filled_startDrag;
       }
-
-      // delete card svg
-      currently_dragged_card.svg.remove();
     } else {
       // old card slot filled again
-      currently_dragged_cardSlot.companion.setCard(
-        currently_dragged_cardSlot_card, currently_dragged_cardSlot_oldIndex);
+      Card.dragged_cardSlot.companion.setCard(
+        Card.dragged_cardSlot_card, Card.dragged_cardSlot_oldIndex);
       // add arrangement listener back in
-      currently_dragged_cardSlot.svg.onmousedown = CardSlot.filled_startDrag;
-
-      // destroy full sized card
-      Card.getByID(topLevel.id).destroy();
+      Card.dragged_cardSlot.svg.onmousedown = CardSlot.filled_startDrag;
     }
 
     // tear down drag event attributes
+    // delete draggable card card
+    Card.dragged_card.destroy();
     // indicate that drag is finished on current svg
-    currently_dragged_card = null;
+    Card.dragged_card = undefined;
     // finished dragging over current card slot
-    currently_dragged_cardSlot = null;
-    currently_dragged_over_cardSlot = null;
-    currently_dragged_cardSlot_card = null;
-    currently_dragged_cardSlot_target = null;
-    currently_dragged_cardSlot_oldIndex = null;
+    Card.dragged_cardSlot = undefined;
+    CardSlot.dragged_over_cardSlot = undefined;
+    Card.dragged_cardSlot_oldIndex = undefined;
   }
 }

@@ -6,14 +6,14 @@
 // svg namespace
 const svgns = "http://www.w3.org/2000/svg";
 
-// mouse position
-let old_clientX;
-let old_clientY;
-// for snapback
-let old_position_x;
-let old_position_y;
-
 class SVG {
+  // mouse position
+  static old_clientX;
+  static old_clientY;
+  // for snapback
+  static old_positionX;
+  static old_positionY;
+
   /**
    * creates an SVG
    * @constructor
@@ -126,7 +126,7 @@ class SVG {
       x += parseFloat(svg_element.getAttribute('x'));
       y += parseFloat(svg_element.getAttribute('y'));
 
-      svg_element = SVG.getTopLevelSVG(svg_element.parentNode);
+      svg_element = this.getTopLevelSVG(svg_element.parentNode);
     }
 
     return {
@@ -144,7 +144,7 @@ class SVG {
   static addClass(element, className) {
     element.classList.add(className);
     for(const child of element.children) {
-      SVG.addClass(child, className);
+      this.addClass(child, className);
     }
   }
 
@@ -157,7 +157,7 @@ class SVG {
   static removeClass(element, className) {
     element.classList.remove(className);
     for(const child of element.children) {
-      SVG.removeClass(child, className);
+      this.removeClass(child, className);
     }
   }
 
@@ -173,7 +173,7 @@ class SVG {
     element.classList.remove('button_disabled');
 
     for(const child of element.children) {
-      SVG.add_onclickEvent(child, func);
+      this.add_onclickEvent(child, func);
     }
   }
 
@@ -188,7 +188,7 @@ class SVG {
     element.classList.add('button_disabled');
 
     for(const child of element.children) {
-      SVG.remove_onclickEvent(child);
+      this.remove_onclickEvent(child);
     }
   }
 }

@@ -8,6 +8,11 @@ class ModalWindow_shopConfirm extends ModalWindow {
     this.draw();
   }
 
+  destroy() {
+    this.instance = ModalWindow.instance;
+    super.destroy();
+  }
+
   draw() {
     super.draw();
 
@@ -53,9 +58,9 @@ class ModalWindow_shopConfirm extends ModalWindow {
   // onclick events
 
   static async yes(ev) {
-    if(modalWindow) {
+    if(ModalWindow.instance) {
       // dismiss modal window
-      modalWindow.destroy();
+      ModalWindow.instance.destroy();
 
       // do sale
 
@@ -65,18 +70,18 @@ class ModalWindow_shopConfirm extends ModalWindow {
   }
 
   static no(ev) {
-    if(modalWindow) {
+    if(ModalWindow.instance) {
       // dismiss modal window
-      modalWindow.destroy();
+      ModalWindow.instance.destroy();
 
       // snapback card to shop
-      Card_Shop.snapback(currently_dragged_card.svg);
+      Card_Shop.snapback(Card.dragged_card.svg);
 
       // tear down drag event attributes
       // indicate that drag is finished on current svg
-      currently_dragged_card = null;
+      Card.dragged_card = undefined;
       // finished dragging over current card Slot
-      currently_dragged_over_cardSlot = null;
+      CardSlot.dragged_over_cardSlot = undefined;
       // DOM
       CardSlot.removeHighlighting();
     }

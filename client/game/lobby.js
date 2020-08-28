@@ -3,6 +3,8 @@
 
 class Lobby extends SVG {
   static instance;
+  static interval_countdown;
+  static interval_startCheck;
 
   constructor(game, playerNumber, width, height) {
     super(width, height, 0, 0);
@@ -218,7 +220,7 @@ class Lobby extends SVG {
 
       // only add event listeners if this is our ready button
       if(this.playerNumber == i) {
-        this.svg.players[i].ready.box.onmousedown = readyup;
+        this.svg.players[i].ready.box.onmousedown = Lobby.readyup;
         this.svg.players[i].ready.box.classList.add('button_enabled');
       }
     }
@@ -310,9 +312,9 @@ class Lobby extends SVG {
         loadout.new.appendChild(loadout.new.button);
         loadout.new.button.classList.add('loadout_button');
         if(self) {
-          loadout.new.button.onmousedown = loadout_createNew;
-          loadout.new.button.onmouseover = loadout_mouseover;
-          loadout.new.button.onmouseleave = loadout_mouseleave;
+          loadout.new.button.onmousedown = Lobby.loadout_create;
+          loadout.new.button.onmouseover = Lobby.loadout_mouseover;
+          loadout.new.button.onmouseleave = Lobby.loadout_mouseleave;
         }
         // svg attributes
         loadout.new.button.setAttribute('width', b_width);
@@ -403,149 +405,146 @@ class Lobby extends SVG {
     // set points
     this.svg.players[index].ready.box.tick.setAttribute('points', points);
   }
-}
 
-let interval_countdown = null;
-let interval_startCheck = null;
-
-// gets index of player using box
-function getIndex(box) {
-  for(const [i, player] of Lobby.instance.svg.players.entries()) {
-    if(player.ready.box == box) {
-      return i;
+  // gets index of player using box
+  static getIndex(box) {
+    for(const [i, player] of this.instance.svg.players.entries()) {
+      if(player.ready.box == box) {
+        return i;
+      }
     }
   }
-}
 
-async function readyup(ev) {
-  const box = SVG.getTopLevelSVG(ev.target);
-  const index = getIndex(box);
-  const polygon = box.querySelector('polygon');
-  if(polygon.classList.contains('tick')) {
-    return;
-  }
-  polygon.remove();
-
-  // inform server
-  const response = await fetch('/api/lobby/ready', {'method': 'put'});
-  if(response.ok) {
-    // draw tick
-    Lobby.instance.draw_tick(index);
-    box.onmousedown = unready;
-
-    if(checkReady(await getGame())) {
-      interval_countdown = setInterval(countdown, 1000);
-      interval_startCheck = setInterval(startCheck, 5000);
-    }
-  } else {
-    console.error(response.status);
-  }
-}
-
-async function unready(ev) {
-  const box = SVG.getTopLevelSVG(ev.target);
-  const index = getIndex(box);
-  const polygon = box.querySelector('polygon');
-  if(polygon.classList.contains('cross')) {
-    return;
-  }
-  polygon.remove();
-
-  // inform server
-  const response = await fetch('/api/lobby/unready', {'method': 'put'});
-  if(response.ok) {
-    // draw cross
-    Lobby.instance.draw_cross(index);
-    box.onmousedown = readyup;
-
-    // clear intervals
-    clearInterval(interval_countdown);
-    clearInterval(interval_startCheck);
-
-    // set countdown text back to 5 seconds
-    document.getElementById('countdown_text').textContent = 5;
-  } else {
-    console.error(response.status);
-  }
-}
-
-// called when a ready message is sent down the game socket
-async function gameSocket_readyMessage(ev) {
-  // if the player sending the message is not us then update other ready box
-  const messageContents = ev.split("_");
-  if(messageContents[0] != (await getPlayerNumber()).slice(6)) {
-    const box = Lobby.instance.svg.players[
-      parseInt(messageContents[0]) - 1].ready.box;
-    const index = getIndex(box);
+  static async readyup(ev) {
+    const box = SVG.getTopLevelSVG(ev.target);
+    const index = Lobby.getIndex(box);
     const polygon = box.querySelector('polygon');
+    if(polygon.classList.contains('tick')) {
+      return;
+    }
     polygon.remove();
 
-    if(messageContents[1] == 'ready') {
+    // inform server
+    const response = await fetch('/api/lobby/ready', {'method': 'put'});
+    if(response.ok) {
       // draw tick
       Lobby.instance.draw_tick(index);
-      box.onmousedown = unready;
+      box.onmousedown = Lobby.unready;
 
-      // if both players are ready start set interval
-      // if both players ready for 5 seconds
-      // then start game
-      if(checkReady(await getGame())) {
-        interval_countdown = setInterval(countdown, 1000);
-        interval_startCheck = setInterval(startCheck, 5000);
+      if(Lobby.checkReady(await getGame())) {
+        Lobby.interval_countdown = setInterval(Lobby.countdown, 1000);
+        Lobby.interval_startCheck = setInterval(Lobby.startCheck, 5000);
       }
-    } else if(messageContents[1] == 'unready') {
+    } else {
+      console.error(response.status);
+    }
+  }
+
+  static async unready(ev) {
+    const box = SVG.getTopLevelSVG(ev.target);
+    const index = Lobby.getIndex(box);
+    const polygon = box.querySelector('polygon');
+    if(polygon.classList.contains('cross')) {
+      return;
+    }
+    polygon.remove();
+
+    // inform server
+    const response = await fetch('/api/lobby/unready', {'method': 'put'});
+    if(response.ok) {
       // draw cross
       Lobby.instance.draw_cross(index);
-      box.onmousedown = readyup;
+      box.onmousedown = Lobby.readyup;
 
       // clear intervals
-      clearInterval(interval_countdown);
-      clearInterval(interval_startCheck);
+      clearInterval(Lobby.interval_countdown);
+      clearInterval(Lobby.interval_startCheck);
 
       // set countdown text back to 5 seconds
       document.getElementById('countdown_text').textContent = 5;
+    } else {
+      console.error(response.status);
     }
   }
-}
 
-// checks if all the players in a game are ready
-function checkReady(game) {
-  for(const player of game.players) {
-    if(!player.ready) {
-      return false;
+  // called when a ready message is sent down the game socket
+  static async gameSocket_readyMessage(ev) {
+    // if the player sending the message is not us then update other ready box
+    const messageContents = ev.split("_");
+    if(messageContents[0] != (await getPlayerNumber()).slice(6)) {
+      const box = Lobby.instance.svg.players[
+        parseInt(messageContents[0]) - 1].ready.box;
+      const index = Lobby.getIndex(box);
+      const polygon = box.querySelector('polygon');
+      polygon.remove();
+
+      if(messageContents[1] == 'ready') {
+        // draw tick
+        Lobby.instance.draw_tick(index);
+        box.onmousedown = Lobby.unready;
+
+        // if both players are ready start set interval
+        // if both players ready for 5 seconds
+        // then start game
+        if(Lobby.checkReady(await getGame())) {
+          Lobby.interval_countdown = setInterval(Lobby.countdown, 1000);
+          Lobby.interval_startCheck = setInterval(Lobby.startCheck, 5000);
+        }
+      } else if(messageContents[1] == 'unready') {
+        // draw cross
+        Lobby.instance.draw_cross(index);
+        box.onmousedown = Lobby.readyup;
+
+        // clear intervals
+        clearInterval(Lobby.interval_countdown);
+        clearInterval(Lobby.interval_startCheck);
+
+        // set countdown text back to 5 seconds
+        document.getElementById('countdown_text').textContent = 5;
+      }
     }
   }
-  return true;
-}
 
-// after each second in countdown update text showing countdown
-function countdown() {
-  const countdown_text = document.getElementById('countdown_text');
-  countdown_text.textContent = parseInt(countdown_text.textContent) - 1;
-}
-
-// checks if both players are ready at the end of interval
-async function startCheck() {
-  // if players still ready
-  if(checkReady(await getGame())) {
-    clearInterval(interval_countdown);
-    clearInterval(interval_startCheck);
-
-    clearContent();
-    Lobby.instance.destroy();
-    await createGameBoard();
-
-    await startGame();
+  // checks if all the players in a game are ready
+  static checkReady(game) {
+    for(const player of game.players) {
+      if(!player.ready) {
+        return false;
+      }
+    }
+    return true;
   }
-}
 
-async function loadout_createNew() {
-  console.log("creating new loadout");
+  // after each second in countdown update text showing countdown
+  static countdown() {
+    const countdown_text = document.getElementById('countdown_text');
+    countdown_text.textContent = parseInt(countdown_text.textContent) - 1;
+  }
 
-  // prompt modal window
-}
+  // checks if both players are ready at the end of interval
+  static async startCheck() {
+    // if players still ready
+    if(Lobby.checkReady(await getGame())) {
+      clearInterval(Lobby.interval_countdown);
+      clearInterval(Lobby.interval_startCheck);
+
+      clearContent();
+      Lobby.instance.destroy();
+      await createGameBoard();
+
+      await startGame();
+    }
+  }
+
+  static async loadout_create() {
+    console.log("creating new loadout");
+
+    // prompt modal window
+  }
 
 
-function loadout_mouseover() {
-}
-function loadout_mouseleave() {
+  static loadout_mouseover() {
+  }
+  static loadout_mouseleave() {
+  }
 }

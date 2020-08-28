@@ -10,11 +10,9 @@ const cardAttributes = {
   }
 }
 
-// for drag and drop
-let currently_dragged_card = null;
-
 class Card extends SVG {
   static instances = [];
+  static dragged_card;
 
   constructor(card, width, height, x, y) {
     super(width, height, x, y);
@@ -184,8 +182,8 @@ class Card extends SVG {
     const old_x = topLevel.getAttribute('x');
     const old_y = topLevel.getAttribute('y');
 
-    const x_mousePosition_relative = old_clientX - old_x;
-    const y_mousePosition_relative = old_clientY - old_y;
+    const x_mousePosition_relative = this.old_clientX - old_x;
+    const y_mousePosition_relative = this.old_clientY - old_y;
 
     // new position of top left of card
     const new_x = ev.clientX - x_mousePosition_relative;
@@ -214,7 +212,7 @@ class Card extends SVG {
   }
 
   static drag(ev) {
-    if(currently_dragged_card && !ModalWindow.instance) {
+    if(Card.dragged_card && !ModalWindow.instance) {
       ev.preventDefault();
 
       // update co-ords of svg to mouse position
@@ -223,15 +221,15 @@ class Card extends SVG {
       topLevel.setAttribute('x', coords.x);
       topLevel.setAttribute('y', coords.y);
 
-      old_clientX = ev.clientX;
-      old_clientY = ev.clientY;
+      SVG.old_clientX = ev.clientX;
+      SVG.old_clientY = ev.clientY;
 
       // check if there is a card slot underneath card (within range)
       const cardSlot = CardSlot.inRange(coords);
       if(cardSlot) {
         // if so then higlight that these will connect if dropped here
         // remember card slot for data transfer
-        currently_dragged_over_cardSlot = cardSlot;
+        CardSlot.dragged_over_cardSlot = cardSlot;
 
         // remove from all other card slots first
         CardSlot.removeHighlighting();
@@ -239,7 +237,7 @@ class Card extends SVG {
         cardSlot.svg.classList.add('cardSlot_highlighted');
         cardSlot.svg.background.setAttribute('stroke', 'red');
       } else {
-        currently_dragged_over_cardSlot = null;
+        CardSlot.dragged_over_cardSlot = undefined;
 
         CardSlot.removeHighlighting();
       }
